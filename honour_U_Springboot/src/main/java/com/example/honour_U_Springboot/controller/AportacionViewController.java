@@ -33,13 +33,13 @@ public class AportacionViewController {
     @PostMapping("/aportaciones")
     public String guardarAportacion(Aportacion aportacion) {
         aportacionService.saveAportacion(aportacion);
-        return "redirect:/aportacion"; // Redirige para que recargue la lista
+        return "redirect:/aportaciones"; // Redirige para que recargue la lista
     }
 
     // Mostrar formulario de edición
     @GetMapping("/aportaciones/{id}/edit")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
-        Optional<Aportacion> aportacion = aportacionService.findAportacionById(id);
+        Aportacion aportacion = aportacionService.findAportacionById(id);
         model.addAttribute("aportacion", aportacion);
         return "editarAportacion"; // Vista a crear
     }
@@ -48,7 +48,7 @@ public class AportacionViewController {
     @PostMapping("/aportaciones/{id}/update")
     public String actualizarAportacion(@PathVariable Long id, @ModelAttribute Aportacion aportacion) {
         aportacionService.updateAportacion(id, aportacion);
-        return "redirect:/proyectos";
+        return "redirect:/aportaciones";
     }
 
     //Eliminar un barco por ID
