@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.example.honour_U_Springboot.model.Aportacion;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.model.Libro;
 
@@ -17,17 +18,50 @@ public class ProyectoDTO {
     private String descripcion;
     private String urlProyecto;
     private LocalDate plazoFinalizacion;
+    private Set<AportacionDTO> aportaciones;
 
 
-    public ProyectoDTO(Long proyectoId, String nombreProyecto, String organizador, String descripcion, String urlProyecto, LocalDate plazoFinalizacion, Set<AportacionDTO> aportaciones, LibroDTO libro) {
-        this.proyectoId = proyectoId;
-        this.nombreProyecto = nombreProyecto;
-        this.organizador = organizador;
-        this.descripcion = descripcion;
-        this.urlProyecto = urlProyecto;
-        this.plazoFinalizacion = plazoFinalizacion;
+    public ProyectoDTO(Proyecto proyecto) {
+        this.proyectoId = proyecto.getProyectoId();
+        this.nombreProyecto = proyecto.getNombreProyecto();
+        this.organizador = proyecto.getOrganizador();
+        this.descripcion = proyecto.getDescripcion();
+        this.urlProyecto = proyecto.getUrlProyecto();
+        this.plazoFinalizacion = proyecto.getPlazoFinalizacion();
+
+        //Añadimos la relación con Aportación
+        if (proyecto.getAportaciones() != null) {
+            this.aportaciones = proyecto.getAportaciones()
+                    .stream()
+                    .map(AportacionDTO::new)
+                    .collect(Collectors.toSet());
+        }
 
     }
+    // Métodos de utilidad para convertir a entidad si es necesario
+    public Proyecto toEntity() {
+        Proyecto proyecto = new Proyecto();
+        proyecto.setProyectoId(this.proyectoId);
+        proyecto.setNombreProyecto(this.nombreProyecto);
+        proyecto.setOrganizador(this.organizador);
+        proyecto.setDescripcion(this.descripcion);
+        proyecto.setUrlProyecto(this.urlProyecto);
+        proyecto.setPlazoFinalizacion(this.plazoFinalizacion);
+
+        // Convertimos cada AportacionDTO en una Aportacion y la añadimos
+        if (this.aportaciones != null) {
+            Set<Aportacion> aportacionesSet = this.aportaciones
+                    .stream()
+                    .map(AportacionDTO::toEntity)  // Convertimos AportacionDTO a Aportacion
+                    .collect(Collectors.toSet());
+            proyecto.setAportaciones(aportacionesSet);
+        }
+
+        return proyecto;
+    }
+
+    //Getters y setters
+
 
     public Long getProyectoId() {
         return proyectoId;
@@ -77,7 +111,13 @@ public class ProyectoDTO {
         this.plazoFinalizacion = plazoFinalizacion;
     }
 
+    public Set<AportacionDTO> getAportaciones() {
+        return aportaciones;
+    }
 
+    public void setAportaciones(Set<AportacionDTO> aportaciones) {
+        this.aportaciones = aportaciones;
+    }
 }
 
 

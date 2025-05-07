@@ -93,5 +93,10 @@ public class Destinatario {
     @OneToMany (mappedBy = "destinatario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Direccion> direcciones = new HashSet<>();
 
+    // Getter para direcciones
+    public Set<Direccion> getDirecciones() {
+        return direcciones;
+    }
+
 }
 

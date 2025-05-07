@@ -1,27 +1,40 @@
 package com.example.honour_U_Springboot.dto;
 
+import com.example.honour_U_Springboot.model.Aportacion;
+
 public class AportacionDTO {
     private Long aportacionId;
     private String mensaje;
     private String remitente;
     private String url;
     public enum MediaType { VIDEO, AUDIO, FOTO, TEXTO }
-    private MediaType mediaType;
+    private Aportacion.MediaType mediaType;
     private boolean esVisible;
 
     //Constructor
 
 
-    public AportacionDTO(Long aportacionId, String mensaje, String remitente, String url, MediaType mediaType, boolean esVisible) {
-        this.aportacionId = aportacionId;
-        this.mensaje = mensaje;
-        this.remitente = remitente;
-        this.url = url;
-        this.mediaType = mediaType;
-        this.esVisible = esVisible;
+    public AportacionDTO(Aportacion aportacion) {
+        this.aportacionId = aportacion.getAportacionId();
+        this.mensaje = aportacion.getMensaje();
+        this.remitente = aportacion.getRemitente();
+        this.url = aportacion.getUrl();
+        this.mediaType = aportacion.getMediaType();
+        this.esVisible = aportacion.isEsVisible();
     }
+    // Método para convertir el DTO a la entidad Aportacion
+    public Aportacion toEntity() {
+        Aportacion aportacion = new Aportacion();
+        aportacion.setAportacionId(this.aportacionId);
+        aportacion.setMensaje(this.mensaje);
+        aportacion.setRemitente(this.remitente);
+        aportacion.setUrl(this.url);
+        aportacion.setMediaType(this.mediaType);
+        aportacion.setEsVisible(this.esVisible);
+        return aportacion;
+    }
+    //Getters and setters
 
-    //Getters y Setters
 
     public Long getAportacionId() {
         return aportacionId;
@@ -55,11 +68,11 @@ public class AportacionDTO {
         this.url = url;
     }
 
-    public MediaType getMediaType() {
+    public Aportacion.MediaType getMediaType() {
         return mediaType;
     }
 
-    public void setMediaType(MediaType mediaType) {
+    public void setMediaType(Aportacion.MediaType mediaType) {
         this.mediaType = mediaType;
     }
 

@@ -1,5 +1,8 @@
 package com.example.honour_U_Springboot.dto;
 
+import com.example.honour_U_Springboot.model.Libro;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class LibroDTO {
 
     private Long libroId;
@@ -7,17 +10,43 @@ public class LibroDTO {
     private String formato;
     private int copias;
     private int paginas;
+    @JsonIgnore // Evitamos la recursividad al serializar Proyecto
+    private ProyectoDTO proyecto; // Usamos ProyectoDTO para evitar el ciclo infinito
+
 
     //Constructor
-    public LibroDTO(Long libroId, String tituloLibro, String formato, int copias, int paginas) {
-        this.libroId = libroId;
-        this.tituloLibro = tituloLibro;
-        this.formato = formato;
-        this.copias = copias;
-        this.paginas = paginas;
+    public LibroDTO() {
+        // Constructor vacío si es necesario
+    }
+    public LibroDTO(Libro libro) {
+        this.libroId = libro.getLibroId();
+        this.tituloLibro = libro.getTituloLibro();
+        this.formato = libro.getFormato();
+        this.copias = libro.getCopias();
+        this.paginas = libro.getPaginas();
+
+        // Evitar que la relación Proyecto cause recursión
+        if (libro.getProyecto() != null) {
+            this.proyecto = new ProyectoDTO(libro.getProyecto());
+        }
     }
 
-    //Getters and setters
+    // Método toEntity para convertir DTO en entidad
+    public Libro toEntity() {
+        Libro libro = new Libro();
+        libro.setLibroId(this.libroId);
+        libro.setTituloLibro(this.tituloLibro);
+        libro.setFormato(this.formato);
+        libro.setCopias(this.copias);
+        libro.setPaginas(this.paginas);
+
+        // Si el DTO tiene un proyecto, lo convertimos a entidad y lo asignamos
+        if (this.proyecto != null) {
+            libro.setProyecto(this.proyecto.toEntity()); // Convertir el DTO de Proyecto a entidad Proyecto
+        }
+
+        return libro;
+    }
 
     public Long getLibroId() {
         return libroId;
@@ -57,5 +86,25 @@ public class LibroDTO {
 
     public void setPaginas(int paginas) {
         this.paginas = paginas;
+    }
+
+    public ProyectoDTO getProyecto() {
+        return proyecto;
+    }
+
+    public void setProyecto(ProyectoDTO proyecto) {
+        this.proyecto = proyecto;
+    }
+
+    @Override
+    public String toString() {
+        return "LibroDTO{" +
+                "libroId=" + libroId +
+                ", tituloLibro='" + tituloLibro + '\'' +
+                ", formato='" + formato + '\'' +
+                ", copias=" + copias +
+                ", paginas=" + paginas +
+                ", proyecto=" + proyecto +
+                '}';
     }
 }

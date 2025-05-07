@@ -1,59 +1,84 @@
 package com.example.honour_U_Springboot.controller;
 
-import com.example.honour_U_Springboot.model.Direccion;
+import com.example.honour_U_Springboot.dto.DireccionDTO;
 import com.example.honour_U_Springboot.service.DireccionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@RestController //Maneja solicitudes http
-@RequestMapping("/api/direcciones")//ruta base para los puntos finales
+@RestController
+@RequestMapping("/api/direcciones") // Ruta base para Direcciones
 public class DireccionController {
 
     @Autowired
-    DireccionService direccionService;
-    //Crear una nueva dirección
+    private DireccionService direccionService;
+
+    // Crear una nueva dirección
     @PostMapping
-    // ResponseEntity represents the whole HTTP response: status code, headers, and body
-    public ResponseEntity<Direccion> createDireccion (@RequestBody Direccion direccion) {
-        Direccion newDireccion = direccionService.saveDireccion(direccion);
-        return ResponseEntity.ok(newDireccion);
-    }
-
-    //Obtener todas las direcciones
-    @GetMapping
-    public ResponseEntity<List<Direccion>>getallDirecciones(){
-        List<Direccion>direcciones = direccionService.findAllDirecciones();
-        return ResponseEntity.ok(direcciones);
-    }
-
-    //Obtener una dirección por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Optional<Direccion>> getDireccionById(@PathVariable Long id) throws Exception {
-        Optional<Direccion> direccion = null;
+    public ResponseEntity<DireccionDTO> createDireccion(@RequestBody DireccionDTO direccionDTO) {
         try {
-            direccion = direccionService.findDireccionById(id);
+            DireccionDTO creada = direccionService.createDireccionFromDTO(direccionDTO);
+            return new ResponseEntity<>(creada, HttpStatus.CREATED);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-        return ResponseEntity.ok(direccion);
     }
 
-    //Actualizar dirección por ID
+    // Obtener todas las direcciones
+    @GetMapping
+    public ResponseEntity<List<DireccionDTO>> findAllDirecciones() {
+        try {
+            List<DireccionDTO> direcciones = direccionService.getAllDireccionesDTO();
+            if (direcciones.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(direcciones);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Obtener dirección por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<DireccionDTO> findDireccionByIdAPI(@PathVariable Long id) {
+        try {
+            DireccionDTO direccionDTO = direccionService.findDireccionByIdAPI(id);
+            if (direccionDTO == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(direccionDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Actualizar dirección
     @PutMapping("/{id}")
-    public ResponseEntity<Direccion>updateDireccion(@PathVariable Long id,
-                                                    @RequestBody Direccion updatedDireccion ){
-        Direccion direccion =direccionService.updateDireccion(id, updatedDireccion);
-        return ResponseEntity.ok(direccion);
+    public ResponseEntity<DireccionDTO> updateDireccionAPI(@PathVariable Long id, @RequestBody DireccionDTO updatedDTO) {
+        try {
+            DireccionDTO direccionDTO = direccionService.updateDireccionAPI(id, updatedDTO);
+            return ResponseEntity.ok(direccionDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
-    //Eliminar una dirección por ID
+    // Eliminar dirección
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void>deleteDireccion(@PathVariable Long id){
-        direccionService.deleteDireccionById(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> deleteDireccion(@PathVariable Long id) {
+        try {
+            direccionService.deleteDireccionById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

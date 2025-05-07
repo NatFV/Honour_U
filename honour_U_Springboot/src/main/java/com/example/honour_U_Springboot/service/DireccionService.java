@@ -1,17 +1,24 @@
 package com.example.honour_U_Springboot.service;
 
+import com.example.honour_U_Springboot.dto.DireccionDTO;
+import com.example.honour_U_Springboot.model.Destinatario;
 import com.example.honour_U_Springboot.model.Direccion;
+import com.example.honour_U_Springboot.model.Libro;
+import com.example.honour_U_Springboot.repository.DestinatarioRepository;
 import com.example.honour_U_Springboot.repository.DireccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DireccionService {
     @Autowired
     DireccionRepository direccionRepository;
+    @Autowired
+    private DestinatarioRepository destinatarioRepository;
 
     /**
      * Método para guardar la dirección en la base de datos.
@@ -29,8 +36,9 @@ public class DireccionService {
      * @param id
      * @return dirección
      */
-    public Optional<Direccion> findDireccionById(Long id){
-        return direccionRepository.findById(id);
+    public Direccion findDireccionById(Long id) throws Exception {
+        return direccionRepository.findById(id)
+                .orElseThrow(() -> new Exception("Direccion not found with id " + id));
     }
 
     /**
@@ -46,15 +54,25 @@ public class DireccionService {
      * @param direccion
      * @return dirección actualizada
      */
-    public Direccion updateDireccion (Long id, Direccion direccion){
+    public Direccion updateDireccion (Long id, Direccion direccion) {
 
-        return direccionRepository.save(direccion);
+        Direccion existente = direccionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Dirección no encontrada"));
+
+        // Solo actualizamos los campos que pueden cambiar
+        existente.setCalle(direccion.getCalle());
+        existente.setPiso(direccion.getPiso());
+        existente.setLetra(direccion.getLetra());
+        existente.setCodigoPostal(direccion.getCodigoPostal());
+        existente.setPais(direccion.getPais());
+
+        return direccionRepository.save(existente);
     }
 
-    /**
-     * Método para eliminar la dirección por su ID
-     * @param id
-     */
+        /**
+         * Método para eliminar la dirección por su ID
+         * @param id
+         */
     public void deleteDireccionById (Long id){
         direccionRepository.deleteById(id);
     }
@@ -68,5 +86,66 @@ public class DireccionService {
     List<Direccion> obtenerDireccionesInternacionales(){
         return direccionRepository.findByPaisNot("Spain");
     }
+
+    public DireccionDTO createDireccionFromDTO(DireccionDTO dto) {
+        Direccion direccion = new Direccion();
+        direccion.setCalle(dto.getCalle());
+        direccion.setPiso(dto.getPiso());
+        direccion.setLetra(dto.getLetra());
+        direccion.setCodigoPostal(dto.getCodigoPostal());
+        direccion.setPais(dto.getPais());
+
+        if (dto.getDestinatarioId() != null) {
+            Destinatario destinatario = destinatarioRepository.findById(dto.getDestinatarioId())
+                    .orElseThrow(() -> new RuntimeException("Destinatario no encontrado"));
+            direccion.setDestinatario(destinatario);
+        }
+
+        Direccion saved = direccionRepository.save(direccion);
+        return new DireccionDTO(saved);
+    }
+
+    public List<DireccionDTO> getAllDireccionesDTO() {
+        return direccionRepository.findAll()
+                .stream()
+                .map(DireccionDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public DireccionDTO findDireccionByIdAPI(Long id) {
+        Direccion direccion = direccionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
+        return new DireccionDTO(direccion);
+    }
+
+    public DireccionDTO updateDireccionAPI(Long id, DireccionDTO dto) {
+        Direccion direccion = direccionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
+
+        direccion.setCalle(dto.getCalle());
+        direccion.setPiso(dto.getPiso());
+        direccion.setLetra(dto.getLetra());
+        direccion.setCodigoPostal(dto.getCodigoPostal());
+        direccion.setPais(dto.getPais());
+
+        if (dto.getDestinatarioId() != null) {
+            Destinatario destinatario = destinatarioRepository.findById(dto.getDestinatarioId())
+                    .orElseThrow(() -> new RuntimeException("Destinatario no encontrado"));
+            direccion.setDestinatario(destinatario);
+        } else {
+            direccion.setDestinatario(null);
+        }
+
+        Direccion updated = direccionRepository.save(direccion);
+        return new DireccionDTO(updated);
+    }
+
+    public void deleteDireccionByIdAPI(Long id) {
+        if (!direccionRepository.existsById(id)) {
+            throw new RuntimeException("Dirección no encontrada");
+        }
+        direccionRepository.deleteById(id);
+    }
 }
+
 
