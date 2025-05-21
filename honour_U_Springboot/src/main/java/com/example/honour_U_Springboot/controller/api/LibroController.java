@@ -1,7 +1,10 @@
-package com.example.honour_U_Springboot.controller;
+package com.example.honour_U_Springboot.controller.api;
 
 import com.example.honour_U_Springboot.dto.LibroDTO;
+import com.example.honour_U_Springboot.model.Libro;
+import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.LibroService;
+import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +18,14 @@ public class LibroController {
 
     @Autowired
     private LibroService libroService; // Servicio que manejará la lógica de negocio para Libros
+    @Autowired
+    private ProyectoService proyectoService;
 
-    // Crear un nuevo libro
+    /**
+     * Método para crear un nuevo libro
+     * @param libroDTO con los datos necesarios para crearlo
+     * @return un objeto de tipo LibroDTO
+     */
     @PostMapping
     public ResponseEntity<LibroDTO> createLibro(@RequestBody LibroDTO libroDTO) {
         try {
@@ -28,7 +37,10 @@ public class LibroController {
         }
     }
 
-    // Obtener todos los libros
+    /**
+     * Método para obtener todos los libros
+     * @return una lista con todos los libros
+     */
     @GetMapping
     public ResponseEntity<List<LibroDTO>> findAllLibros() {
         try {
@@ -44,7 +56,11 @@ public class LibroController {
         }
     }
 
-    // Obtener un libro por ID
+    /**
+     * Método para encontrar libros por id
+     * @param id, nos permite identificar un libro
+     * @return la información de ese libro o error indicando que no lo encuentra
+     */
     @GetMapping("/{id}")
     public ResponseEntity<LibroDTO> findLibroById(@PathVariable Long id) {
         try {
@@ -59,7 +75,12 @@ public class LibroController {
         }
     }
 
-    // Actualizar un libro por ID
+    /**
+     * Método para actualizar un libro
+     * @param id para encontrar el libro
+     * @param updatedLibroDTO para actualizar la información
+     * @return un código de estado HTTP 200 OK que indica que la actualización fue exitosa
+     */
     @PutMapping("/{id}")
     public ResponseEntity<LibroDTO> updateLibro(@PathVariable Long id, @RequestBody LibroDTO updatedLibroDTO) {
         try {
@@ -71,7 +92,11 @@ public class LibroController {
         }
     }
 
-    // Eliminar un libro por ID
+    /**
+     * Método para eliminar libro
+     * @param id para identificar el libro a eliminar
+     * @return un código de estado que indica si se pudo eliminar
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLibro(@PathVariable Long id) {
         try {
@@ -82,4 +107,28 @@ public class LibroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    /**
+     * Método que muestra la información de libros según un país indicado
+     * @param pais para indicar un país deseado
+     * @return una lista de libros que han sido enviados a ese país
+     */
+    @GetMapping("/pais/{pais}")
+    public ResponseEntity<List<Libro>> obtenerLibrosPorPais(@PathVariable String pais) {
+        List<Libro> libros = libroService.obtenerLibrosPorPais(pais);
+        if (libros.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(libros);
+    }
+
+    @PostMapping("/libros")
+    public String guardarLibro(@ModelAttribute Libro libro, @RequestParam("proyectoId") Long proyectoId) throws Exception {
+        Proyecto proyecto = proyectoService.findProyectoById(proyectoId);
+        libro.setProyecto(proyecto); // Asignamos el proyecto al libro
+
+        libroService.saveLibro(libro); // Persistimos el libro con la FK al proyecto
+        return "redirect:/proyectos";
+    }
+
 }

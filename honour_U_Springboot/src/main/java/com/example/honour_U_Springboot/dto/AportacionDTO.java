@@ -1,6 +1,7 @@
 package com.example.honour_U_Springboot.dto;
 
 import com.example.honour_U_Springboot.model.Aportacion;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class AportacionDTO {
     private Long aportacionId;
@@ -12,6 +13,11 @@ public class AportacionDTO {
     private boolean esVisible;
 
     //Constructor
+    // Constructor vacío necesario para la deserialización JSON (Jackson)
+    @JsonCreator
+    public AportacionDTO() {
+    }
+
 
 
     public AportacionDTO(Aportacion aportacion) {

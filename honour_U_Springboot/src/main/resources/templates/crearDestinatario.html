@@ -6,36 +6,48 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #000;
+            background-color: #1a237e;
             color: white;
         }
 
-        .container {
-            background-color: #ffe6f0;
+        .custom-container {
+            background-color: #90caf9;
             padding: 2rem;
             border-radius: 8px;
             color: black;
-            margin-top: 2rem;
+            margin: 2rem auto;
+            max-width: 1000px;
         }
 
         .header-image {
             position: absolute;
             top: 10px;
             left: 10px;
-            max-width: 80px;
+            max-width: 120px;
             height: auto;
         }
 
-        h1 {
-            margin-left: 100px;
+        h1, h2 {
+            margin-left: 140px;
+        }
+
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
     </style>
 </head>
 <body>
-<img th:src="@{/img/honourU.jpg}" alt="Logo" class="header-image">
 
-<div class="container">
-    <h1 class="mb-4">Gestionar Destinatarios</h1>
+<img th:src="@{/img/honourU.jpg}" alt="Logo" class="header-image">
+<div class="top-right">
+    <a href="/libros" class="btn btn-outline-light">Volver a Libros</a>
+</div>
+
+<!-- Caja: Añadir destinatarios -->
+<div class="custom-container">
+    <h1 class="mb-4">Añadir Destinatarios</h1>
 
     <form th:action="@{/destinatarios}" th:object="${destinatario}" method="post">
         <div class="mb-3">
@@ -58,17 +70,19 @@
             <input type="email" th:field="*{email}" class="form-control">
         </div>
 
-        <!-- Si quieres mostrar el libro asociado -->
         <div class="mb-3">
-            <label class="form-label">ID del Libro Asociado</label>
-            <input type="text" th:field="*{libro.libroId}" class="form-control">
+            <label class="form-label">Libro Asociado</label>
+            <input type="text" th:value="${destinatario.libro != null ? destinatario.libro.tituloLibro : ''}" class="form-control" disabled/>
+            <input type="hidden" th:field="*{libro.libroId}"/>
         </div>
 
-        <button type="submit" class="btn btn-primary">Agregar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="/libros" class="btn btn-danger ms-2">Cancelar</a>
     </form>
+</div>
 
-    <hr>
-
+<!-- Caja: Lista de destinatarios -->
+<div class="custom-container">
     <h2 class="mt-4">Lista de Destinatarios</h2>
     <table class="table table-striped table-bordered mt-3">
         <thead class="table-dark">
@@ -97,5 +111,6 @@
         </tbody>
     </table>
 </div>
+
 </body>
 </html>

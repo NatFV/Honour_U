@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mapa de Libros por País</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+
+<h1>Mapa de Libros por País</h1>
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script th:inline="javascript">
+
+    // Objeto que Thymeleaf sustituirá con los datos reales del backend
+    var librosPorPais = /*[[${librosPorPais}]]*/ {};
+
+    // Inicializamos el mapa centrado en Europa
+    var map = L.map('map').setView([51.505, -0.09], 3);
+
+    // Añadimos capa base de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+    }).addTo(map);
+
+    // Coordenadas de países (latitud, longitud)
+    const coordenadasPaises = {
+        "España": [40.4168, -3.7038],
+        "Francia": [48.8566, 2.3522],
+        "Alemania": [52.5200, 13.4050],
+        "Italia": [41.9028, 12.4964],
+        "Portugal": [38.7223, -9.1393],
+        "Reino Unido": [51.5074, -0.1278],
+        "Países Bajos": [52.3676, 4.9041],
+        "Bélgica": [50.8503, 4.3517],
+        "Suiza": [46.9481, 7.4474],
+        "Austria": [48.2082, 16.3738],
+        "Suecia": [59.3293, 18.0686],
+        "Noruega": [59.9139, 10.7522],
+        "Finlandia": [60.1695, 24.9354],
+        "Dinamarca": [55.6761, 12.5683],
+        "Irlanda": [53.3498, -6.2603],
+        "Polonia": [52.2297, 21.0122],
+        "Hungría": [47.4979, 19.0402],
+        "Grecia": [37.9838, 23.7275],
+        "Rusia": [55.7558, 37.6173],
+        "Turquía": [39.9334, 32.8597]
+        // Puedes añadir más países aquí
+    };
+
+    // Añadir marcadores para cada país con libros
+    for (const pais in librosPorPais) {
+        if (coordenadasPaises[pais]) {
+            const coords = coordenadasPaises[pais];
+            const cantidadLibros = librosPorPais[pais];
+
+            L.marker(coords).addTo(map)
+                .bindPopup(`<b>${pais}</b><br>Libros: ${cantidadLibros}`);
+        } else {
+            console.warn(`Coordenadas no encontradas para el país: ${pais}`);
+        }
+    }
+
+</script>
+
+</body>
+</html>

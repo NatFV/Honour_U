@@ -19,6 +19,11 @@ public class DestinatarioDTO {
     private LibroDTO libro;  // Relación con LibroDTO
     private Set<DireccionDTO> direcciones = new HashSet<>(); // Relación con DireccionDTO
 
+    //Constructor sin parámetros
+    public DestinatarioDTO() {
+        // Constructor vacío necesario para Jackson
+    }
+
     // Constructor para inicializar el DTO a partir de la entidad Destinatario
     public DestinatarioDTO(Destinatario destinatario) {
         this.destinatarioId = destinatario.getDestinatarioId();

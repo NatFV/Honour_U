@@ -1,6 +1,7 @@
-package com.example.honour_U_Springboot.controller;
+package com.example.honour_U_Springboot.controller.api;
 
 import com.example.honour_U_Springboot.dto.DestinatarioDTO;
+import com.example.honour_U_Springboot.model.Destinatario;
 import com.example.honour_U_Springboot.service.DestinatarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,18 @@ public class DestinatarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
+    /**
+     * Método para obtener destinatarios con dos direcciones
+     * @return
+     */
+    @GetMapping("/filtro/dos-direcciones")
+    public ResponseEntity<Destinatario> getDestinatarioConDosDirecciones() {
+        Destinatario destinatario = destinatarioService.destinatarioConDosDirecciones();
+        if (destinatario == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(destinatario);
+    }
     // Obtener un destinatario por ID
     @GetMapping("/{id}")
     public ResponseEntity<DestinatarioDTO> findDestinatarioByIdAPI(@PathVariable Long id) {
@@ -82,4 +94,6 @@ public class DestinatarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+
 }

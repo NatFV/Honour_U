@@ -2,19 +2,30 @@ package com.example.honour_U_Springboot.service;
 
 import com.example.honour_U_Springboot.dto.DestinatarioDTO;
 import com.example.honour_U_Springboot.model.Destinatario;
+import com.example.honour_U_Springboot.model.Direccion;
+import com.example.honour_U_Springboot.model.Libro;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.repository.DestinatarioRepository;
+import com.example.honour_U_Springboot.repository.LibroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class DestinatarioService {
     @Autowired
     DestinatarioRepository destinatarioRepository;
+    LibroRepository libroRepository;
+    public DestinatarioService(LibroRepository libroRepository) {
+        this.libroRepository = libroRepository;
+    }
+
+
+
 
     /**
      * Método para guardar el destinatario en la base de datos.
@@ -75,25 +86,42 @@ public class DestinatarioService {
     }
 
 
-    /**
-     * Método para encontrar los destinatarios con dos direcciones
-     * @return una lista de destinatarios con dos direcciones
-     */
-    Destinatario DestinatariosConDosDirecciones(){
-        return destinatarioRepository.findDestinatarioByDireccionesEqualsTwo();
-    }
-
 
     // Crear un nuevo destinatario desde un DTO
     public DestinatarioDTO createDestinatarioFromDTO(DestinatarioDTO destinatarioDTO) {
         Destinatario destinatario = new Destinatario();
-        // Asignar valores de DTO a la entidad
+
+        // Asignamos datos básicos
         destinatario.setNombre(destinatarioDTO.getNombre());
+        destinatario.setApellido(destinatarioDTO.getApellido());
         destinatario.setEmail(destinatarioDTO.getEmail());
         destinatario.setTelefono(destinatarioDTO.getTelefono());
 
-        Destinatario savedDestinatario = destinatarioRepository.save(destinatario);
-        return new DestinatarioDTO(savedDestinatario);
+
+
+        // Creamos las direcciones a partir de los DTOs
+        if (destinatarioDTO.getDirecciones() != null && !destinatarioDTO.getDirecciones().isEmpty()) {
+            Set<Direccion> direcciones = destinatarioDTO.getDirecciones().stream().map(dtoDir -> {
+                Direccion direccion = new Direccion();
+                direccion.setCalle(dtoDir.getCalle());
+                direccion.setPiso(dtoDir.getPiso());
+                direccion.setLetra(dtoDir.getLetra());
+                direccion.setCodigoPostal(dtoDir.getCodigoPostal());
+                direccion.setPais(dtoDir.getPais());
+
+                // Relación bidireccional: asignar destinatario a la dirección
+                direccion.setDestinatario(destinatario);
+
+                return direccion;
+            }).collect(Collectors.toSet());
+
+            destinatario.setDirecciones(direcciones);
+        }
+
+        // Guardamos destinatario (y con cascade las direcciones si así está configurado)
+        Destinatario saved = destinatarioRepository.save(destinatario);
+
+        return new DestinatarioDTO(saved);
     }
 
     // Obtener todos los destinatarios como DTO
@@ -130,7 +158,16 @@ public class DestinatarioService {
                 .orElseThrow(() -> new RuntimeException("Destinatario no encontrado"));
         destinatarioRepository.delete(destinatario);
     }
+
+
+    public Destinatario destinatarioConDosDirecciones() {
+        return destinatarioRepository.findDestinatarioByDireccionesEqualsTwo()
+                .orElse(null);
+    }
+
 }
+
+
 
 
 

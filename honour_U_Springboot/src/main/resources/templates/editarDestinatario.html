@@ -4,69 +4,87 @@
     <meta charset="UTF-8">
     <title>Editar Destinatario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
-            background-color: #000;
+            background-color: #1a237e;
             color: white;
+            font-family: Arial, sans-serif;
         }
 
-        .table {
-            background-color: #ffe6f0;
-            padding: 2rem;
-            border-radius: 8px;
-            color: black;
-            margin-top: 2rem;
+        .card {
+            background-color: #90caf9 ;
+            color: #000000;
+        }
+        .bottom-btn {
+            max-width: 1140px;
+            margin: 0 auto 3rem auto;
+            text-align: center;
         }
 
-        .header-image {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            max-width: 80px;
-            height: auto;
-        }
-
-        h1 {
-            margin-left: 100px;
+        h1, h2 {
+            color: #90caf9;
         }
     </style>
 </head>
 <body>
-<img th:src="@{/img/honourU.jpg}" alt="Logo" class="header-image">
+
+<!-- Botón de navegación arriba a la derecha -->
+<div class="d-flex justify-content-end mt-4 me-3 mb-3">
+    <a href="/libros" class="btn btn-outline-light">Volver a la lista de libros</a>
+</div>
+
+<!-- Imagen centrada -->
+<div class="text-center my-4">
+    <img th:src="@{/img/honourU.jpg}" alt="Logo" style="max-width: 10%; height: auto;" />
+</div>
 
 <div class="container">
     <h1 class="mb-4">Editar Destinatario</h1>
 
-    <form th:action="@{/destinatarios/{id}/update(id=${destinatario.destinatarioId})}" th:object="${destinatario}" method="post">
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input type="text" th:field="*{nombre}" class="form-control" required>
-        </div>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/destinatarios/{id}/update(id=${destinatario.destinatarioId})}" th:object="${destinatario}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" th:field="*{nombre}" class="form-control" required>
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Apellido</label>
-            <input type="text" th:field="*{apellido}" class="form-control" required>
-        </div>
+                <div class="mb-3">
+                    <label class="form-label">Apellido</label>
+                    <input type="text" th:field="*{apellido}" class="form-control" required>
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Teléfono</label>
-            <input type="text" th:field="*{telefono}" class="form-control">
-        </div>
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" th:field="*{telefono}" class="form-control">
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" th:field="*{email}" class="form-control">
-        </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" th:field="*{email}" class="form-control">
+                </div>
 
-        <!-- Campo para cambiar el libro relacionado -->
-        <div class="mb-3">
-            <label class="form-label">ID del Libro Asociado</label>
-            <input type="text" th:field="*{libro.libroId}" class="form-control">
-        </div>
+                <!-- Mostrar título o ID del libro (solo lectura) -->
+                <div class="mb-3">
+                    <label class="form-label">Libro Asociado</label>
+                    <input type="text" th:value="${destinatario.libro != null ? destinatario.libro.tituloLibro : 'Sin libro asignado'}" class="form-control" readonly />
+                </div>
 
-        <button type="submit" class="btn btn-success">Guardar Cambios</button>
-        <a href="/destinatarios" class="btn btn-secondary">Cancelar</a>
-    </form>
+                <!-- Campo oculto para enviar el libroId -->
+                <input type="hidden" th:field="*{libro.libroId}" />
+
+                <!-- Botones alineados horizontalmente -->
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                    <a href="/libros" class="btn btn-secondary">Cancelar</a>
+                    <a th:href="@{/direcciones(destinatarioId=${destinatario.destinatarioId})}" class="btn btn-primary">Crear Dirección para este Destinatario</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -88,5 +88,13 @@ public class Libro {
     //La relación propietaria es el lado del destinatario porque contiene la FK
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "libro")
     private Destinatario destinatario;
+
+    public Destinatario getDestinatario() {
+        return destinatario;
+    }
+
+    public void setDestinatario(Destinatario destinatario) {
+        this.destinatario = destinatario;
+    }
 }
 

@@ -1,6 +1,10 @@
-package com.example.honour_U_Springboot.controller;
+package com.example.honour_U_Springboot.controller.api;
 
 import com.example.honour_U_Springboot.dto.DireccionDTO;
+import com.example.honour_U_Springboot.model.Destinatario;
+import com.example.honour_U_Springboot.model.Direccion;
+import com.example.honour_U_Springboot.repository.DestinatarioRepository;
+import com.example.honour_U_Springboot.repository.DireccionRepository;
 import com.example.honour_U_Springboot.service.DireccionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +19,12 @@ public class DireccionController {
 
     @Autowired
     private DireccionService direccionService;
+
+    @Autowired
+    private DestinatarioRepository destinatarioRepository;
+
+    @Autowired
+    private DireccionRepository direccionRepository;
 
     // Crear una nueva dirección
     @PostMapping
@@ -80,5 +90,33 @@ public class DireccionController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    @PostMapping("/api/direcciones/nueva")
+    public String guardarDireccion(@ModelAttribute Direccion direccion,
+                                   @RequestParam Long destinatarioId) {
+
+        // 1. Obtener destinatario por id
+        Destinatario destinatario = destinatarioRepository.findById(destinatarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Destinatario no encontrado"));
+
+        // 2. Asignar destinatario a la dirección
+        direccion.setDestinatario(destinatario);
+
+        // 3. Añadir dirección al conjunto de direcciones del destinatario (para mantener la relación sincronizada)
+        destinatario.getDirecciones().add(direccion);
+
+        // 4. Guardar la dirección (que es el lado propietario)
+        direccionRepository.save(direccion);
+
+        return "redirect:/direcciones"; // o la vista que quieras mostrar
+    }
+
+    @GetMapping("/internacionales")
+    public ResponseEntity<List<Direccion>> getDireccionesInternacionales() {
+        List<Direccion> direcciones = direccionService.obtenerDireccionesInternacionales();
+        if (direcciones.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(direcciones);
     }
 }

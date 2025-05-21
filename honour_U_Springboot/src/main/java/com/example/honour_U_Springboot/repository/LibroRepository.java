@@ -8,7 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface LibroRepository extends JpaRepository<Libro, Long> {
-    @Query("SELECT l FROM Libro l WHERE l.destinatario IN (" +
-            "SELECT d.destinatario FROM Direccion d WHERE d.pais = :pais)")
+    @Query("SELECT DISTINCT l FROM Libro l JOIN l.destinatario d JOIN d.direcciones dir WHERE dir.pais = :pais")
     List<Libro> findLibrosByPais(@Param("pais") String pais);
 }
+
+

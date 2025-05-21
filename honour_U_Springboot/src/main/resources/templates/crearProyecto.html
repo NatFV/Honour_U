@@ -33,10 +33,17 @@
         height: auto;
     }
 </style>
+<div class="d-flex justify-content-end mt-4 me-3 mb-3">
+    <a th:href="@{/proyectos}" class="btn btn-success me-2">Proyectos</a>
+    <a th:href="@{/libros}" class="btn btn-info me-2">Libros</a>
+    <a th:href="@{/mapa-libros-v2}" class="btn btn-warning">Mundo Honour U</a>
+
+</div>
 <!-- Imagen centrada en la parte superior -->
 <div class="text-center my-4">
     <img th:src="@{/img/honourU.jpg}"  alt="Encabezado visual" style="max-width: 10%; max-height: 10%; ">
 </div>
+
 <body>
 <!-- Contenedor principal -->
 <div class="container">

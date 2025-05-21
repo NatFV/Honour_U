@@ -136,6 +136,14 @@ public class LibroService {
     public void deleteLibroByIdAPI(Long id) {
         libroRepository.deleteById(id);
     }
+
+    public List<Libro> obtenerLibrosPorPais(String pais) {
+        return libroRepository.findLibrosByPais(pais);
+    }
+
+    public List<Libro> findAll() {
+        return libroRepository.findAll();
+    }
 }
 
 

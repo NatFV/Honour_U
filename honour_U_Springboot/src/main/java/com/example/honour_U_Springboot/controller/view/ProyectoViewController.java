@@ -1,4 +1,4 @@
-package com.example.honour_U_Springboot.controller;
+package com.example.honour_U_Springboot.controller.view;
 
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.ProyectoService;
@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.example.honour_U_Springboot.model.Aportacion;
+import com.example.honour_U_Springboot.service.AportacionService;
+
 
 import java.util.List;
 
@@ -14,6 +17,8 @@ import java.util.List;
 public class ProyectoViewController {
     @Autowired
     private ProyectoService proyectoService;
+    @Autowired
+    private AportacionService aportacionService;
 
     @GetMapping("/proyectos")
     public String mostrarProyectos(Model model) {
@@ -36,7 +41,13 @@ public class ProyectoViewController {
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Proyecto proyecto = proyectoService.findProyectoById(id);
         model.addAttribute("proyecto", proyecto);
-        return "editarProyecto"; // Vista a crear
+
+        List<Aportacion> aportaciones = aportacionService.findByProyectoId(id); // Este método debe existir
+        model.addAttribute("aportaciones", aportaciones);
+
+        model.addAttribute("nuevaAportacion", new Aportacion()); // Para el formulario
+
+        return "editarProyecto";
     }
 
     // Procesar el formulario de edición
@@ -46,7 +57,7 @@ public class ProyectoViewController {
         return "redirect:/proyectos";
     }
 
-    //Eliminar un barco por ID
+    //Eliminar un proyecto por ID
     @GetMapping("/proyectos/{id}/delete")
     public String eliminarProyecto(@PathVariable Long id) {
         proyectoService.deleteProyectoById(id);

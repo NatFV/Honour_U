@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.example.honour_U_Springboot.model.Aportacion;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.model.Libro;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class ProyectoDTO {
 
@@ -19,6 +20,12 @@ public class ProyectoDTO {
     private String urlProyecto;
     private LocalDate plazoFinalizacion;
     private Set<AportacionDTO> aportaciones;
+
+    //Constructor sin parámetros:
+    @JsonCreator
+    public ProyectoDTO() {
+        // Constructor vacío necesario para la deserialización con @RequestBody
+    }
 
 
     public ProyectoDTO(Proyecto proyecto) {

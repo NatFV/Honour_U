@@ -1,4 +1,4 @@
-package com.example.honour_U_Springboot.controller;
+package com.example.honour_U_Springboot.controller.api;
 import com.example.honour_U_Springboot.model.Participante;
 import com.example.honour_U_Springboot.service.ParticipanteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController //Maneja solicitudes http
 @RequestMapping("/api/participantes")//ruta base para los puntos finales
@@ -14,7 +13,7 @@ public class ParticipanteController {
     @Autowired
     private ParticipanteService participanteService;
     //Crear una nueva aportación
-    @PostMapping
+    @PostMapping (consumes = "application/json", produces = "application/json")
     // ResponseEntity represents the whole HTTP response: status code, headers, and body
     public ResponseEntity<Participante> createParticipante (@RequestBody Participante participante) {
         Participante newParticipante =participanteService.saveParticipante(participante);
@@ -30,8 +29,8 @@ public class ParticipanteController {
 
     //Obtener una aportación por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Participante>> getParticipanteById(@PathVariable Long id) throws Exception {
-        Optional<Participante> participante = null;
+    public ResponseEntity<Participante> getParticipanteById(@PathVariable Long id) throws Exception {
+        Participante participante = null;
         try {
             participante = participanteService.findParticipanteById(id);
         } catch (Exception e) {
@@ -39,6 +38,7 @@ public class ParticipanteController {
         }
         return ResponseEntity.ok(participante);
     }
+
 
     //Actualizar una aportación por ID
     @PutMapping("/{id}")
@@ -53,6 +53,15 @@ public class ParticipanteController {
     public ResponseEntity<Void>deleteParticipante(@PathVariable Long id){
         participanteService.deleteParticipanteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/mas-aportaciones")
+    public ResponseEntity<Participante> getParticipanteConMasAportaciones() {
+        Participante participante = participanteService.participanteConMasAportaciones();
+        if (participante == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(participante);
     }
 
 }

@@ -14,6 +14,10 @@ public class DireccionDTO {
     // Evitamos recursividad incluyendo solo el ID del destinatario o nada
     private Long destinatarioId;
 
+    //Constructor para Direccion DTO
+    public DireccionDTO() {
+        // Constructor vacío necesario para Jackson
+    }
 
     // Constructor para inicializar el DTO a partir de la entidad Direccion
     public DireccionDTO(Direccion direccion) {

@@ -1,15 +1,19 @@
 package com.example.honour_U_Springboot.service;
 
+import com.example.honour_U_Springboot.dto.ParticipanteDTO;
 import com.example.honour_U_Springboot.model.Participante;
+import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.repository.ParticipanteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
-@RestController
-@RequestMapping("/api/participantes")
+import java.util.stream.Collectors;
+
+@Service
 public class ParticipanteService {
     // Inyectamos la instancia de ParticipanteRepository usando la anotación @Autowired
     @Autowired
@@ -31,8 +35,9 @@ public class ParticipanteService {
      * @param id
      * @return participante
      */
-    public Optional<Participante> findParticipanteById(Long id){
-        return participanteRepository.findById(id);
+    public Participante findParticipanteById(Long id)throws Exception {
+        return participanteRepository.findById(id)
+                .orElseThrow(() -> new Exception("Aportacion not found with id " + id));
     }
 
     /**
@@ -48,8 +53,19 @@ public class ParticipanteService {
      * @param participante
      * @return participante actualizado
      */
-    public Participante updateParticipante (Long id, Participante participante){
-        return participanteRepository.save(participante);
+    public Participante updateParticipante (Long id, Participante participante) {
+
+        Participante existente = participanteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Participante no encontrado"));
+
+        // Solo actualizamos los campos que pueden cambiar
+        existente.setNombre(participante.getNombre());
+        existente.setApellido(participante.getApellido());
+
+        existente.setEmail(participante.getEmail());
+
+
+        return participanteRepository.save(existente); // Esto actualiza, no crea nuevo
     }
 
     /**
@@ -67,4 +83,32 @@ public class ParticipanteService {
     public Participante participanteConMasAportaciones(){
         return participanteRepository.findParticipanteByMasAportaciones();
     }
+
+
+    public List<ParticipanteDTO> findAllParticipanteDTOs() {
+        return participanteRepository.findAll().stream().map(p -> {
+            ParticipanteDTO dto = new ParticipanteDTO();
+            dto.setId(p.getParticipanteId());
+            dto.setNombre(p.getNombre());
+            dto.setApellido(p.getApellido());
+            dto.setEmail(p.getEmail());
+            dto.setAportacionesMensajes(
+                    p.getAportaciones().stream()
+                            .map(a -> a.getMensaje())
+                            .collect(Collectors.toList())
+            );
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    public List<Participante> findAll() {
+        return participanteRepository.findAll();
+    }
+
+    public List<Participante> findByProyecto(Proyecto proyecto) {
+        return participanteRepository.findByProyectoId(proyecto.getProyectoId());
+    }
+
+
 }
+

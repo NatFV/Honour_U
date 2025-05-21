@@ -11,38 +11,60 @@
             font-family: Arial, sans-serif;
         }
 
-        .container {
-            background-color: #ffe6f0;
+        .main-container {
+            background-color: #d6f0ff; /* Azul claro como en gestionarAportaciones */
             padding: 2rem;
             border-radius: 8px;
             color: black;
             margin-top: 2rem;
+            max-width: 1140px;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem auto 1rem auto;
+            max-width: 800px;
         }
 
         .header-image {
-            position: absolute;
-            top: 10px;
-            left: 10px;
             max-width: 80px;
             height: auto;
         }
 
         h1 {
-            margin-left: 100px;
+            text-align: center;
+            color: #000;
         }
     </style>
 </head>
 <body>
-<!-- Imagen superior izquierda -->
-<img th:src="@{/img/honourU.jpg}" alt="Logo" class="header-image">
 
-<div class="container">
+</div>
+
+<!-- Botón de navegación arriba a la derecha -->
+<div class="d-flex justify-content-end mt-4 me-3 mb-3">
+    <a th:href="@{/proyectos/{id}/aportaciones(id=${aportacion.proyecto.proyectoId})}"
+       class="btn btn-secondary">Volver a Aportaciones</a>
+
+
+</div>
+<!-- Imagen centrada en la parte superior -->
+<div class="text-center my-4">
+    <img th:src="@{/img/honourU.jpg}"  alt="Encabezado visual" style="max-width: 10%; max-height: 10%; ">
+</div>
+
+
+
+
+<!-- Contenedor del formulario -->
+<div class="container main-container">
     <h1 class="mb-4">Editar Aportación</h1>
 
     <form th:action="@{/aportaciones/{id}/update(id=${aportacion.aportacionId})}" th:object="${aportacion}" method="post">
         <div class="mb-3">
             <label class="form-label">Mensaje</label>
-            <!-- Aquí corriges el th:field -->
             <textarea th:field="*{mensaje}" class="form-control" required></textarea>
         </div>
 
@@ -66,9 +88,9 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">¿Visible?</label>
-            <input type="checkbox" th:field="*{esVisible}" class="form-check-input">
+        <div class="mb-3 form-check">
+            <input type="checkbox" th:field="*{esVisible}" class="form-check-input" id="visibleCheck">
+            <label class="form-check-label" for="visibleCheck">¿Visible?</label>
         </div>
 
         <button type="submit" class="btn btn-success">Guardar Aportación</button>

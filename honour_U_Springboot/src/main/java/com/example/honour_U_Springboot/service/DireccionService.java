@@ -8,8 +8,9 @@ import com.example.honour_U_Springboot.repository.DestinatarioRepository;
 import com.example.honour_U_Springboot.repository.DireccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -83,7 +84,7 @@ public class DireccionService {
      *
      * @return lista de direcciones que no son de España
      */
-    List<Direccion> obtenerDireccionesInternacionales(){
+    public List<Direccion> obtenerDireccionesInternacionales(){
         return direccionRepository.findByPaisNot("Spain");
     }
 
@@ -146,6 +147,27 @@ public class DireccionService {
         }
         direccionRepository.deleteById(id);
     }
+
+    /**
+     * Método contarLibrosPorPais
+     * Este método se utiliza para el template que muestra el mapa
+     * @return un HashMap que devuelve el pais y la cantidad de libros que hay por cada país
+     */
+    public Map<String, Long> contarLibrosPorPais() {
+        List<Object[]> resultados = direccionRepository.countLibrosPorPais();
+        Map<String, Long> mapaLibros = new HashMap<>();
+        for (Object[] fila : resultados) {
+            String pais = (String) fila[0];
+            Long cantidad = (Long) fila[1];
+            mapaLibros.put(pais, cantidad);
+        }
+        return mapaLibros;
+    }
+
 }
+
+
+
+
 
 
