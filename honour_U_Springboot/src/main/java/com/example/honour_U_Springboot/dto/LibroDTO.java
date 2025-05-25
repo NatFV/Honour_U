@@ -3,6 +3,9 @@ package com.example.honour_U_Springboot.dto;
 import com.example.honour_U_Springboot.model.Libro;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * Clase LibroDTO utilizada para las consultas API
+ */
 public class LibroDTO {
 
     private Long libroId;
@@ -14,7 +17,7 @@ public class LibroDTO {
     private ProyectoDTO proyecto; // Usamos ProyectoDTO para evitar el ciclo infinito
 
 
-    //Constructor
+    //Constructores
     public LibroDTO() {
         // Constructor vacío si es necesario
     }
@@ -30,24 +33,7 @@ public class LibroDTO {
             this.proyecto = new ProyectoDTO(libro.getProyecto());
         }
     }
-
-    // Método toEntity para convertir DTO en entidad
-    public Libro toEntity() {
-        Libro libro = new Libro();
-        libro.setLibroId(this.libroId);
-        libro.setTituloLibro(this.tituloLibro);
-        libro.setFormato(this.formato);
-        libro.setCopias(this.copias);
-        libro.setPaginas(this.paginas);
-
-        // Si el DTO tiene un proyecto, lo convertimos a entidad y lo asignamos
-        if (this.proyecto != null) {
-            libro.setProyecto(this.proyecto.toEntity()); // Convertir el DTO de Proyecto a entidad Proyecto
-        }
-
-        return libro;
-    }
-
+    //Getters y setters
     public Long getLibroId() {
         return libroId;
     }
@@ -95,7 +81,7 @@ public class LibroDTO {
     public void setProyecto(ProyectoDTO proyecto) {
         this.proyecto = proyecto;
     }
-
+    //toString
     @Override
     public String toString() {
         return "LibroDTO{" +
@@ -106,5 +92,25 @@ public class LibroDTO {
                 ", paginas=" + paginas +
                 ", proyecto=" + proyecto +
                 '}';
+    }
+
+    /**
+     * Método toEntity, convierte atributos del DTO al nuevo objeto Libro
+     * @return el nuevo objeto Libro
+     */
+    public Libro toEntity() {
+        Libro libro = new Libro();
+        libro.setLibroId(this.libroId);
+        libro.setTituloLibro(this.tituloLibro);
+        libro.setFormato(this.formato);
+        libro.setCopias(this.copias);
+        libro.setPaginas(this.paginas);
+
+        // Si el DTO tiene un proyecto, lo convertimos a entidad y lo asignamos
+        if (this.proyecto != null) {
+            libro.setProyecto(this.proyecto.toEntity()); // Convertir el DTO de Proyecto a entidad Proyecto
+        }
+
+        return libro;
     }
 }

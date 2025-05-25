@@ -3,6 +3,9 @@ package com.example.honour_U_Springboot.dto;
 import com.example.honour_U_Springboot.model.Direccion;
 import com.example.honour_U_Springboot.model.Destinatario;
 
+/**
+ * Clase DTO, utilizada para las consultas API
+ */
 public class DireccionDTO {
 
     private Long direccionId;

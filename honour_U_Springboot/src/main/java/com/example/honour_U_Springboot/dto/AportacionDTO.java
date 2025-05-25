@@ -3,6 +3,9 @@ package com.example.honour_U_Springboot.dto;
 import com.example.honour_U_Springboot.model.Aportacion;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+/**
+ * Clase Aportación DTO utilizada para las consultas API
+ */
 public class AportacionDTO {
     private Long aportacionId;
     private String mensaje;
@@ -18,8 +21,6 @@ public class AportacionDTO {
     public AportacionDTO() {
     }
 
-
-
     public AportacionDTO(Aportacion aportacion) {
         this.aportacionId = aportacion.getAportacionId();
         this.mensaje = aportacion.getMensaje();
@@ -28,17 +29,7 @@ public class AportacionDTO {
         this.mediaType = aportacion.getMediaType();
         this.esVisible = aportacion.isEsVisible();
     }
-    // Método para convertir el DTO a la entidad Aportacion
-    public Aportacion toEntity() {
-        Aportacion aportacion = new Aportacion();
-        aportacion.setAportacionId(this.aportacionId);
-        aportacion.setMensaje(this.mensaje);
-        aportacion.setRemitente(this.remitente);
-        aportacion.setUrl(this.url);
-        aportacion.setMediaType(this.mediaType);
-        aportacion.setEsVisible(this.esVisible);
-        return aportacion;
-    }
+
     //Getters and setters
 
 
@@ -88,5 +79,21 @@ public class AportacionDTO {
 
     public void setEsVisible(boolean esVisible) {
         this.esVisible = esVisible;
+    }
+
+    /**
+     * Método toEntity
+     * Copia los valores de los atributos del DTO al nuevo objeto Aportacion
+     * @return el nuevo objeto Aportacion
+     */
+    public Aportacion toEntity() {
+        Aportacion aportacion = new Aportacion();
+        aportacion.setAportacionId(this.aportacionId);
+        aportacion.setMensaje(this.mensaje);
+        aportacion.setRemitente(this.remitente);
+        aportacion.setUrl(this.url);
+        aportacion.setMediaType(this.mediaType);
+        aportacion.setEsVisible(this.esVisible);
+        return aportacion;
     }
 }

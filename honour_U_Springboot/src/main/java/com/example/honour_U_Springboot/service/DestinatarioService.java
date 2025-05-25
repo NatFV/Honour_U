@@ -15,6 +15,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Clase DestinatarioService
+ * Contiene la lógica de programación para la clase Service
+ */
 @Service
 public class DestinatarioService {
     @Autowired
@@ -86,8 +90,11 @@ public class DestinatarioService {
     }
 
 
-
-    // Crear un nuevo destinatario desde un DTO
+    /**
+     * Método para crear un nuevo destinatario desde un DTO
+     * @param destinatarioDTO
+     * @return destinatarioDTO
+     */
     public DestinatarioDTO createDestinatarioFromDTO(DestinatarioDTO destinatarioDTO) {
         Destinatario destinatario = new Destinatario();
 
@@ -124,21 +131,33 @@ public class DestinatarioService {
         return new DestinatarioDTO(saved);
     }
 
-    // Obtener todos los destinatarios como DTO
+    /**
+     * Método para obtener todos los destinatarios desde un DTO
+     * @return una lista de destinatarios
+     */
     public List<DestinatarioDTO> getAllDestinatariosDTO() {
         return destinatarioRepository.findAll().stream()
                 .map(DestinatarioDTO::new)
                 .collect(Collectors.toList());
     }
 
-    // Obtener un destinatario por ID
+    /**
+     * Método para obtener un destinatario por ID
+     * @param id del destinatario que se desea encontrar
+     * @return el destinatario
+     */
     public DestinatarioDTO findDestinatarioByIdAPI(Long id) {
         Destinatario destinatario = destinatarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Destinatario no encontrado"));
         return new DestinatarioDTO(destinatario);
     }
 
-    // Actualizar un destinatario
+    /**
+     * Método para actualizar un destinatrio
+     * @param id del destinatario que se quiera actualizar
+     * @param updatedDestinatarioDTO datos del destinatario a actualizar
+     * @return destinatario actualizado
+     */
     public DestinatarioDTO updateDestinatarioAPI(Long id, DestinatarioDTO updatedDestinatarioDTO) {
         Destinatario destinatario = destinatarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Destinatario no encontrado"));
@@ -152,7 +171,10 @@ public class DestinatarioService {
         return new DestinatarioDTO(updatedDestinatario);
     }
 
-    // Eliminar un destinatario por ID
+    /**
+     * Método para eliminar destinatario por id
+     * @param id del destinatario a eliminar
+     */
     public void deleteDestinatarioByIdAPI(Long id) {
         Destinatario destinatario = destinatarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Destinatario no encontrado"));
@@ -160,6 +182,10 @@ public class DestinatarioService {
     }
 
 
+    /**
+     * Método para encontrar destinatarios con dos direcciones
+     * @return una lista de destinatarios con dos direcciones
+     */
     public Destinatario destinatarioConDosDirecciones() {
         return destinatarioRepository.findDestinatarioByDireccionesEqualsTwo()
                 .orElse(null);

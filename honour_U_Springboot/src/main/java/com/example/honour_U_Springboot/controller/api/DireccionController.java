@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Clase DireccionController utilizada para las consultas API
+ */
 @RestController
 @RequestMapping("/api/direcciones") // Ruta base para Direcciones
 public class DireccionController {
@@ -26,7 +29,11 @@ public class DireccionController {
     @Autowired
     private DireccionRepository direccionRepository;
 
-    // Crear una nueva dirección
+    /**
+     * Método para crear una dirección
+     * @param direccionDTO con la información de la dirección
+     * @return mensaje para corroborar que se creó
+     */
     @PostMapping
     public ResponseEntity<DireccionDTO> createDireccion(@RequestBody DireccionDTO direccionDTO) {
         try {
@@ -38,7 +45,10 @@ public class DireccionController {
         }
     }
 
-    // Obtener todas las direcciones
+    /**
+     * Método para obtener todas las direcciones
+     * @return una lista con todas las direcciones
+     */
     @GetMapping
     public ResponseEntity<List<DireccionDTO>> findAllDirecciones() {
         try {
@@ -53,7 +63,11 @@ public class DireccionController {
         }
     }
 
-    // Obtener dirección por ID
+    /**
+     * Método para obtener dirección por id
+     * @param id
+     * @return direccioón encontrada
+     */
     @GetMapping("/{id}")
     public ResponseEntity<DireccionDTO> findDireccionByIdAPI(@PathVariable Long id) {
         try {
@@ -68,7 +82,12 @@ public class DireccionController {
         }
     }
 
-    // Actualizar dirección
+    /**
+     * Método para actualizar dirección
+     * @param id de la dirección que se quiere actualizar
+     * @param updatedDTO información de la dirección
+     * @return mensaje que corrobora que se actualizó
+     */
     @PutMapping("/{id}")
     public ResponseEntity<DireccionDTO> updateDireccionAPI(@PathVariable Long id, @RequestBody DireccionDTO updatedDTO) {
         try {
@@ -80,7 +99,11 @@ public class DireccionController {
         }
     }
 
-    // Eliminar dirección
+    /**
+     * Método para eliminar dirección
+     * @param id de la dirección que se quiere eliminar
+     * @return mensaje que corrobora que se eliminó
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDireccion(@PathVariable Long id) {
         try {
@@ -91,6 +114,13 @@ public class DireccionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     * Método para guardar dirección
+     * @param direccion
+     * @param destinatarioId
+     * @return
+     */
     @PostMapping("/api/direcciones/nueva")
     public String guardarDireccion(@ModelAttribute Direccion direccion,
                                    @RequestParam Long destinatarioId) {
@@ -108,9 +138,13 @@ public class DireccionController {
         // 4. Guardar la dirección (que es el lado propietario)
         direccionRepository.save(direccion);
 
-        return "redirect:/direcciones"; // o la vista que quieras mostrar
+        return "redirect:/direcciones";
     }
 
+    /**
+     * Método para obtener las direcciones internacionales
+     * @return una lista de direcciones internacionales
+     */
     @GetMapping("/internacionales")
     public ResponseEntity<List<Direccion>> getDireccionesInternacionales() {
         List<Direccion> direcciones = direccionService.obtenerDireccionesInternacionales();

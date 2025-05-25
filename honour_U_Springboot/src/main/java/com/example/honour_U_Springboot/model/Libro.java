@@ -1,12 +1,17 @@
 package com.example.honour_U_Springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Clase Libro
+ * Representa los libros generados por proyectos
+ */
 @Entity
 @Table(name = "libro")
-//@Data
+//@Data omitido ya que genera problemas (no funciona la notación correctamente)
 @NoArgsConstructor //Genera constructor sin parámetros para Hibernate
 public class Libro {
     @Id
@@ -86,9 +91,10 @@ public class Libro {
 
     //Relación con Destinatario 1:1 bidireccional.
     //La relación propietaria es el lado del destinatario porque contiene la FK
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "libro")
     private Destinatario destinatario;
-
+    //Getters y setters de destinatario
     public Destinatario getDestinatario() {
         return destinatario;
     }

@@ -1,6 +1,5 @@
 package com.example.honour_U_Springboot.controller.view;
 
-import com.example.honour_U_Springboot.dto.ParticipanteDTO;
 import com.example.honour_U_Springboot.model.Aportacion;
 import com.example.honour_U_Springboot.model.Participante;
 import com.example.honour_U_Springboot.model.Proyecto;
@@ -17,101 +16,126 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Clase ParticipanteViewController, maneja las vistas del controlador
+ */
 @Controller
 public class ParticipanteViewController {
+
     @Autowired
     private ParticipanteService participanteService;
+
     @Autowired
     private ProyectoService proyectoService;
+
     @Autowired
     private AportacionService aportacionService;
 
-    @GetMapping("/participantes")
-    public String mostrarParticipantes(Model model) {
-
-            List<ParticipanteDTO> participantes = participanteService.findAllParticipanteDTOs();
-            model.addAttribute("participantes", participantes);
-            model.addAttribute("participante", new Participante()); // para el formulario
-            return "crearParticipante";
-
-    }
-
-    @PostMapping("/participantes")
-    public String guardarParticipante(@ModelAttribute Participante participante, @RequestParam("proyecto.proyectoId") Long proyectoId) throws Exception {
+    /**
+     * Método para listar los participantes de un proyecto
+     * @param proyectoId
+     * @param model pasa los datos a la vista
+     * @return los participantes
+     * @throws Exception
+     */
+    @GetMapping("/participantes/proyectos/{proyectoId}")
+    public String listarParticipantesPorProyecto(@PathVariable Long proyectoId, Model model) throws Exception {
         Proyecto proyecto = proyectoService.findProyectoByIdAPI(proyectoId).toEntity();
-        participante.setProyecto(proyecto);  // asignamos proyecto para que no sea null
+        List<Participante> participantes = participanteService.findByProyectoId(proyectoId);
 
-        participanteService.saveParticipante(participante);
-        return "redirect:/participantes/proyectos/" + proyectoId;  // redirigir a la lista actualizada del proyecto
+        model.addAttribute("proyecto", proyecto);
+        model.addAttribute("participantes", participantes);
+        model.addAttribute("participante", new Participante()); // para formulario
+
+        return "crearParticipante"; // plantilla para listar y agregar participantes
     }
 
-    // Mostrar formulario de edición
+    /**
+     * Método para guardar un participante  en el proyecto
+     * @param proyectoId
+     * @param participante
+     * @return participante guardado
+     * @throws Exception
+     */
+    @PostMapping("/participantes/proyectos/{proyectoId}")
+    public String guardarParticipanteEnProyecto(@PathVariable Long proyectoId,
+                                                @ModelAttribute Participante participante) throws Exception {
+        Proyecto proyecto = proyectoService.findProyectoByIdAPI(proyectoId).toEntity();
+        participante.setProyecto(proyecto);
+        participanteService.saveParticipante(participante);
+
+        return "redirect:/participantes/proyectos/" + proyectoId;
+    }
+
+    /**
+     * Método para editar participante
+     * @param id del participante
+     * @param model pasa los datos a la vista
+     * @return el formulario para editar participante
+     * @throws Exception
+     */
     @GetMapping("/participantes/{id}/edit")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Participante participante = participanteService.findParticipanteById(id);
         model.addAttribute("participante", participante);
-        model.addAttribute("aportaciones", participante.getAportaciones()); // Asegúrate de pasar las aportaciones
-        return "editarParticipante"; // Vista a crear
+        model.addAttribute("aportaciones", participante.getAportaciones());
+        return "editarParticipante";
     }
 
-    // Procesar el formulario de edición
+    /**
+     * Método para actualizar participante
+     * @param id
+     * @param participante
+     * @return Participante actualizado
+     * @throws Exception
+     */
     @PostMapping("/participantes/{id}/update")
-    public String actualizarParticipante(@PathVariable Long id, @ModelAttribute Participante participante) {
-        participanteService.updateParticipante(id, participante);
+    public String actualizarParticipante(@PathVariable Long id, @ModelAttribute Participante participante) throws Exception {
+        Participante participanteOriginal = participanteService.findParticipanteById(id);
+
+        // Actualizar solo los campos modificables
+        participanteOriginal.setNombre(participante.getNombre());
+        participanteOriginal.setApellido(participante.getApellido());
+        participanteOriginal.setEmail(participante.getEmail());
+        // No tocar proyecto ni otras relaciones
+
+        participanteService.updateParticipante(id, participanteOriginal);
+
+        Long proyectoId = participanteOriginal.getProyecto() != null ? participanteOriginal.getProyecto().getProyectoId() : null;
+        if (proyectoId != null) {
+            return "redirect:/participantes/proyectos/" + proyectoId;
+        }
         return "redirect:/participantes";
     }
 
-    //Eliminar un participantes por ID
+    /**
+     * Método para eliminar participante
+     * @param id
+     * @return lista de participantes actualizada
+     * @throws Exception si no se puede eliminar
+     */
     @GetMapping("/participantes/{id}/delete")
-    public String eliminarParticipantes(@PathVariable Long id) {
+    public String eliminarParticipante(@PathVariable Long id) throws Exception {
+        Participante participante = participanteService.findParticipanteById(id);
+        Long proyectoId = participante.getProyecto() != null ? participante.getProyecto().getProyectoId() : null;
         participanteService.deleteParticipanteById(id);
+        if (proyectoId != null) {
+            return "redirect:/participantes/proyectos/" + proyectoId;
+        }
         return "redirect:/participantes";
     }
 
-    @GetMapping("/participantes/proyectos/{id}")
-    public String gestionarParticipantes(@PathVariable Long id, Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-
-        List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
-
-        // Extraemos participantes únicos de las aportaciones
-        Set<Participante> participantes = aportaciones.stream()
-                .map(Aportacion::getParticipante)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        model.addAttribute("proyecto", proyecto);
+    /**
+     * Método para listar los participantes del proyecto
+     * @param model pasa los datos a la vista
+     * @return vista que muestra todos los participantes
+     * @throws Exception
+     */
+    @GetMapping("/participantes")
+    public String listarTodosParticipantes(Model model) throws Exception {
+        List<Participante> participantes = participanteService.findAllParticipantes();
         model.addAttribute("participantes", participantes);
-        // Nuevo participante para el formulario
-        model.addAttribute("nuevoParticipante", new Participante());
-
-        return "gestionarParticipantes";  // nueva plantilla Thymeleaf que crearás
+        return "crearParticipante";
     }
-
-    @PostMapping("/participantes/proyectos/{id}")
-    public String agregarParticipanteProyecto(@PathVariable Long id, @ModelAttribute Participante participante, Model model) throws Exception {
-        // Buscas el proyecto
-        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-
-        // Aquí asignar la relación, si es necesaria
-        // Si en Participante tienes referencia a Proyecto, setearla
-        // Si no, asegúrate que la lógica esté correcta
-
-        // Guarda el participante
-        participanteService.saveParticipante(participante);
-
-        // Ahora recarga la lista de participantes para ese proyecto
-        // (opcional: si saveParticipante no actualiza la relación, asegurarse de ello)
-
-        // Redirige a la misma página para ver la lista actualizada
-        return "redirect:/participantes/proyectos/" + id;
-    }
-
-
-
-
-
-
 
 }
-

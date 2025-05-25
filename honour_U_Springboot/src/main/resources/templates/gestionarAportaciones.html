@@ -148,7 +148,8 @@
 
 <!-- Botón de participantes -->
 <div class="bottom-btn">
-    <a th:href="@{/participantes}" class="btn btn-large-primary">Gestionar Participantes</a>
+    <a th:href="@{/participantes/proyectos/{id}(id=${proyecto.proyectoId})}" class="btn btn-large-primary">Gestionar Participantes</a>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

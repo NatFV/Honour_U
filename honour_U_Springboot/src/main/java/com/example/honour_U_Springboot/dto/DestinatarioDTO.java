@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Clase DestinatarioDTO utilizada para las consultas API
+ */
 public class DestinatarioDTO {
 
     private Long destinatarioId;

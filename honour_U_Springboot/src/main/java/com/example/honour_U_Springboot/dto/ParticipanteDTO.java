@@ -1,7 +1,11 @@
-// ParticipanteDTO.java
+
 package com.example.honour_U_Springboot.dto;
 
 import java.util.List;
+
+/**
+ * Clase ParticipanteDTO utilizada para las consultas API
+ */
 
 public class ParticipanteDTO {
     private Long id;
@@ -9,6 +13,7 @@ public class ParticipanteDTO {
     private String apellido;
     private String email;
     private List<String> aportacionesMensajes;
+    private Long proyectoId;
 
     // Getters y setters
 
@@ -42,6 +47,14 @@ public class ParticipanteDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Long getProyectoId() {
+        return proyectoId;
+    }
+
+    public void setProyectoId(Long proyectoId) {
+        this.proyectoId = proyectoId;
     }
 
     public List<String> getAportacionesMensajes() {

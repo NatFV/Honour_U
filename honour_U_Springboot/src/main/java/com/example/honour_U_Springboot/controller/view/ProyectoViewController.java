@@ -13,6 +13,9 @@ import com.example.honour_U_Springboot.service.AportacionService;
 
 import java.util.List;
 
+/**
+ * Clase ProyectoViewController, maneja las vistas del controlador
+ */
 @Controller
 public class ProyectoViewController {
     @Autowired
@@ -20,6 +23,11 @@ public class ProyectoViewController {
     @Autowired
     private AportacionService aportacionService;
 
+    /**
+     * Método para mostrar proyectos
+     * @param model
+     * @return la vista del proyecto
+     */
     @GetMapping("/proyectos")
     public String mostrarProyectos(Model model) {
         List<Proyecto> proyectos = proyectoService.findAllProyectos();
@@ -30,13 +38,26 @@ public class ProyectoViewController {
         return "crearProyecto"; // El nombre del archivo HTML (proyectos.html)
     }
 
+    /**
+     * Método para guardar el proyecto
+     * @param proyecto
+     * @return redirige a la lista de proyectos actualizados
+     */
     @PostMapping("/proyectos")
     public String guardarProyecto(Proyecto proyecto) {
         proyectoService.saveProyecto(proyecto);
         return "redirect:/proyectos"; // Redirige para que recargue la lista
     }
 
-    // Mostrar formulario de edición
+    /**
+     * Muestra el formulario de edición para un proyecto específico.
+     * Carga el proyecto, sus aportaciones y prepara el modelo para la vista de edición.
+     *
+     * @param id    ID del proyecto a editar.
+     * @param model Modelo para pasar datos a la vista.
+     * @return      Nombre de la vista de edición del proyecto.
+     * @throws Exception si el proyecto no se encuentra o ocurre un error en el servicio.
+     */
     @GetMapping("/proyectos/{id}/edit")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Proyecto proyecto = proyectoService.findProyectoById(id);
@@ -50,14 +71,23 @@ public class ProyectoViewController {
         return "editarProyecto";
     }
 
-    // Procesar el formulario de edición
+    /**
+     * Método para actualizar proyecto
+     * @param id
+     * @param proyecto
+     * @return la vista proyecto actualizada
+     */
     @PostMapping("/proyectos/{id}/update")
     public String actualizarProyecto(@PathVariable Long id, @ModelAttribute Proyecto proyecto) {
         proyectoService.updateProyecto(id, proyecto);
         return "redirect:/proyectos";
     }
 
-    //Eliminar un proyecto por ID
+    /**
+     * Método eliminar proyecto
+     * @param id del proyecto deseado
+     * @return la vista de proyectos con la lista actualizad
+     */
     @GetMapping("/proyectos/{id}/delete")
     public String eliminarProyecto(@PathVariable Long id) {
         proyectoService.deleteProyectoById(id);

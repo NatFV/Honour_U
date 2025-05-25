@@ -4,6 +4,7 @@ import com.example.honour_U_Springboot.dto.ParticipanteDTO;
 import com.example.honour_U_Springboot.model.Participante;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.repository.ParticipanteRepository;
+import com.example.honour_U_Springboot.repository.ProyectoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,14 @@ public class ParticipanteService {
     // Inyectamos la instancia de ParticipanteRepository usando la anotación @Autowired
     @Autowired
     private ParticipanteRepository participanteRepository;
+    @Autowired
+    private ProyectoRepository proyectoRepository;
+
+    @Autowired
+    public ParticipanteService(ParticipanteRepository participanteRepository, ProyectoRepository proyectoRepository) {
+        this.participanteRepository = participanteRepository;
+        this.proyectoRepository = proyectoRepository;
+    }
 
     /**
      * Método para guardar la aportación en la base de datos.
@@ -25,8 +34,17 @@ public class ParticipanteService {
      * @return
      */
     public Participante saveParticipante (Participante participante){
-        //Llamamos al metodo save() de ProyectoRepository, que guarda el proyecto
-        //en la base de datos
+        if (participante.getProyecto() != null) {
+            Long proyectoId = participante.getProyecto().getProyectoId();
+            if (proyectoId != null) {
+                Proyecto proyectoPersistido = proyectoRepository.findById(proyectoId)
+                        .orElseThrow(() -> new RuntimeException("Proyecto no encontrado con id " + proyectoId));
+                participante.setProyecto(proyectoPersistido); // asigna el proyecto persistido
+            } else {
+                // Aquí, el proyecto es transient y no tiene ID. Debes guardarlo primero o lanzar error.
+                throw new RuntimeException("Proyecto debe tener un ID válido para asignarse a Participante");
+            }
+        }
         return participanteRepository.save(participante);
     }
 
@@ -80,8 +98,8 @@ public class ParticipanteService {
      * Método que encuentra el participante que ha hecho más aportaciones
      * @return el participante que ha realizado más aportaciones
      */
-    public Participante participanteConMasAportaciones(){
-        return participanteRepository.findParticipanteByMasAportaciones();
+    public List<Participante> participantesConMasAportaciones() {
+        return participanteRepository.findParticipantesConMasAportaciones();
     }
 
 
@@ -108,6 +126,16 @@ public class ParticipanteService {
     public List<Participante> findByProyecto(Proyecto proyecto) {
         return participanteRepository.findByProyectoId(proyecto.getProyectoId());
     }
+
+    /**
+     * Méodo para encontrar el proyecto del participante
+     * @param proyectoId
+     * @return la lista de participantes con ese proyecto
+     */
+    public List<Participante> findByProyectoId(Long proyectoId) {
+        return participanteRepository.findByProyectoProyectoId(proyectoId);
+    }
+
 
 
 }

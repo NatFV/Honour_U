@@ -11,6 +11,9 @@ import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.model.Libro;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+/**
+ * Clase Proyecto DTO utilizada para las consultas API
+ */
 public class ProyectoDTO {
 
     private Long proyectoId;
@@ -27,7 +30,7 @@ public class ProyectoDTO {
         // Constructor vacío necesario para la deserialización con @RequestBody
     }
 
-
+    //Constructor
     public ProyectoDTO(Proyecto proyecto) {
         this.proyectoId = proyecto.getProyectoId();
         this.nombreProyecto = proyecto.getNombreProyecto();
@@ -44,27 +47,6 @@ public class ProyectoDTO {
                     .collect(Collectors.toSet());
         }
 
-    }
-    // Métodos de utilidad para convertir a entidad si es necesario
-    public Proyecto toEntity() {
-        Proyecto proyecto = new Proyecto();
-        proyecto.setProyectoId(this.proyectoId);
-        proyecto.setNombreProyecto(this.nombreProyecto);
-        proyecto.setOrganizador(this.organizador);
-        proyecto.setDescripcion(this.descripcion);
-        proyecto.setUrlProyecto(this.urlProyecto);
-        proyecto.setPlazoFinalizacion(this.plazoFinalizacion);
-
-        // Convertimos cada AportacionDTO en una Aportacion y la añadimos
-        if (this.aportaciones != null) {
-            Set<Aportacion> aportacionesSet = this.aportaciones
-                    .stream()
-                    .map(AportacionDTO::toEntity)  // Convertimos AportacionDTO a Aportacion
-                    .collect(Collectors.toSet());
-            proyecto.setAportaciones(aportacionesSet);
-        }
-
-        return proyecto;
     }
 
     //Getters y setters
@@ -125,6 +107,35 @@ public class ProyectoDTO {
     public void setAportaciones(Set<AportacionDTO> aportaciones) {
         this.aportaciones = aportaciones;
     }
+
+    /**
+     * Método toEntity
+     * Copia los valores de los atributos del DTO al nuevo objeto Proyecto
+     * Si el dto tiene una lista de objetos AportacionDTO los convierte a obejtos Aportacion
+     * y los agrega a Proyecto
+     * @return un nuevo objeto Proyecto
+     */
+    public Proyecto toEntity() {
+        Proyecto proyecto = new Proyecto();
+        proyecto.setProyectoId(this.proyectoId);
+        proyecto.setNombreProyecto(this.nombreProyecto);
+        proyecto.setOrganizador(this.organizador);
+        proyecto.setDescripcion(this.descripcion);
+        proyecto.setUrlProyecto(this.urlProyecto);
+        proyecto.setPlazoFinalizacion(this.plazoFinalizacion);
+
+        // Convertimos cada AportacionDTO en una Aportacion y la añadimos
+        if (this.aportaciones != null) {
+            Set<Aportacion> aportacionesSet = this.aportaciones
+                    .stream()
+                    .map(AportacionDTO::toEntity)  // Convertimos AportacionDTO a Aportacion
+                    .collect(Collectors.toSet());
+            proyecto.setAportaciones(aportacionesSet);
+        }
+
+        return proyecto;
+    }
+
 }
 
 

@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Clase direcciones
+ * Representa las direcciones a las que se envía el libro
+ */
 @Entity
 @Table(name = "direccion")
 //@Data
@@ -94,7 +98,7 @@ public class Direccion {
     }
 
     //Relación destinatario-dirección: bidireccional de uno a muchos
-//Dirección (Lado "Muchos")
+    //Dirección (Lado "Muchos")
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destinatario_id")

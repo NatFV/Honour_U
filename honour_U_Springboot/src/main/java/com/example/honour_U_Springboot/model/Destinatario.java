@@ -1,5 +1,6 @@
 package com.example.honour_U_Springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,10 @@ import lombok.NoArgsConstructor;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Clase destinatario,
+ * Representa el destinatario al que se le envía el libro
+ */
 @Entity
 @Table(name = "destinatario")
 //@Data No funciona
@@ -85,14 +90,16 @@ public class Destinatario {
 
     //Relación libro-destinatario 1:1 bidireccional
     //Destinatario es el lado propietario porque lleva la fk
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "fk_libro_id", referencedColumnName = "libro_id")
     private Libro libro;
 
     //Relación destinatario-dirección 1 a muchos bidireccional
+    @JsonIgnore
     @OneToMany (mappedBy = "destinatario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Direccion> direcciones = new HashSet<>();
-
+    //Getters y setters de direcciones
     public Set<Direccion> getDirecciones() {
         return direcciones;
     }

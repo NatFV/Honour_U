@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Clase LibroViewController
+ * Maneja las vistas del controlador
+ */
 @Controller
 public class LibroViewController {
     @Autowired
@@ -26,6 +30,11 @@ public class LibroViewController {
     private ProyectoService proyectoService;
 
 
+    /**
+     * Método guardar libro
+     * @param libro
+     * @return vista actualizada con la lista de libros
+     */
     @PostMapping("/libros")
     public String guardarLibro(@ModelAttribute Libro libro) {
         Long proyectoId = libro.getProyecto() != null ? libro.getProyecto().getProyectoId() : null;
@@ -37,7 +46,13 @@ public class LibroViewController {
         return "redirect:/libros";
     }
 
-    // Mostrar formulario de edición
+    /**
+     * Método editar libros
+     * @param id del libro actualizar
+     * @param model conecta la inforamción del controlador con las vistas
+     * @return vista para editar libro
+     * @throws Exception si no la puede crear
+     */
     @GetMapping("/libros/{id}/edit")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Libro libro = libroService.findLibroById(id);
@@ -46,20 +61,34 @@ public class LibroViewController {
         return "editarLibro"; // Vista a crear
     }
 
-    // Procesar el formulario de edición
+    /**
+     * Método para actualizar libro
+     * @param id del libro a actualizr
+     * @param libro
+     * @return la vista con los libros actualizados
+     */
     @PostMapping("/libros/{id}/update")
     public String actualizarLibro(@PathVariable Long id, @ModelAttribute Libro libro) {
         libroService.updateLibro(id, libro);
         return "redirect:/libros";
     }
 
-    //Eliminar un proyecto por ID
+    /**
+     * Método eliminar libro
+     * @param id del libro para eliminar
+     * @return la vista con la lista de libros actualizada
+     */
     @GetMapping("/libros/{id}/delete")
     public String eliminarLibro(@PathVariable Long id) {
         libroService.deleteLibroByIdAPI(id);
         return "redirect:/libros";
     }
 
+    /**
+     * Método para mostrar forumulario que muestra los libros
+     * @param model conecta las vistas con el controlador
+     * @return la vista con lista de libros actualizados
+     */
     @GetMapping("/libros")
     public String mostrarFormularioLibros(Model model) {
         model.addAttribute("libro", new Libro());
@@ -74,6 +103,12 @@ public class LibroViewController {
 
         return "crearLibro";
     }
+
+    /**
+     * Método para crear libros
+     * @param model conecta las vistas con el controlador
+     * @return vista crear libro
+     */
     @GetMapping("/crearLibro")
     public String mostrarFormularioCrearLibro(Model model) {
         if (!model.containsAttribute("libro")) {

@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Clase DireccionService
+ * Maneja la lógica de negocio para la clase Direccion
+ */
 @Service
 public class DireccionService {
     @Autowired
@@ -85,9 +89,14 @@ public class DireccionService {
      * @return lista de direcciones que no son de España
      */
     public List<Direccion> obtenerDireccionesInternacionales(){
-        return direccionRepository.findByPaisNot("Spain");
+        return direccionRepository.findByPaisNot("España");
     }
 
+    /**
+     * Método para crear una dirección a partir del DTO
+     * @param dto
+     * @return direccionDTO
+     */
     public DireccionDTO createDireccionFromDTO(DireccionDTO dto) {
         Direccion direccion = new Direccion();
         direccion.setCalle(dto.getCalle());
@@ -106,6 +115,10 @@ public class DireccionService {
         return new DireccionDTO(saved);
     }
 
+    /**
+     * Método para obtener todas las direcciones a partir de DireccionDTO
+     * @return lista de direcciones DTO
+     */
     public List<DireccionDTO> getAllDireccionesDTO() {
         return direccionRepository.findAll()
                 .stream()
@@ -113,12 +126,23 @@ public class DireccionService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Método para encontrar las direcciones por id
+     * @param id de la dirección que se quiere encontrar
+     * @return dirección
+     */
     public DireccionDTO findDireccionByIdAPI(Long id) {
         Direccion direccion = direccionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
         return new DireccionDTO(direccion);
     }
 
+    /**
+     * Método para actualizar las direcciones
+     * @param id de la dirección a actualizar
+     * @param dto con la información de la dirección a actualizar
+     * @return dirección actualizada
+     */
     public DireccionDTO updateDireccionAPI(Long id, DireccionDTO dto) {
         Direccion direccion = direccionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
@@ -141,6 +165,10 @@ public class DireccionService {
         return new DireccionDTO(updated);
     }
 
+    /**
+     * Método para borrar direcciones por ID
+     * @param id de la dirección que se quiere borrar
+     */
     public void deleteDireccionByIdAPI(Long id) {
         if (!direccionRepository.existsById(id)) {
             throw new RuntimeException("Dirección no encontrada");
