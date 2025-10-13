@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title>Editar Aportación</title>
+    <th:block layout:fragment="extra_head">
+        <style>
+            .pagina { width:100%; max-width:720px; min-height:800px; border:1px solid #e5e5e5; margin:20px auto; padding:40px 50px; box-shadow:0 4px 15px rgba(0,0,0,0.08); background:#fffef8; border-radius:10px; position:relative; }
+            .titulo-proyecto { text-align:center; font-weight:700; font-size:22px; margin-bottom:8px; }
+            .editor-remitente { text-align:center; font-size:16px; color:#444; font-style:italic; min-height:24px; margin-bottom:15px; }
+            .editor-mensaje { min-height:300px; border:1px dashed #ccc; border-radius:8px; padding:12px; font-size:15px; background:#fafafa; line-height:1.5; outline:none; white-space:pre-wrap; }
+            .editor-mensaje[contenteditable]:empty:before, .editor-remitente[contenteditable]:empty:before { content: attr(data-placeholder); color:#bbb; }
+            .media img, .media video, .media audio { max-width:100%; height:auto; margin-top:10px; border-radius:6px; }
+            .preview-container { max-width:760px; margin:0 auto; }
+        </style>
+    </th:block>
+</head>
+<body>
+<section layout:fragment="content">
+    <h2 class="mb-4 text-center">Editar Aportación</h2>
+
+    <form th:action="@{/proyectos/token/{token}/aportaciones/{id}/editar(token=${proyecto.tokenUrl}, id=${aportacion.aportacionId})}"
+          th:object="${aportacion}" method="post" enctype="multipart/form-data" id="editarForm">
+
+        <input type="hidden" th:field="*{mensaje}" id="mensajeHidden"/>
+        <input type="hidden" th:field="*{remitente}" id="remitenteHidden"/>
+
+        <div class="preview-container mx-auto">
+            <div id="preview" class="pagina">
+                <div class="titulo-proyecto" th:text="${proyecto.nombreProyecto} ?: 'Libro de Homenaje'"></div>
+
+                <div id="editorRemitente" class="editor-remitente" contenteditable="true"
+                     data-placeholder="Tu nombre..." th:text="*{remitente}">Remitente</div>
+
+                <div id="editorMensaje" class="editor-mensaje" contenteditable="true"
+                     data-placeholder="Escribe tu mensaje aquí..." th:text="*{mensaje}">Mensaje…</div>
+
+                <div class="media" id="preview-media">
+                    <!-- Si quieres, muestra aquí las imágenes existentes -->
+                    <img th:each="u : ${aportacion.mediaUrls}" th:src="@{${u}}" alt="foto" style="max-width:100%; border-radius:6px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <div class="form-check d-inline-block me-3">
+                <input type="checkbox" th:field="*{esVisible}" class="form-check-input" id="visibleCheck">
+                <label class="form-check-label" for="visibleCheck">¿Visible?</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a th:href="@{/proyectos/token/{token}/aportaciones(token=${proyecto.tokenUrl})}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </div>
+    </form>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editorRemitente = document.getElementById('editorRemitente');
+            const editorMensaje = document.getElementById('editorMensaje');
+            const remitenteHidden = document.getElementById('remitenteHidden');
+            const mensajeHidden = document.getElementById('mensajeHidden');
+
+            const syncRemitente = () => remitenteHidden.value = editorRemitente.innerText.trim();
+            const syncMensaje = () => mensajeHidden.value = editorMensaje.innerText.trim();
+
+            editorRemitente.addEventListener('input', syncRemitente);
+            editorMensaje.addEventListener('input', syncMensaje);
+
+            // Sincroniza ahora por si el usuario envía sin tocar
+            syncRemitente(); syncMensaje();
+
+            document.getElementById('editarForm').addEventListener('submit', () => {
+                syncRemitente(); syncMensaje();
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

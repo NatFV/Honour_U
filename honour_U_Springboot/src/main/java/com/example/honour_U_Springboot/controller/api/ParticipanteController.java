@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Clase ParticipanteController, usada para las consultas API
  */
-@RestController //Maneja solicitudes http
+@RestController //Hace que los métodos devuelvan JSON directamente
 @RequestMapping("/api/participantes")//ruta base para los puntos finales
 public class ParticipanteController {
     @Autowired

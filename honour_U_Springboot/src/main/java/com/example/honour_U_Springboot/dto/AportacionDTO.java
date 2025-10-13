@@ -2,6 +2,7 @@ package com.example.honour_U_Springboot.dto;
 
 import com.example.honour_U_Springboot.model.Aportacion;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Clase Aportación DTO utilizada para las consultas API
@@ -14,6 +15,7 @@ public class AportacionDTO {
     public enum MediaType { VIDEO, AUDIO, FOTO, TEXTO }
     private Aportacion.MediaType mediaType;
     private boolean esVisible;
+    private MultipartFile archivo; //Este es un nuevo campo para subir archivos
 
     //Constructor
     // Constructor vacío necesario para la deserialización JSON (Jackson)
@@ -28,6 +30,7 @@ public class AportacionDTO {
         this.url = aportacion.getUrl();
         this.mediaType = aportacion.getMediaType();
         this.esVisible = aportacion.isEsVisible();
+
     }
 
     //Getters and setters
@@ -79,6 +82,14 @@ public class AportacionDTO {
 
     public void setEsVisible(boolean esVisible) {
         this.esVisible = esVisible;
+    }
+
+    public MultipartFile getArchivo() {
+        return archivo;
+    }
+
+    public void setArchivo(MultipartFile archivo) {
+        this.archivo = archivo;
     }
 
     /**

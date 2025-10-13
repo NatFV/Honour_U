@@ -44,50 +44,7 @@
 <div class="text-center my-4">
     <img th:src="@{/img/honourU.jpg}"  alt="Encabezado visual" style="max-width: 10%; max-height: 10%; ">
 </div>
-
 <body>
-<!-- Contenedor principal -->
-<div class="container">
-    <h1 class="mb-4">Crea tu proyecto</h1>
-
-    <!-- Formulario para crear o editar un proyecto -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <!-- Acción del formulario: POST para crear o PUT para editar -->
-            <form th:action="@{/proyectos}" th:object="${proyecto}" method="post">
-                <!-- th:field="*{atributo}" → mapea cada input a un atributo del objeto. -->
-                <div class="mb-3">
-                    <label for="nombreProyecto" class="form-label">Nombre del Proyecto</label>
-                    <input type="text" id="nombreProyecto" th:field="*{nombreProyecto}" class="form-control" placeholder="Nombre del proyecto" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="organizador" class="form-label">Organizador</label>
-                    <input type="text" id="organizador" th:field="*{organizador}" class="form-control" placeholder="Organizador del proyecto" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción</label>
-                    <textarea id="descripcion" th:field="*{descripcion}" class="form-control" placeholder="Descripción del proyecto" required></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="urlProyecto" class="form-label">URL del Proyecto</label>
-                    <input type="url" id="urlProyecto" th:field="*{urlProyecto}" class="form-control" placeholder="URL del proyecto" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="plazoFinalizacion" class="form-label">Plazo de Finalización</label>
-                    <input type="date" id="plazoFinalizacion" th:field="*{plazoFinalizacion}" class="form-control" required>
-                </div>
-
-
-
-                <button type="submit" class="btn btn-success">Guardar Proyecto</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Listado de proyectos  -->
     <h2 class="mt-4">Proyectos Existentes</h2>
     <table class="table tabla-fondo">

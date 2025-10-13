@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE - Libro de Homenaje">Nueva Aportación</title>
+
+    <th:block layout:fragment="extra_head">
+        <style>
+            body {
+                background-color: #f9fafb;
+            }
+
+            .pagina {
+                width: 100%;
+                max-width: 720px;
+                min-height: 800px;
+                border: 1px solid #e5e5e5;
+                margin: 20px auto;
+                padding: 40px 50px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                background: #fffef8;
+                border-radius: 10px;
+                position: relative;
+                transition: all 0.3s ease;
+            }
+
+            .pagina:focus-within {
+                box-shadow: 0 0 0 4px rgba(100, 180, 255, 0.2);
+            }
+
+            .titulo-proyecto {
+                text-align: center;
+                font-weight: 700;
+                font-size: 22px;
+                margin-bottom: 8px;
+            }
+
+            .editor-remitente {
+                text-align: center;
+                font-size: 16px;
+                color: #444;
+                font-style: italic;
+                min-height: 24px;
+                margin-bottom: 15px;
+            }
+
+            .editor-remitente[contenteditable]:empty:before {
+                content: attr(data-placeholder);
+                color: #bbb;
+            }
+
+            .editor-mensaje {
+                min-height: 300px;
+                border: 1px dashed #ccc;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 15px;
+                background: #fafafa;
+                line-height: 1.5;
+                outline: none;
+                white-space: pre-wrap;
+            }
+
+            .editor-mensaje[contenteditable]:empty:before {
+                content: attr(data-placeholder);
+                color: #bbb;
+            }
+
+            .editor-mensaje:focus {
+                border-color: #b0d4ff;
+                background: #f0f8ff;
+            }
+
+            .zona-drop {
+                border: 2px dashed #b5b5b5;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+                transition: background .2s, border-color .2s;
+                margin-top: 20px;
+                min-height: 150px;
+            }
+
+            .zona-drop.dragover {
+                background: #eef9ff;
+                border-color: #66afe9;
+            }
+
+            .media img, .media video, .media audio {
+                max-width: 100%;
+                height: auto;
+                margin-top: 10px;
+                border-radius: 6px;
+            }
+
+            .numero-pagina {
+                text-align: right;
+                font-size: 12px;
+                color: #666;
+                position: absolute;
+                bottom: 10px;
+                right: 16px;
+            }
+
+            .preview-container {
+                max-width: 760px;
+                margin: 0 auto;
+            }
+
+            @media (max-width: 768px) {
+                .pagina {
+                    padding: 25px;
+                    min-height: 700px;
+                }
+
+                .titulo-proyecto {
+                    font-size: 18px;
+                }
+
+                .editor-mensaje {
+                    min-height: 220px;
+                }
+            }
+            /* Pantalla completa real (Fullscreen API) */
+            .pagina.fullscreen {
+                width: 100vw;
+                max-width: none;
+                min-height: 100vh;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 40px 10vw; /* margen lateral para que respire el contenido */
+                background: #fffef8;
+            }
+
+            /* Fallback si Fullscreen API no está disponible (iOS Safari, etc.) */
+            .pagina.fullscreen-fallback {
+                position: fixed;
+                inset: 0;
+                z-index: 1050; /* encima de todo */
+                width: 100vw;
+                height: 100vh;
+                overflow: auto;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 40px 10vw;
+                background: #fffef8;
+            }
+
+            /* Botón flotante para salir en el fallback */
+            .btn-exit-fallback {
+                position: fixed;
+                top: 12px;
+                right: 12px;
+                z-index: 1060;
+            }
+
+        </style>
+    </th:block>
+</head>
+
+<body>
+<section layout:fragment="content">
+
+    <h2 class="mb-4 text-center">Crear Nueva Aportación</h2>
+
+    <form th:action="@{/proyectos/token/{token}/aportaciones(token=${proyecto.tokenUrl})}"
+          th:object="${nuevaAportacion}" method="post" enctype="multipart/form-data" id="aportacionForm">
+
+        <!-- Campos ocultos (sin inputs visibles) -->
+        <input type="hidden" th:field="*{mensaje}" id="mensajeHidden"/>
+        <input type="hidden" th:field="*{remitente}" id="remitenteHidden"/>
+
+        <!-- Vista “hoja” -->
+        <div class="preview-container mx-auto">
+            <div id="preview" class="pagina" tabindex="0">
+                <div class="titulo-proyecto"
+                     th:text="${proyecto.nombreProyecto} ?: 'Libro de Homenaje'">Libro de Homenaje</div>
+
+                <!-- Nombre del remitente -->
+                <div id="editorRemitente" class="editor-remitente" contenteditable="true"
+                     data-placeholder="Tu nombre..."></div>
+
+                <!-- Mensaje -->
+                <div id="editorMensaje" class="editor-mensaje" contenteditable="true"
+                     data-placeholder="Escribe tu mensaje aquí..."></div>
+
+                <!-- Zona drag & drop -->
+                <div class="zona-drop" id="zonaDrop">
+                    Arrastra tus fotos, vídeos o audios aquí
+                    <div class="media" id="preview-media"></div>
+                </div>
+
+                <div class="numero-pagina">Vista previa</div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="button" id="btnFullscreen" class="btn btn-outline-primary me-3">
+                Vista previa a pantalla completa
+            </button>
+        </div>
+
+        <!-- Opciones finales -->
+        <div class="text-center mt-4">
+            <div class="form-check d-inline-block me-3">
+                <input type="checkbox" th:field="*{esVisible}" class="form-check-input" id="visibleCheck">
+                <label class="form-check-label" for="visibleCheck">¿Visible?</label>
+            </div>
+
+            <button type="submit" class="btn btn-success">Guardar Aportación</button>
+        </div>
+    </form>
+
+    <!-- Aportaciones existentes -->
+    <h3 class="mt-5">Aportaciones Existentes</h3>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        <div class="col" th:each="a : ${proyecto.aportaciones}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${a.remitente}">Remitente</h5>
+                    <p class="card-text small text-muted" th:text="${a.mensaje}">Mensaje…</p>
+
+                    <!-- Miniaturas -->
+                    <div th:if="${a.mediaUrls != null} and ${!a.mediaUrls.isEmpty()}">
+                        <div class="d-flex flex-wrap gap-2">
+                            <img th:each="u : ${a.mediaUrls}" th:src="@{${u}}" alt="foto"
+                                 style="max-width:80px; max-height:80px; border-radius:6px;">
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <span class="badge bg-secondary" th:text="${a.mediaType}">TEXTO</span>
+                        <span class="badge" th:classappend="${a.esVisible} ? 'bg-success' : 'bg-danger'"
+                              th:text="${a.esVisible} ? 'Visible' : 'No visible'">Visible</span>
+                    </div>
+
+                    <!-- Enlaces según disponibilidad -->
+                    <span th:if="${a.esVisible}">
+                        <!-- Si tiene URL propia, úsala -->
+                    <a class="small" target="_blank"
+                    th:if="${a.url != null}"
+                    th:href="@{${a.url}}">Ver enlace</a>
+
+                        <!-- Si no hay URL pero sí media, abrimos una vista de lectura de la aportación -->
+                    <a class="small" target="_blank"
+                        th:if="${a.url == null and a.mediaUrls != null and !a.mediaUrls.isEmpty()}"
+                        th:href="@{/proyectos/token/{token}/aportaciones/{id}/ver(
+                           token=${proyecto.tokenUrl}, id=${a.aportacionId})}">Ver enlace</a>
+
+                        <!-- Si es visible pero no hay dónde ir -->
+                    <span class="small text-muted"
+                        th:if="${a.url == null and (a.mediaUrls == null or a.mediaUrls.isEmpty())}">
+                    Sin enlace
+                </span>
+            </span>
+                    <span th:if="${!a.esVisible}" class="small text-muted">Sin enlace</span>
+
+
+
+                    <!-- Botones solo para el dueño (comparando con la sesión) -->
+                    <div class="mt-3 d-flex gap-2"
+                         th:if="${a.ownerKey} == ${session['ownerKey:' + proyecto.tokenUrl]}">
+                        <a th:href="@{/proyectos/token/{token}/aportaciones/{id}/editar(
+                token=${proyecto.tokenUrl}, id=${a.aportacionId})}"
+                           class="btn btn-sm btn-primary">Editar</a>
+
+                        <form th:action="@{/proyectos/token/{token}/aportaciones/{id}/eliminar(
+                      token=${proyecto.tokenUrl}, id=${a.aportacionId})}"
+                              method="post" onsubmit="return confirm('¿Eliminar esta aportación?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const editorRemitente = document.getElementById('editorRemitente');
+            const editorMensaje = document.getElementById('editorMensaje');
+            const remitenteHidden = document.getElementById('remitenteHidden');
+            const mensajeHidden = document.getElementById('mensajeHidden');
+            const zonaDrop = document.getElementById('zonaDrop');
+            const previewMedia = document.getElementById('preview-media');
+
+            const syncRemitente = () => remitenteHidden.value = editorRemitente.innerText.trim();
+            const syncMensaje = () => mensajeHidden.value = editorMensaje.innerText.trim();
+            editorRemitente.addEventListener('input', syncRemitente);
+            editorMensaje.addEventListener('input', syncMensaje);
+
+            const renderFiles = (files) => {
+                previewMedia.innerHTML = '';
+                [...files].forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (file.type.startsWith('image/')) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            previewMedia.appendChild(img);
+                        } else if (file.type.startsWith('video/')) {
+                            const video = document.createElement('video');
+                            video.src = e.target.result;
+                            video.controls = true;
+                            previewMedia.appendChild(video);
+                        } else if (file.type.startsWith('audio/')) {
+                            const audio = document.createElement('audio');
+                            audio.src = e.target.result;
+                            audio.controls = true;
+                            previewMedia.appendChild(audio);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            ['dragenter', 'dragover'].forEach(evt =>
+                zonaDrop.addEventListener(evt, e => {
+                    e.preventDefault(); zonaDrop.classList.add('dragover');
+                })
+            );
+            ['dragleave', 'drop'].forEach(evt =>
+                zonaDrop.addEventListener(evt, e => {
+                    e.preventDefault(); zonaDrop.classList.remove('dragover');
+                })
+            );
+            zonaDrop.addEventListener('drop', e => {
+                const files = e.dataTransfer.files;
+                renderFiles(files);
+
+                const dt = new DataTransfer();
+                for (const f of files) dt.items.add(f);
+                let input = document.querySelector('input[name="imagenes"]');
+                if (!input) {
+                    input = document.createElement('input');
+                    input.type = 'file';
+                    input.name = 'imagenes';
+                    input.multiple = true;
+                    input.hidden = true;
+                    document.getElementById('aportacionForm').appendChild(input);
+                }
+                input.files = dt.files;
+            });
+
+            document.getElementById('aportacionForm').addEventListener('submit', () => {
+                syncRemitente(); syncMensaje();
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const preview = document.getElementById('preview');
+            const btnFS = document.getElementById('btnFullscreen');
+
+            const enterNativeFullscreen = async () => {
+                try {
+                    if (!document.fullscreenElement && preview.requestFullscreen) {
+                        await preview.requestFullscreen();
+                        preview.classList.add('fullscreen');
+                    }
+                } catch (e) {
+                    // Si falla, hacemos fallback
+                    enterFallbackFullscreen();
+                }
+            };
+
+            const exitNativeFullscreen = async () => {
+                try {
+                    if (document.fullscreenElement) {
+                        await document.exitFullscreen();
+                    }
+                } catch (e) {
+                    // ignoramos
+                } finally {
+                    preview.classList.remove('fullscreen');
+                }
+            };
+
+            const enterFallbackFullscreen = () => {
+                // Modo "pantalla completa" por CSS (para navegadores sin Fullscreen API)
+                preview.classList.add('fullscreen-fallback');
+
+                // Creamos un botón para salir del fallback
+                let exitBtn = document.getElementById('exitFallbackBtn');
+                if (!exitBtn) {
+                    exitBtn = document.createElement('button');
+                    exitBtn.id = 'exitFallbackBtn';
+                    exitBtn.type = 'button';
+                    exitBtn.className = 'btn btn-outline-secondary btn-sm btn-exit-fallback';
+                    exitBtn.textContent = 'Salir de pantalla completa';
+                    document.body.appendChild(exitBtn);
+                    exitBtn.addEventListener('click', exitFallbackFullscreen);
+                }
+            };
+
+            const exitFallbackFullscreen = () => {
+                preview.classList.remove('fullscreen-fallback');
+                const exitBtn = document.getElementById('exitFallbackBtn');
+                if (exitBtn) exitBtn.remove();
+            };
+
+            // Gestiona el botón
+            btnFS.addEventListener('click', async () => {
+                // Si ya estamos en nativo -> salir
+                if (document.fullscreenElement) {
+                    await exitNativeFullscreen();
+                    btnFS.textContent = 'Vista previa a pantalla completa';
+                    return;
+                }
+                // Si estamos en fallback -> salir
+                if (preview.classList.contains('fullscreen-fallback')) {
+                    exitFallbackFullscreen();
+                    btnFS.textContent = 'Vista previa a pantalla completa';
+                    return;
+                }
+                // Entrar en fullscreen
+                if (preview.requestFullscreen) {
+                    await enterNativeFullscreen();
+                    btnFS.textContent = 'Salir de pantalla completa';
+                } else {
+                    enterFallbackFullscreen();
+                    btnFS.textContent = 'Salir de pantalla completa';
+                }
+            });
+
+            // Cambia el texto del botón cuando el usuario sale con ESC en modo nativo
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement) {
+                    preview.classList.remove('fullscreen');
+                    btnFS.textContent = 'Vista previa a pantalla completa';
+                } else {
+                    btnFS.textContent = 'Salir de pantalla completa';
+                }
+            });
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

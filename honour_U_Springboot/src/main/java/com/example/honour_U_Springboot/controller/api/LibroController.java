@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Maneja solicitudes HTTP
+@RestController //Hace que los métodos devuelvan JSON directamente
 @RequestMapping("/api/libros") // Ruta base para los puntos finales de los Libros
 public class LibroController {
 

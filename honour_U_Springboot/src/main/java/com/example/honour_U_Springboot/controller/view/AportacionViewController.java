@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Clase AportacionViewController
@@ -23,10 +22,10 @@ import java.util.Optional;
  */
 @Controller
 public class AportacionViewController {
-    @Autowired
+  @Autowired
     private AportacionService aportacionService;
 
-    @Autowired
+   @Autowired
     private ProyectoService proyectoService;
 
     @Autowired
@@ -37,7 +36,7 @@ public class AportacionViewController {
      * @param model para pasar información del controlador a la vista
      * @return la lista en el html crearAportación
      */
-    @GetMapping("/aportaciones")
+   @GetMapping("/aportaciones")
     public String mostrarAportaciones(Model model) {
         List<Aportacion> aportaciones = aportacionService.findAllAportaciones();
         // Verificamos si los proyectos se recuperan correctamente (opcional para depuración)
@@ -52,7 +51,7 @@ public class AportacionViewController {
      * @param aportacion con la información de la aportación
      * @return la lista actualizada de aportaciones en proyectos
      */
-    @PostMapping("/aportaciones")
+   // @PostMapping("/aportaciones")
     public String guardarAportacion(Aportacion aportacion) {
         aportacionService.saveAportacion(aportacion);
         Long proyectoId = aportacion.getProyecto().getProyectoId(); // Obtener el id del proyecto asociado
@@ -84,7 +83,7 @@ public class AportacionViewController {
      * @return redirige a la página de gestión de aportaciones
      * @throws Exception si no se puede actualizar
      */
-    @PostMapping("/aportaciones/{id}/update")
+   @PostMapping("/aportaciones/{id}/update")
     public String actualizarAportacion(@PathVariable Long id, @ModelAttribute Aportacion aportacionForm) throws Exception {
         Aportacion existente = aportacionService.findAportacionById(id);
 
@@ -110,7 +109,7 @@ public class AportacionViewController {
      * @param id de la aportación a eliminar
      * @return redirige a la lista de aportaciones
      */
-    @GetMapping("/aportaciones/{id}/delete")
+   @GetMapping("/aportaciones/{id}/delete")
     public String eliminarAportaciones(@PathVariable Long id) {
         aportacionService.deleteAportacionById(id);
         return "redirect:/aportaciones";
@@ -123,7 +122,7 @@ public class AportacionViewController {
      * @return la vista de gestión de aportaciones
      * @throws Exception si no se puede obtener
      */
-    @GetMapping("/proyectos/{id}/aportaciones")
+   @GetMapping("/proyectos/{id}/aportaciones")
     public String gestionarAportaciones(@PathVariable Long id, Model model) throws Exception {
         Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
         List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);

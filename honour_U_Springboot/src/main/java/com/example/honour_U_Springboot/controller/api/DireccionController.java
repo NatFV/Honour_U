@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Clase DireccionController utilizada para las consultas API
  */
-@RestController
+@RestController //Hace que los métodos devuelvan JSON directamente
 @RequestMapping("/api/direcciones") // Ruta base para Direcciones
 public class DireccionController {
 

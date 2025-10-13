@@ -3,7 +3,6 @@ package com.example.honour_U_Springboot.controller.view;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +22,7 @@ public class ProyectoViewController {
     @Autowired
     private AportacionService aportacionService;
 
+
     /**
      * Método para mostrar proyectos
      * @param model
@@ -35,7 +35,7 @@ public class ProyectoViewController {
         System.out.println("Proyectos cargados: " + proyectos);
         model.addAttribute("proyectos", proyectos);
         model.addAttribute("proyecto", new Proyecto()); // Para el formulario
-        return "crearProyecto"; // El nombre del archivo HTML (proyectos.html)
+        return "crearProyecto"; // El nombre del archivo HTML (crearProyecto.html)
     }
 
     /**
