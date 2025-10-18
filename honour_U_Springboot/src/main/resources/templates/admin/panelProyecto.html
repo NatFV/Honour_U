@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 <head>
     <title th:text="${proyecto.nombreProyecto} + ' – Panel'">Panel</title>
+
     <th:block layout:fragment="extra_head">
         <style>
             .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
@@ -12,7 +14,7 @@
             .handle { cursor: grab; }
             .pill { font-size: 12px; padding: 2px 6px; border-radius: 999px; }
             .pill-green { background: #e8f5e9; color: #2e7d32; }
-            .pill-gray { background: #eceff1; color: #455a64; }
+            .pill-gray  { background: #eceff1; color: #455a64; }
             .drag-ghost { opacity: .6; }
         </style>
     </th:block>
@@ -28,71 +30,40 @@
     <p class="mb-3">Arrastra para reordenar las páginas y pulsa “Guardar orden”.</p>
 
     <div class="d-flex flex-wrap gap-2 mb-3">
-        <!-- Botón Portada: abre modal -->
+        <!-- Configurar Portada -->
         <a class="btn btn-outline-primary"
-           th:href="@{/proyectos/admin/{t}/portada(t=${proyecto.adminToken})}">
+           th:href="@{/proyectos/admin/{adminToken}/portada(adminToken=${proyecto.adminToken})}">
             Configurar Portada
         </a>
 
         <!-- Crear/actualizar Índice -->
-        <form th:action="@{/proyectos/admin/{adminToken}/indice(adminToken=${proyecto.adminToken})}" method="post" class="d-inline">
+        <form th:action="@{/proyectos/admin/{adminToken}/indice(adminToken=${proyecto.adminToken})}"
+              method="post" class="d-inline">
             <button type="submit" class="btn btn-outline-secondary">Crear/Actualizar Índice</button>
         </form>
 
         <!-- Añadir página vacía -->
-        <form th:action="@{/proyectos/admin/{adminToken}/addBlank(adminToken=${proyecto.adminToken})}" method="post" class="d-inline">
+        <form th:action="@{/proyectos/admin/{adminToken}/addBlank(adminToken=${proyecto.adminToken})}"
+              method="post" class="d-inline">
             <button type="submit" class="btn btn-success">Añadir página vacía</button>
         </form>
     </div>
 
-    <!-- Modal Portada -->
-    <div class="modal fade" id="modalPortada" tabindex="-1" aria-labelledby="modalPortadaLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form class="modal-content" th:action="@{/proyectos/admin/{adminToken}/portada(adminToken=${proyecto.adminToken})}" method="post" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalPortadaLabel">Configurar Portada</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Título del homenaje</label>
-                        <input type="text" name="titulo" class="form-control" placeholder="Ej. 'Homenaje a María García'"
-                               th:value="${#lists.isEmpty(aportaciones) ? '' : ''}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Imagen de portada (opcional)</label>
-                        <input type="file" name="imagen" class="form-control" accept="image/*">
-                        <div class="form-text">Si subes una imagen, reemplazará la anterior.</div>
-                    </div>
-                    <!-- Vista previa simple (si quieres mostrar la actual) -->
-                    <div class="mt-2" th:if="${aportaciones != null}">
-                        <small class="text-muted">Portada actual:</small>
-                        <div th:each="a : ${aportaciones}" th:if="${a.pageType.name() == 'PORTADA'}">
-                            <img th:if="${a.mediaUrls != null and a.mediaUrls.size() > 0}" th:src="@{${a.mediaUrls[0]}}" alt="" style="max-width:100%; border-radius:6px;">
-                            <div class="text-muted" th:text="${a.mensaje}" style="margin-top:6px;"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" type="submit">Guardar Portada</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-
-
-    <div id="grid" class="grid" th:with="token=${proyecto.tokenUrl}">
-        <div class="card-page handle" th:each="a : ${aportaciones}" th:id="'item-'+${a.aportacionId}">
+    <!-- GRID de tarjetas (ADMIN) -->
+    <div id="grid-admin" class="grid" th:with="token=${proyecto.tokenUrl}">
+        <div class="card-page handle"
+             th:each="a : ${aportaciones}"
+             th:id="'item-'+${a.aportacionId}">
             <div class="mb-2 d-flex justify-content-between align-items-center">
-                <div class="fw-semibold" th:text="${a.remitente} ?: 'Anónimo'">Anónimo</div>
-                <span class="pill pill-gray ms-2" th:text="${a.pageType.name()}">NORMAL</span>
-                <span class="pill" th:classappend="${a.esVisible} ? ' pill-green' : ' pill-gray'"
-                      th:text="${a.esVisible} ? 'Visible' : 'No visible'">Visible</span>
+                <div class="fw-semibold text-truncate" th:text="${a.remitente} ?: 'Anónimo'">Anónimo</div>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="pill pill-gray" th:text="${a.pageType.name()}">NORMAL</span>
+                    <span class="pill" th:classappend="${a.esVisible} ? ' pill-green' : ' pill-gray'"
+                          th:text="${a.esVisible} ? 'Visible' : 'No visible'">Visible</span>
+                </div>
             </div>
 
-            <!-- miniatura: PRIMER MEDIA si existe (sin #lists.first) -->
+            <!-- Miniatura: primera media si existe -->
             <div class="mb-2">
                 <img class="thumb"
                      th:if="${a.mediaUrls != null and a.mediaUrls.size() > 0}"
@@ -101,98 +72,90 @@
                      th:if="${a.mediaUrls == null or a.mediaUrls.size() == 0}">Sin media</div>
             </div>
 
-            <!-- ACCIONES SI ES PORTADA -->
-            <div class="d-flex gap-2"
-                 th:if="${a.pageType.name() == 'PORTADA'}">
-
-                <!-- Editar (abre el formulario de portada) -->
-                <a class="btn btn-sm btn-primary"
-                   th:href="@{/proyectos/admin/{t}/portada(t=${proyecto.adminToken})}">
-                    Editar portada
-                </a>
-
-                <!-- Eliminar (borra BD + /uploads/{token}/portada) -->
-                <form th:action="@{/proyectos/admin/{t}/portada/eliminar(t=${proyecto.adminToken})}"
-                      method="post"
-                      onsubmit="return confirm('¿Eliminar la portada? Se borrarán también sus imágenes.');">
-                    <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
-                </form>
-            </div>
-
-            <!-- ACCIONES PARA EL RESTO (NORMAL/INDICE...) -->
-            <div class="d-flex gap-2"
-                 th:if="${a.pageType.name() != 'PORTADA'}">
+            <div class="d-flex gap-2">
+                <!-- Ver (opcional) -->
                 <a class="btn btn-sm btn-outline-secondary"
-                   th:href="@{/proyectos/token/{token}/aportaciones/{id}/ver(token=${token}, id=${a.aportacionId})}"
+                   th:href="@{/proyectos/admin/{adminToken}/aportaciones/{id}/ver(adminToken=${proyecto.adminToken}, id=${a.aportacionId})}"
                    target="_blank">Ver</a>
 
-                <button class="btn btn-sm btn-outline-primary btn-toggle"
-                        th:attr="data-id=${a.aportacionId}">
-                    <span th:text="${a.esVisible} ? 'Ocultar' : 'Mostrar'">Ocultar</span>
-                </button>
-            </div>
+                <!-- Editar (ADMIN: sin ownerKey/visibilidad) -->
+                <a class="btn btn-sm btn-outline-primary"
+                   th:href="@{/proyectos/admin/{adminToken}/aportaciones/{id}/editar(adminToken=${proyecto.adminToken}, id=${a.aportacionId})}">
+                    Editar
+                </a>
 
+                <!-- Eliminar (ADMIN) -->
+                <form th:action="@{/proyectos/admin/{adminToken}/aportaciones/{id}/eliminar(adminToken=${proyecto.adminToken}, id=${a.aportacionId})}"
+                      method="post" onsubmit="return confirm('¿Eliminar esta aportación?');" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="mt-3">
-        <button id="btnGuardar" class="btn btn-success">Guardar orden</button>
-    </div>
+    <div class="mt-3 d-flex gap-2 align-items-center">
+        <button id="btnGuardarOrden" type="button" class="btn btn-success">Guardar orden</button>
 
-    <a th:href="@{/proyectos/admin/{t}/export.pdf(t=${proyecto.adminToken})}"
-       class="btn btn-outline-secondary ms-2" target="_blank">
-        Descargar PDF
-    </a>
+        <a th:href="@{/proyectos/admin/{t}/export.pdf(t=${proyecto.adminToken})}"
+           class="btn btn-outline-secondary" target="_blank">
+            Descargar PDF
+        </a>
+    </div>
 
 </section>
 
+<!-- ================== SCRIPTS SOLO DEL PANEL ================== -->
 <th:block layout:fragment="scripts">
-    <!-- SortableJS (CDN) -->
+    <!-- Sortable solo aquí, no en la vista de usuario -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const grid = document.getElementById('grid');
-            const adminToken = /*[[${proyecto.adminToken}]]*/ '';
-            const ordenURL = `/proyectos/admin/${adminToken}/orden`;
-            const toggleURL = (id) => `/proyectos/admin/${adminToken}/aportaciones/${id}/toggleVisible`;
 
-            const sortable = new Sortable(grid, {
+    <script th:inline="javascript">
+        (() => {
+            // Elementos del panel (ids únicos para no chocar con otras vistas)
+            const grid = document.getElementById('grid-admin');
+            const btn  = document.getElementById('btnGuardarOrden');
+            if (!grid || !btn) return;
+
+            // URL de guardado con adminToken
+            const ADMIN_TOKEN = /*[[${proyecto.adminToken}]]*/ "";
+            const ORDEN_URL   = `/proyectos/admin/${ADMIN_TOKEN}/orden`;
+
+            // Habilitar drag & drop
+            new Sortable(grid, {
                 animation: 150,
                 ghostClass: 'drag-ghost',
                 handle: '.handle'
             });
 
-            document.getElementById('btnGuardar').addEventListener('click', async () => {
-                const ids = [...grid.children].map(el => Number(el.id.replace('item-','')));
-                const res = await fetch(ordenURL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(ids)
-                });
-                if (res.ok) alert('Orden guardado'); else alert('No se pudo guardar el orden');
-            });
+            // Guardar orden
+            let saving = false;
+            btn.addEventListener('click', async () => {
+                if (saving) return;
+                saving = true;
 
-            grid.addEventListener('click', async (e) => {
-                const btn = e.target.closest('.btn-toggle');
-                if (!btn) return;
-                const id = btn.getAttribute('data-id');
-                const res = await fetch(toggleURL(id), { method: 'POST' });
-                if (res.ok) {
-                    const data = await res.json();
-                    const card = btn.closest('.card-page');
-                    const pill = card.querySelector('.pill');
-                    if (data.visible) {
-                        pill.classList.remove('pill-gray'); pill.classList.add('pill-green');
-                        pill.textContent = 'Visible'; btn.textContent = 'Ocultar';
-                    } else {
-                        pill.classList.remove('pill-green'); pill.classList.add('pill-gray');
-                        pill.textContent = 'No visible'; btn.textContent = 'Mostrar';
-                    }
-                } else {
-                    alert('No se pudo cambiar la visibilidad');
+                try {
+                    const ids = Array.from(grid.children)
+                        .map(el => el.id)
+                        .filter(Boolean)
+                        .map(s => Number(s.replace('item-','')))
+                        .filter(n => !Number.isNaN(n));
+
+                    const res = await fetch(ORDEN_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(ids)
+                    });
+
+                    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+                    alert('Orden guardado');
+                } catch (e) {
+                    console.error(e);
+                    alert('No se pudo guardar el orden');
+                } finally {
+                    saving = false;
                 }
             });
-        });
+        })();
     </script>
 </th:block>
 </body>

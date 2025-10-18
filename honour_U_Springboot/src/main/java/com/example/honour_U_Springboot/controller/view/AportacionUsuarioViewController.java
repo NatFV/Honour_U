@@ -307,4 +307,5 @@ public class AportacionUsuarioViewController {
         aportacionService.deleteAportacionById(aportacionId);
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
+
 }

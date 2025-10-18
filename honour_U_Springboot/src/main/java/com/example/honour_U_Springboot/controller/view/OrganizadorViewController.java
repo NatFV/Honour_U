@@ -146,26 +146,32 @@ public class OrganizadorViewController {
         portada.setMensaje(titulo);
 
         // Guardar imágenes (una o varias)
-        List<String> urls = new ArrayList<>();
+        List<String> nuevasUrls = new ArrayList<>();
         if (imagenes != null) {
             String baseDir = System.getProperty("user.dir") + "/uploads/" + p.getTokenUrl() + "/portada/";
             Files.createDirectories(Paths.get(baseDir));
 
             for (MultipartFile img : imagenes) {
-                if (img.isEmpty()) continue;
+                if (img == null || img.isEmpty()) continue;
+                String original = img.getOriginalFilename();
                 String safe = System.currentTimeMillis() + "_" +
-                        img.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+                        (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "img");
                 Path destino = Paths.get(baseDir, safe);
                 img.transferTo(destino.toFile());
-                urls.add("/uploads/" + p.getTokenUrl() + "/portada/" + safe);
+                nuevasUrls.add("/uploads/" + p.getTokenUrl() + "/portada/" + safe);
             }
         }
 
-        portada.setMediaUrls(urls);
-        aportacionService.saveAportacion(portada);
+        // Solo reemplazar si realmente hay nuevas imágenes
+                if (!nuevasUrls.isEmpty()) {
+                    portada.setMediaUrls(nuevasUrls);
+                }
 
-        return "redirect:/proyectos/admin/" + adminToken + "/panel";
-    }
+        // Guardar (tu servicio ya hace saveAndFlush)
+                aportacionService.saveAportacion(portada);
+
+                return "redirect:/proyectos/admin/" + adminToken + "/panel";
+            }
 
 
     @PostMapping("/{adminToken}/indice")
@@ -261,6 +267,77 @@ public class OrganizadorViewController {
 
         return "redirect:/proyectos/admin/" + adminToken + "/panel";
     }
+
+    // EDITAR (GET) — sin comprobar ownerKey ni visibilidad
+    @GetMapping("/{adminToken}/aportaciones/{id}/editar")
+    public String editarAportacionAdmin(@PathVariable String adminToken,
+                                        @PathVariable Long id,
+                                        Model model) throws Exception {
+        Proyecto p = proyectoService.findByAdminToken(adminToken);
+        Aportacion a = aportacionService.findAportacionById(id);
+
+        if (!a.getProyecto().getProyectoId().equals(p.getProyectoId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "No pertenece a este proyecto");
+        }
+
+        model.addAttribute("proyecto", p);
+        model.addAttribute("aportacion", a);
+        // Reutilizamos la vista de usuario si ya la tienes hecha
+        return "usuario/editarAportacion"; // <- usa tu template existente
+    }
+
+    // EDITAR (POST) — guarda cambios
+    @PostMapping("/{adminToken}/aportaciones/{id}/editar")
+    public String actualizarAportacionAdmin(@PathVariable String adminToken,
+                                            @PathVariable Long id,
+                                            @ModelAttribute("aportacion") Aportacion form) throws Exception {
+        Proyecto p = proyectoService.findByAdminToken(adminToken);
+        Aportacion a = aportacionService.findAportacionById(id);
+
+        if (!a.getProyecto().getProyectoId().equals(p.getProyectoId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "No pertenece a este proyecto");
+        }
+
+        a.setMensaje(form.getMensaje() == null ? "" : form.getMensaje());
+        a.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank()) ? "Anónimo" : form.getRemitente());
+        a.setEsVisible(form.isEsVisible());
+        // Mantén el tipo de página tal cual (NORMAL/PORTADA/INDICE)
+        aportacionService.saveAportacion(a);
+
+        return "redirect:/proyectos/admin/" + adminToken + "/panel";
+    }
+
+    // ELIMINAR — sin ownerKey ni visibilidad
+    @PostMapping("/{adminToken}/aportaciones/{id}/eliminar")
+    public String eliminarAportacionAdmin(@PathVariable String adminToken,
+                                          @PathVariable Long id) throws Exception {
+        Proyecto p = proyectoService.findByAdminToken(adminToken);
+        Aportacion a = aportacionService.findAportacionById(id);
+
+        if (!a.getProyecto().getProyectoId().equals(p.getProyectoId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "No pertenece a este proyecto");
+        }
+
+        // (Opcional) borra sus archivos del disco como haces en otros sitios
+        try {
+            Path dir = Paths.get(System.getProperty("user.dir"), "uploads",
+                    p.getTokenUrl(), String.valueOf(a.getAportacionId()));
+            if (Files.exists(dir)) {
+                Files.walk(dir)
+                        .sorted(Comparator.reverseOrder())
+                        .forEach(path -> { try { Files.deleteIfExists(path); } catch (Exception ignore) {} });
+            }
+        } catch (Exception ignore) {}
+
+        aportacionService.deleteAportacionById(id);
+        return "redirect:/proyectos/admin/" + adminToken + "/panel";
+    }
+
+
+
 
 
 
