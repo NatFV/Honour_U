@@ -28,17 +28,14 @@ public class AportacionUsuarioViewController {
     @Autowired private AportacionService aportacionService;
     @Autowired private ProyectoService proyectoService;
 
-    // ---------- Helpers de cookie ----------
+    // ---------- Helpers cookie ----------
     private String cookieNameFor(String token) {
-        // Nombre de cookie seguro: sin caracteres prohibidos
         return "ok_" + token.replaceAll("[^A-Za-z0-9_-]", "_");
     }
     private String getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
-        for (Cookie c : cookies) {
-            if (name.equals(c.getName())) return c.getValue();
-        }
+        for (Cookie c : cookies) if (name.equals(c.getName())) return c.getValue();
         return null;
     }
 
@@ -54,22 +51,49 @@ public class AportacionUsuarioViewController {
 
         String sessionKey = "ownerKey:" + token;     // en sesión puede llevar ':'
         String cookieName = cookieNameFor(token);    // la cookie NO
-
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
-
         if (ownerKey == null) {
             ownerKey = UUID.randomUUID().toString();
             Cookie cookie = new Cookie(cookieName, ownerKey);
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24 * 180); // 180 días
+            cookie.setMaxAge(60 * 60 * 24 * 180);
             response.addCookie(cookie);
         }
         session.setAttribute(sessionKey, ownerKey);
 
+        // Filtrado en servidor: SOLO PageType.NORMAL
+        List<Aportacion> todas = aportacionService.findByProyecto(proyecto);
+        String finalOwnerKey = ownerKey;
+        List<Aportacion> mias = todas.stream()
+                .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .filter(a -> finalOwnerKey.equals(a.getOwnerKey()))
+                .toList();
+        String finalOwnerKey1 = ownerKey;
+        List<Aportacion> otras = todas.stream()
+                .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .filter(a -> !finalOwnerKey1.equals(a.getOwnerKey()))
+                .toList();
+
+        //lista única ORDENADA y filtrada en servidor
+        List<Aportacion> ordenadas = aportacionService.findByProyectoOrderado(proyecto)
+                .stream()
+                .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .toList();
+
         model.addAttribute("proyecto", proyecto);
         model.addAttribute("nuevaAportacion", new Aportacion());
+        model.addAttribute("mias", mias);
+        model.addAttribute("otras", otras);
+        model.addAttribute("sessionOwnerKey", ownerKey); // por si lo necesitas en la vista
+
+        // Cargar aportaciones frescas desde la BD
+        List<Aportacion> aportaciones = aportacionService.findByProyectoOrderado(proyecto)
+                .stream()
+                .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .toList();
+        model.addAttribute("aportaciones", aportaciones);
         return "usuario/nuevaAportacion";
     }
 
@@ -86,7 +110,6 @@ public class AportacionUsuarioViewController {
 
         String sessionKey = "ownerKey:" + token;
         String cookieName = cookieNameFor(token);
-
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
         if (ownerKey == null) {
@@ -94,15 +117,21 @@ public class AportacionUsuarioViewController {
             session.setAttribute(sessionKey, ownerKey);
         }
 
+        if (aportacion.getRemitente() == null || aportacion.getRemitente().isBlank())
+            aportacion.setRemitente("Anónimo");
+        if (aportacion.getMensaje() == null) aportacion.setMensaje("");
+
         aportacion.setOwnerKey(ownerKey);
         aportacion.setProyecto(proyecto);
+        aportacion.setPageType(Aportacion.PageType.NORMAL);
 
-        // Guardar primero para obtener ID
+        // 🔹 Guarda temporalmente para generar el ID
         aportacionService.saveAportacion(aportacion);
+        Long idGenerado = aportacion.getAportacionId();
 
-        // Guardar archivos
+        // 🔹 Subida de archivos
         String baseDir = System.getProperty("user.dir") + "/uploads/"
-                + proyecto.getTokenUrl() + "/" + aportacion.getAportacionId() + "/";
+                + proyecto.getTokenUrl() + "/" + idGenerado + "/";
         Path carpeta = Paths.get(baseDir);
         Files.createDirectories(carpeta);
 
@@ -115,19 +144,23 @@ public class AportacionUsuarioViewController {
                         (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "archivo");
                 Path destino = carpeta.resolve(safe);
                 img.transferTo(destino.toFile());
-                String urlRel = "/uploads/" + proyecto.getTokenUrl() + "/" + aportacion.getAportacionId() + "/" + safe;
+                String urlRel = "/uploads/" + proyecto.getTokenUrl() + "/" + idGenerado + "/" + safe;
                 urls.add(urlRel);
             }
         }
         aportacion.setMediaUrls(urls);
 
-        // Fallback URL si no hay archivos
+        // Siempre asigna una URL (sea archivo o enlace de visualización)
         if (urls.isEmpty()) {
-            String urlAportacion = proyecto.getUrlProyecto() + "/" + aportacion.getAportacionId();
-            aportacion.setUrl(urlAportacion);
+            aportacion.setUrl("/proyectos/token/" + token + "/aportaciones/" + idGenerado + "/ver");
+        } else {
+            // O si quieres usar la primera imagen/video como URL principal
+            aportacion.setUrl(urls.get(0));
         }
 
+        // Guardar definitivamente con URL ya completa
         aportacionService.saveAportacion(aportacion);
+
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 
@@ -146,7 +179,6 @@ public class AportacionUsuarioViewController {
 
         String sessionKey = "ownerKey:" + token;
         String cookieName = cookieNameFor(token);
-
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
 
@@ -175,20 +207,19 @@ public class AportacionUsuarioViewController {
 
         String sessionKey = "ownerKey:" + token;
         String cookieName = cookieNameFor(token);
-
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
-
         if (ownerKey == null || !ownerKey.equals(aport.getOwnerKey())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes editar esta aportación");
         }
 
         // Actualizar campos permitidos
-        aport.setMensaje(form.getMensaje());
-        aport.setRemitente(form.getRemitente());
+        aport.setMensaje(form.getMensaje() == null ? "" : form.getMensaje());
+        aport.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank()) ? "Anónimo" : form.getRemitente());
         aport.setEsVisible(form.isEsVisible());
+        aport.setPageType(Aportacion.PageType.NORMAL); // siempre NORMAL
 
-        // (Opcional) añadir nuevas imágenes
+        // Añadir nuevas imágenes (opcional)
         if (nuevasImagenes != null && nuevasImagenes.length > 0) {
             String baseDir = System.getProperty("user.dir") + "/uploads/"
                     + proyecto.getTokenUrl() + "/" + aport.getAportacionId() + "/";
@@ -216,20 +247,24 @@ public class AportacionUsuarioViewController {
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 
-    // ---------- Ver una aportación (opcional) ----------
-    @GetMapping("/{token}/aportaciones/{aportacionId}")
-    public String verAportacion(@PathVariable String token,
-                                @PathVariable Long aportacionId,
-                                Model model) throws Exception {
+    // ---------- Ver (solo lectura pública si visible) ----------
+    @GetMapping("/{token}/aportaciones/{aportacionId}/ver")
+    public String verAportacionPublica(@PathVariable String token,
+                                       @PathVariable Long aportacionId,
+                                       Model model) throws Exception {
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
-        Aportacion aportacion = aportacionService.findAportacionById(aportacionId);
-        if (aportacion == null) throw new Exception("Aportación no encontrada");
+        Aportacion aport = aportacionService.findAportacionById(aportacionId);
+        if (aport == null) throw new Exception("Aportación no encontrada");
+
+        if (!aport.isEsVisible()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Aportación no visible");
+        }
 
         model.addAttribute("proyecto", proyecto);
-        model.addAttribute("aportacion", aportacion);
-        return "usuario/editarAportacion"; // o "usuario/verAportacion" si tienes plantilla específica
+        model.addAttribute("aportacion", aport);
+        return "usuario/verAportacion";
     }
 
     // ---------- Eliminar ----------
@@ -243,42 +278,33 @@ public class AportacionUsuarioViewController {
 
         Aportacion aport = aportacionService.findAportacionById(aportacionId);
         if (aport == null) throw new Exception("Aportación no encontrada");
+        if (aport.getPageType() != Aportacion.PageType.NORMAL) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar portada/índice");
+        }
 
         String sessionKey = "ownerKey:" + token;
         String cookieName = cookieNameFor(token);
-
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
-
         if (ownerKey == null || !ownerKey.equals(aport.getOwnerKey())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar esta aportación");
         }
 
-        // (Opcional) borrar también los archivos del disco aquí si quieres
+        // (Opcional) borrar archivos del disco
+        try {
+            Path dir = Paths.get(System.getProperty("user.dir"), "uploads",
+                    proyecto.getTokenUrl(), String.valueOf(aport.getAportacionId()));
+            if (Files.exists(dir)) {
+                Files.walk(dir)
+                        .sorted(Comparator.reverseOrder())
+                        .forEach(p -> { try { Files.deleteIfExists(p); } catch (Exception ignore) {} });
+            }
+        } catch (Exception ignore) {}
+
+        //Sincronizamos del lado padre (Esto limpia la lista en memoria en el mismo momento del borrado)
+        proyecto.getAportaciones().removeIf(a -> a.getAportacionId().equals(aportacionId));
 
         aportacionService.deleteAportacionById(aportacionId);
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
-
-    @GetMapping("/{token}/aportaciones/{aportacionId}/ver")
-    public String verAportacionPublica(@PathVariable String token,
-                                       @PathVariable Long aportacionId,
-                                       Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findByTokenUrl(token);
-        if (proyecto == null) throw new Exception("Proyecto no encontrado");
-
-        Aportacion aport = aportacionService.findAportacionById(aportacionId);
-        if (aport == null) throw new Exception("Aportación no encontrada");
-
-        if (!aport.isEsVisible()) {
-            // Si no es visible, no la exponemos
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.FORBIDDEN, "Aportación no visible");
-        }
-
-        model.addAttribute("proyecto", proyecto);
-        model.addAttribute("aportacion", aport);
-        return "usuario/verAportacion"; // plantilla de solo lectura
-    }
-
 }

@@ -219,7 +219,8 @@
     <!-- Aportaciones existentes -->
     <h3 class="mt-5">Aportaciones Existentes</h3>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        <div class="col" th:each="a : ${proyecto.aportaciones}">
+        <div class="col" th:each="a : ${aportaciones}"
+             th:if="${a.pageType.name() == 'NORMAL'}">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${a.remitente}">Remitente</h5>

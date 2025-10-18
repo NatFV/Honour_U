@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title th:text="${proyecto.nombreProyecto}">Libro</title>
+    <style type="text/css">
+        @page { size: A4; margin: 20mm; }
+        body { font-family: sans-serif; color:#222; }
+        .page { page-break-after: always; }
+        .center { text-align:center; }
+        .title { font-size: 28px; font-weight: 700; margin: 60px 0 10px; }
+        .subtitle { font-size: 14px; color:#666; margin-bottom: 30px; }
+        .msg { white-space: pre-wrap; line-height: 1.5; margin-top: 12px; }
+        .thumb { max-width: 100%; max-height: 500px; display:block; margin: 10px auto; }
+        ol { padding-left: 18px; }
+        .muted { color:#777; font-size: 12px; }
+        h2, h3 { margin: 0 0 10px 0; padding: 0; }
+    </style>
+</head>
+<body>
+
+<!-- Recorremos todas las páginas ordenadas -->
+<div th:each="ap : ${paginas}">
+
+    <!-- PORTADA -->
+    <div class="page" th:if="${ap.pageType.name() == 'PORTADA'}">
+        <div class="center">
+            <div class="title" th:text="${proyecto.nombreProyecto}">Libro de Homenaje</div>
+            <div class="subtitle" th:text="'Organiza: ' + (${proyecto.organizador} ?: '—')">Organiza</div>
+            <div class="muted" th:text="${ap.mensaje}">Título del homenaje</div>
+        </div>
+    </div>
+
+    <!-- INDICE -->
+    <div class="page" th:if="${ap.pageType.name() == 'INDICE'}">
+        <h2 class="center" th:text="'Índice — ' + ${proyecto.nombreProyecto}">Índice</h2>
+        <ol>
+            <li th:each="x : ${paginas}"
+                th:if="${x.esVisible} and ${x.pageType.name() == 'NORMAL'}"
+                th:text="${x.remitente} + ' — ' + ${#strings.abbreviate(x.mensaje, 60)}">Item</li>
+        </ol>
+    </div>
+
+    <!-- PÁGINAS NORMALES -->
+    <div class="page" th:if="${ap.pageType.name() == 'NORMAL'}">
+        <h3 th:text="${ap.remitente} ?: 'Anónimo'">Anónimo</h3>
+        <div class="msg" th:text="${ap.mensaje}">Mensaje…</div>
+
+        <!-- Renderiza todas las imágenes -->
+        <div th:if="${ap.mediaUrls != null and !ap.mediaUrls.isEmpty()}">
+            <img th:each="u : ${ap.mediaUrls}" th:src="${baseUri + u}" class="thumb" alt="media" />
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title th:text="${proyecto.nombreProyecto} + ' - Aportación'">Aportación</title>
+    <th:block layout:fragment="extra_head">
+        <style>
+            .pagina { max-width: 800px; margin: 24px auto; background: #fffef8; border: 1px solid #eee; border-radius: 10px; padding: 28px; }
+            .titulo { text-align: center; font-weight: 700; font-size: 22px; margin-bottom: 6px; }
+            .remitente { text-align: center; font-style: italic; color: #666; margin-bottom: 14px; }
+            .mensaje { white-space: pre-wrap; line-height: 1.6; margin-bottom: 16px; }
+            .media img, .media video, .media audio { max-width: 100%; height: auto; display: block; margin: 10px auto; border-radius: 6px; }
+        </style>
+    </th:block>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="pagina">
+        <div class="titulo" th:text="${proyecto.nombreProyecto}">Libro</div>
+        <div class="remitente" th:text="${aportacion.remitente} ?: 'Anónimo'">Anónimo</div>
+        <div class="mensaje" th:text="${aportacion.mensaje}">Mensaje…</div>
+
+        <div class="media" th:if="${aportacion.mediaUrls != null and !aportacion.mediaUrls.isEmpty()}">
+            <div th:each="u : ${aportacion.mediaUrls}">
+                <!-- muestra como imagen por defecto; si detectas video/audio, puedes renderizarlo diferente -->
+                <img th:if="${#strings.startsWith(u,'/uploads/') or #strings.endsWith(u,'.png') or #strings.endsWith(u,'.jpg') or #strings.endsWith(u,'.jpeg') or #strings.endsWith(u,'.gif')}"
+                     th:src="@{${u}}" alt="media">
+                <video th:if="${#strings.endsWith(u,'.mp4') or #strings.endsWith(u,'.webm')}"
+                       th:src="@{${u}}" controls playsinline></video>
+                <audio th:if="${#strings.endsWith(u,'.mp3') or #strings.endsWith(u,'.wav')}"
+                       th:src="@{${u}}" controls></audio>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
