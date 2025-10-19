@@ -58,6 +58,7 @@ public class OrganizadorViewController {
             a.setOrden(orden++);
             aportacionService.saveAportacion(a);
         }
+
         return ResponseEntity.ok(Map.of("ok", true));
     }
 
@@ -177,8 +178,47 @@ public class OrganizadorViewController {
     @PostMapping("/{adminToken}/indice")
     public String crearIndice(@PathVariable String adminToken) throws Exception {
         Proyecto p = proyectoService.findByAdminToken(adminToken);
-        // Reemplaza si hubiera otro índice
-        aportacionService.createOrReplaceSpecialPage(p, Aportacion.PageType.INDICE);
+
+        // 1) Páginas ordenadas del proyecto
+        List<Aportacion> ordenadas = aportacionService.findByProyectoOrderado(p);
+
+        // 2) Construimos líneas del índice SOLO con páginas normales, en el ORDEN actual
+        //    (si quieres numerar contando portada/índice, indícalo y te lo ajusto)
+        StringBuilder sb = new StringBuilder();
+        int page = 1;
+        for (Aportacion a : ordenadas) {
+            if (a.getPageType() == Aportacion.PageType.NORMAL) {
+                String remit = (a.getRemitente() == null || a.getRemitente().isBlank())
+                        ? "Anónimo"
+                        : a.getRemitente();
+                sb.append(page).append(". ").append(remit).append("\n");
+                page++;
+            }
+        }
+
+        // 3) Buscar índice existente o crearlo
+        Aportacion indice = ordenadas.stream()
+                .filter(a -> a.getPageType() == Aportacion.PageType.INDICE)
+                .findFirst()
+                .orElseGet(() -> {
+                    Aportacion a = new Aportacion();
+                    a.setProyecto(p);
+                    a.setPageType(Aportacion.PageType.INDICE);
+                    a.setEsVisible(true);           // visible para admin; el usuario NO lo ve porque su vista filtra NORMAL
+                    a.setRemitente("");             // opcional
+                    a.setMensaje("");               // se rellena abajo
+                    // lo dejamos al final; si quieres que quede tras portada, lo arrastras en el panel
+                    return a;
+                });
+
+        // 4) Guardar el contenido del índice en el mensaje (texto plano; tu plantilla PDF ya lo renderiza)
+        indice.setMensaje(sb.toString());
+        // opcional: limpiar media de índice
+        indice.setMediaUrls(new ArrayList<>());
+
+        aportacionService.saveAportacion(indice);
+
+        // 5) Volver al panel
         return "redirect:/proyectos/admin/" + adminToken + "/panel";
     }
 
