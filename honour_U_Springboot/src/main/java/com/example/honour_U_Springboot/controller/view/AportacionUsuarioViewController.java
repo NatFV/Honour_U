@@ -70,9 +70,11 @@ public class AportacionUsuarioViewController {
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
                 .filter(a -> finalOwnerKey.equals(a.getOwnerKey()))
                 .toList();
+        // Otras: AÑADIR filtro para excluir páginas sin ownerKey (las “en blanco”)
         String finalOwnerKey1 = ownerKey;
         List<Aportacion> otras = todas.stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .filter(a -> !finalOwnerKey1.equals(a.getOwnerKey()))
                 .toList();
 
@@ -80,6 +82,7 @@ public class AportacionUsuarioViewController {
         List<Aportacion> ordenadas = aportacionService.findByProyectoOrderado(proyecto)
                 .stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .toList();
 
         model.addAttribute("proyecto", proyecto);
@@ -92,6 +95,7 @@ public class AportacionUsuarioViewController {
         List<Aportacion> aportaciones = aportacionService.findByProyectoOrderado(proyecto)
                 .stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
+                .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .toList();
         model.addAttribute("aportaciones", aportaciones);
         return "usuario/nuevaAportacion";
