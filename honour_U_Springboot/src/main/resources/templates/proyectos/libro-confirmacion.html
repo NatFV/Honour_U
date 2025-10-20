@@ -1,0 +1,27 @@
+<!-- src/main/resources/templates/proyectos/libro-confirmacion.html -->
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title>Libro creado</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="alert alert-success">
+        Libro creado correctamente (ID: <strong th:text="${libro.libroId}">0</strong>).
+    </div>
+
+    <div class="d-flex gap-2">
+        <a th:href="@{/proyectos/admin/{t}(t=${proyecto.adminToken})}" class="btn btn-primary">Volver al panel</a>
+
+        <a th:if="${libro.formato == 'PDF'}"
+           th:href="@{/proyectos/admin/{t}/export.pdf(t=${proyecto.adminToken})}"
+           class="btn btn-outline-secondary"
+           target="_blank">
+            Descargar PDF
+        </a>
+    </div>
+</section>
+</body>
+</html>

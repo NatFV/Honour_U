@@ -118,6 +118,7 @@
                 <span th:if="${libro.destinatario == null}">
                     <a th:href="@{/destinatarios(libroId=${libro.libroId})}" class="btn btn-primary btn-sm ms-1">Crear Destinatario</a>
                 </span>
+                <a th:href="@{/libros/{id}/delete(id=${libro.libroId})}" class="btn btn-danger btn-sm">Eliminar</a>
             </td>
         </tr>
         </tbody>

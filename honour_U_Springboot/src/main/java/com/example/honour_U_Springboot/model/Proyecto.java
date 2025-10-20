@@ -133,7 +133,7 @@ public class Proyecto {
     }
 
     //Relación Proyecto-Libro es de uno a uno bidireccional. El lado propietario es Libro
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "proyecto")//es proyecto
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "proyecto", orphanRemoval = true)//es proyecto
     private Libro libro;
     //Getters y setters de libro
     public Libro getLibro() {

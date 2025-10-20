@@ -4,8 +4,10 @@ import com.example.honour_U_Springboot.dto.LibroDTO;
 import com.example.honour_U_Springboot.model.Libro;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.repository.LibroRepository;
+import com.example.honour_U_Springboot.repository.ProyectoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,14 @@ import java.util.stream.Collectors;
 public class LibroService {
     @Autowired
     private LibroRepository libroRepository;
+    private final ProyectoRepository proyectoRepository;
+
+    @Autowired
+    public LibroService(LibroRepository libroRepository, ProyectoRepository proyectoRepository) {
+        this.libroRepository = libroRepository;
+        this.proyectoRepository = proyectoRepository;
+    }
+
     /**
      * Método para guardar el libro en la base de datos.
      * @param libro
@@ -67,8 +77,27 @@ public class LibroService {
      * Método para eliminar un libro por su ID
      * @param id
      */
-    public void deleteLibroById (Long id){
-        libroRepository.deleteById(id);
+    @Transactional
+    public void deleteLibroById(Long id) {
+        Libro libro = libroRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Libro no encontrado: " + id));
+
+        // Romper relación con Proyecto (lado inverso)
+        Proyecto proyecto = libro.getProyecto();
+        if (proyecto != null) {
+            proyecto.setLibro(null);   // provoca eliminación huérfana si usas orphanRemoval en Proyecto
+            libro.setProyecto(null);
+            proyectoRepository.save(proyecto);
+        }
+
+        // Si no usas orphanRemoval en Destinatario, libera explícitamente:
+        if (libro.getDestinatario() != null) {
+            libro.setDestinatario(null);
+        }
+
+        libroRepository.delete(libro);
+        // Fuerza sincronización inmediata (evita ver el libro tras el redirect)
+        libroRepository.flush();
     }
 
     /**

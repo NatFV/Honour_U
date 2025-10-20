@@ -92,7 +92,7 @@ public class Libro {
     //Relación con Destinatario 1:1 bidireccional.
     //La relación propietaria es el lado del destinatario porque contiene la FK
     @JsonIgnore
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "libro")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "libro", orphanRemoval = true)
     private Destinatario destinatario;
     //Getters y setters de destinatario
     public Destinatario getDestinatario() {

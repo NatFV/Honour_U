@@ -8,12 +8,11 @@ import com.example.honour_U_Springboot.service.LibroService;
 import com.example.honour_U_Springboot.service.ParticipanteService;
 import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,7 +79,7 @@ public class LibroViewController {
      */
     @GetMapping("/libros/{id}/delete")
     public String eliminarLibro(@PathVariable Long id) {
-        libroService.deleteLibroByIdAPI(id);
+        libroService.deleteLibroById(id);
         return "redirect:/libros";
     }
 
@@ -116,6 +115,12 @@ public class LibroViewController {
         }
         return "crearLibro";
     }
+
+    @Bean
+    public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        return new HiddenHttpMethodFilter();
+    }
+
 
 
 

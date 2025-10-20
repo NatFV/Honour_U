@@ -51,7 +51,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-		<!-- MapStruct (para mappers) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+
+        <!-- MapStruct (para mappers) -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
