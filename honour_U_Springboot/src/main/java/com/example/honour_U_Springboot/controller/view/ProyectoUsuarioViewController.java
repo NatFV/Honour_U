@@ -51,16 +51,19 @@ public class ProyectoUsuarioViewController {
         String linkAportaciones = base + "/proyectos/token/" + proyecto.getTokenUrl() + "/aportaciones";
         String linkAdmin        = base + "/proyectos/admin/" + proyecto.getAdminToken() + "/panel";
 
-        // Guarda también la URL pública en el propio proyecto si quieres
+        // Asigna las URLS antes de guardar
         proyecto.setUrlProyecto(linkAportaciones);
+        proyecto.setUrlAdmin(linkAdmin);
 
         // Persistir
         Proyecto guardado = proyectoService.saveProyecto(proyecto);
+
 
         // Pasar datos a la vista de enlaces
         model.addAttribute("proyecto", guardado);
         model.addAttribute("linkAportaciones", linkAportaciones);
         model.addAttribute("linkAdmin", linkAdmin);
+
 
         return "usuario/proyectoLinks"; // vista que muestra ambos enlaces
     }

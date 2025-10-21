@@ -47,7 +47,7 @@
 
 <!-- Botón de navegación arriba a la derecha -->
 <div class="d-flex justify-content-end mt-4 me-3 mb-3">
-    <a href="/proyectos" class="btn btn-outline-light">Volver a la lista de proyectos</a>
+    <a href="/backoffice/proyectos" class="btn btn-outline-light">Volver a la lista de proyectos</a>
 </div>
 
 <!-- Imagen centrada arriba -->
@@ -62,7 +62,7 @@
     <h1 class="mb-4" >Editar Proyecto</h1>
     <div class="card shadow-sm card-proyecto mb-4">
         <div class="card-body">
-            <form th:action="@{/proyectos/{id}/update(id=${proyecto.proyectoId})}" th:object="${proyecto}" method="post">
+            <form th:action="@{/backoffice/proyectos/{id}/update(id=${proyecto.proyectoId})}" th:object="${proyecto}" method="post">
                 <div class="mb-3">
                     <label class="form-label">Nombre del Proyecto</label>
                     <input type="text" th:field="*{nombreProyecto}" class="form-control" required>
@@ -95,7 +95,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                <a href="/proyectos" class="btn btn-secondary">Cancelar</a>
+                <a href="/backoffice/proyectos" class="btn btn-secondary">Cancelar</a>
             </form>
         </div>
     </div>
@@ -120,7 +120,7 @@
 
             <!-- Botón verde -->
             <div class="d-grid gap-2">
-                <a th:href="@{/proyectos/{id}/aportaciones(id=${proyecto.proyectoId})}" class="btn btn-success">
+                <a th:href="@{/backoffice/proyectos/{id}/aportaciones(id=${proyecto.proyectoId})}" class="btn btn-success">
                     Editar o Añadir Aportaciones
                 </a>
             </div>

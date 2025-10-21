@@ -45,8 +45,11 @@ public class Proyecto {
     private String adminToken;
 
     @Column(name="plazo_finalizacion")
-    @Temporal(TemporalType.DATE) //Incluimos la fecha pero no la hora
+    //@Temporal(TemporalType.DATE) //Incluimos la fecha pero no la hora
     private LocalDate plazoFinalizacion;
+
+    @Column
+    private String urlAdmin;
 
     public Long getProyectoId() {
         return proyectoId;
@@ -102,7 +105,13 @@ public class Proyecto {
     public String getAdminToken() { return adminToken; }
     public void setAdminToken(String adminToken) { this.adminToken = adminToken; }
 
+    public String getUrlAdmin() {
+        return urlAdmin;
+    }
 
+    public void setUrlAdmin(String urlAdmin) {
+        this.urlAdmin = urlAdmin;
+    }
 
     @Override
     public String toString() {
@@ -113,8 +122,9 @@ public class Proyecto {
                 ", descripcion='" + descripcion + '\'' +
                 ", tokenUrl='" + tokenUrl + '\'' +
                 ", urlProyecto='" + urlProyecto + '\'' +
+                ", adminToken='" + adminToken + '\'' +
                 ", plazoFinalizacion=" + plazoFinalizacion +
-
+                ", urlAdmin='" + urlAdmin + '\'' +
                 '}';
     }
 

@@ -28,7 +28,7 @@ public class ProyectoBackofficeViewController {
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Proyecto proyecto = proyectoService.findProyectoById(id);
         model.addAttribute("proyecto", proyecto);
-        return "backoffice/editarProyecto";
+        return "editarProyecto";
     }
 
     // Guardar proyecto editado
