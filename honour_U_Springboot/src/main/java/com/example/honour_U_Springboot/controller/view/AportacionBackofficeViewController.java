@@ -21,7 +21,7 @@ import java.util.List;
  * Maneja las vistas del controlador
  */
 @Controller
-public class AportacionViewController {
+public class AportacionBackofficeViewController {
   @Autowired
     private AportacionService aportacionService;
 
@@ -122,17 +122,17 @@ public class AportacionViewController {
      * @return la vista de gestión de aportaciones
      * @throws Exception si no se puede obtener
      */
-   @GetMapping("/proyectos/{id}/aportaciones")
-    public String gestionarAportaciones(@PathVariable Long id, Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-        List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
-
-        model.addAttribute("proyecto", proyecto);
-        model.addAttribute("aportaciones", aportaciones);
-        model.addAttribute("nuevaAportacion", new Aportacion());
-
-        return "gestionarAportaciones"; // nueva vista
-    }
+//   @GetMapping("/proyectos/{id}/aportaciones")
+//    public String gestionarAportaciones(@PathVariable Long id, Model model) throws Exception {
+//        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
+//        List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
+//
+//        model.addAttribute("proyecto", proyecto);
+//        model.addAttribute("aportaciones", aportaciones);
+//        model.addAttribute("nuevaAportacion", new Aportacion());
+//
+//        return "gestionarAportaciones"; // nueva vista
+//    }
 
     /**
      * Método para gestionar participantes
