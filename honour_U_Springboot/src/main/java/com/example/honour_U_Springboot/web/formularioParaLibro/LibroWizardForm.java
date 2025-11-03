@@ -1,8 +1,13 @@
 // src/main/java/com/example/honour_U_Springboot/web/form/LibroWizardForm.java
-package com.example.honour_U_Springboot.web.form;
+package com.example.honour_U_Springboot.web.formularioParaLibro;
 
 import jakarta.validation.constraints.*;
 
+/**
+ * Clase LibroWizardForm para recoger datos del formulario,
+ * Incluye información que no es parte del Libro, como dirección o checkboxes de envío.
+ * Así se evita que se modifiquen más campos de los permitidos
+ */
 public class LibroWizardForm {
 
     // Libro
@@ -25,6 +30,7 @@ public class LibroWizardForm {
 
     private String calle;
     private String piso;
+    private String numero;
     private String letra;
     private String codigoPostal;
     private String pais;
@@ -52,6 +58,13 @@ public class LibroWizardForm {
     public void setTelefono(String telefono) { this.telefono = telefono; }
     public String getCalle() { return calle; }
     public void setCalle(String calle) { this.calle = calle; }
+
+    public String getNumero() { return numero;
+    }
+
+    public void setNumero(String numero) { this.numero = numero;
+    }
+
     public String getPiso() { return piso; }
     public void setPiso(String piso) { this.piso = piso; }
     public String getLetra() { return letra; }

@@ -241,16 +241,13 @@ public class AportacionService {
     }
 
     @Transactional
-    public Aportacion addBlankPageAtEnd(Proyecto p) {
+    public Aportacion aniadirPaginaBlanco(Proyecto p) {
         Aportacion a = new Aportacion();
         a.setProyecto(p);
-        a.setPageType(Aportacion.PageType.NORMAL);
+        a.setPageType(Aportacion.PageType.BLANCA);
         a.setEsVisible(true);
         a.setRemitente("");
         a.setMensaje("");
-        // MUY IMPORTANTE: no tocar ownerKey -> que quede null
-        Integer max = aportacionRepository.findMaxOrdenByProyecto(p.getProyectoId());
-        a.setOrden((max == null ? 0 : max) + 1);
         return aportacionRepository.save(a);
     }
 

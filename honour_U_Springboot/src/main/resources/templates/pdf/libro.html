@@ -7,14 +7,27 @@
     <title th:text="${proyecto.nombreProyecto}">Libro</title>
 
     <style type="text/css">
+        /* Página y márgenes */
         @page { size: A4; margin: 20mm; }
+
+        html, body { margin: 0; padding: 0; }
         body { font-family: sans-serif; color:#222; }
-        .page { page-break-after: always;   /* compat */
-            break-after: page;  }
-        /* Fuerza que una página “vacía” siga ocupando una hoja */
-        .page.blank {
-            min-height: 250mm;          /* algo menos que A4 interno (depende de margin @page) */
+
+        /* Cada .page es una hoja */
+        .page {
+            display: block;
+            page-break-after: always;   /* compat */
+            break-after: page;
+            /* no usamos min-height aquí; para BLANCA ponemos un relleno con height fijo */
+            box-sizing: border-box;
         }
+        .page:last-child { page-break-after: auto; }
+
+        /* Página en blanco: caja vacía que contiene un relleno con altura de la hoja útil */
+        .page.blank .fill {
+            height: calc(297mm - 40mm); /* alto A4 - márgenes @page */
+        }
+
         h1,h2,h3 { margin: 0 0 10px 0; padding: 0; }
         .msg { white-space: pre-wrap; line-height: 1.5; margin-top: 12px; }
         .thumb { max-width: 100%; max-height: 500px; display:block; margin: 10px auto; }
@@ -36,7 +49,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        /* número de página real del destino */
+        /* número de página real del destino (si está soportado) */
         .toc a::after {
             content: target-counter(attr(href url), page);
         }
@@ -50,79 +63,62 @@
 </head>
 <body>
 
-<!-- ================= PORTADA (si existe) ================= -->
-<th:block th:each="a : ${paginas}" th:if="${a.pageType.name() == 'PORTADA'}">
-    <section class="page portada">
+<!-- Iteramos UNA vez en orden -->
+<th:block th:each="a : ${paginas}">
+
+    <!-- PORTADA -->
+    <section th:if="${a.pageType.name() == 'PORTADA'}" class="page portada" th:attr="id=${'p' + a.aportacionId}">
         <h1 th:text="${a.mensaje}">Título del homenaje</h1>
 
-        <!-- Hero: primera imagen -->
-        <img th:if="${a.mediaUrls != null and !a.mediaUrls.isEmpty()}"
+        <img th:if="${a.mediaUrls != null && !a.mediaUrls.isEmpty()}"
              th:src="${baseUri + a.mediaUrls[0]}"
              style="width:100%; height:420px; object-fit:cover; border-radius:8px;" />
 
-        <!-- Collage opcional (hasta 4) -->
-        <div th:if="${a.mediaUrls != null and a.mediaUrls.size() > 1}"
+        <div th:if="${a.mediaUrls != null && a.mediaUrls.size() > 1}"
              style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px;">
             <img th:each="u,iter : ${a.mediaUrls}"
-                 th:if="${iter.index > 0 and iter.index < 5}"
+                 th:if="${iter.index > 0 && iter.index < 5}"
                  th:src="${baseUri + u}"
                  style="width:100%; height:84px; object-fit:cover; border-radius:6px;" />
         </div>
     </section>
-</th:block>
 
-<!-- ================= ÍNDICE (si existe) ================= -->
-<th:block th:each="idx : ${paginas}" th:if="${idx.pageType.name() == 'INDICE'}">
-    <section class="page indice">
+    <!-- ÍNDICE -->
+    <section th:if="${a.pageType.name() == 'INDICE'}" class="page indice" th:attr="id=${'p' + a.aportacionId}">
         <h2>Índice</h2>
         <ol class="toc">
-            <li th:each="a : ${paginas}"
-                th:if="${a.pageType.name() == 'NORMAL'
-                  and !(#strings.isEmpty(a.remitente)
-                        and #strings.isEmpty(a.mensaje)
-                        and (a.mediaUrls == null or a.mediaUrls.isEmpty()))}">
-                <a th:href="${'#p' + a.aportacionId}"
-                   th:text="${#strings.isEmpty(a.remitente) ? 'Anónimo' : a.remitente}">Anónimo</a>
+            <!-- Solo páginas normales NO vacías -->
+            <li th:each="n : ${paginas}"
+                th:if="${n.pageType.name() == 'NORMAL'
+                       and !(#strings.isEmpty(n.remitente)
+                             and #strings.isEmpty(n.mensaje)
+                             and (n.mediaUrls == null or n.mediaUrls.isEmpty()))}">
+                <a th:href="${'#p' + n.aportacionId}"
+                   th:text="${#strings.isEmpty(n.remitente) ? 'Anónimo' : n.remitente}">Anónimo</a>
                 <span class="dot-fill"></span>
                 <span></span>
             </li>
         </ol>
     </section>
-</th:block>
 
+    <!-- NORMAL -->
+    <section th:if="${a.pageType.name() == 'NORMAL'}" class="page normal" th:attr="id=${'p' + a.aportacionId}">
+        <h3 th:text="${#strings.isEmpty(a.remitente) ? 'Anónimo' : a.remitente}">Anónimo</h3>
+        <div class="msg" th:text="${a.mensaje}">Mensaje…</div>
 
-
-<!-- ============ PÁGINAS NORMALES EN ORDEN ============ -->
-<th:block th:each="a : ${paginas}" th:if="${a.pageType.name() == 'NORMAL'}">
-    <section class="page normal"
-             th:classappend="${#strings.isEmpty(a.remitente)
-                            and #strings.isEmpty(a.mensaje)
-                            and (a.mediaUrls == null or a.mediaUrls.isEmpty())} ? ' blank' : ''"
-             th:attr="id=${'p' + a.aportacionId}">
-
-        <!-- Si ES página en blanco: no mostrar nada, solo ocupar la hoja -->
-        <th:block th:if="${#strings.isEmpty(a.remitente)
-                      and #strings.isEmpty(a.mensaje)
-                      and (a.mediaUrls == null or a.mediaUrls.isEmpty())}">
-            <!-- Espaciador para que la hoja exista -->
-            <div style="height: 240mm;"></div>
-        </th:block>
-
-        <!-- Si NO es página en blanco: contenido normal -->
-        <th:block th:unless="${#strings.isEmpty(a.remitente)
-                          and #strings.isEmpty(a.mensaje)
-                          and (a.mediaUrls == null or a.mediaUrls.isEmpty())}">
-            <h3 th:text="${#strings.isEmpty(a.remitente) ? 'Anónimo' : a.remitente}">Anónimo</h3>
-            <div class="msg" th:text="${a.mensaje}">Mensaje…</div>
-
-            <div th:if="${a.mediaUrls != null and !a.mediaUrls.isEmpty()}">
-                <img th:each="u : ${a.mediaUrls}" th:src="${baseUri + u}"
-                     style="max-width:100%; height:auto; margin-top:10px; border-radius:6px;" />
-            </div>
-        </th:block>
+        <div th:if="${a.mediaUrls != null && !a.mediaUrls.isEmpty()}">
+            <img th:each="u : ${a.mediaUrls}" th:src="${baseUri + u}"
+                 style="max-width:100%; height:auto; margin-top:10px; border-radius:6px;" />
+        </div>
     </section>
-</th:block>
 
+    <!-- BLANCA -->
+    <section th:if="${a.pageType.name() == 'BLANCA'}" class="page blank" th:attr="id=${'p' + a.aportacionId}">
+        <!-- Relleno de altura completa + carácter invisible para evitar colapso -->
+        <div class="fill">&#8203;</div>
+    </section>
+
+</th:block>
 
 </body>
 </html>

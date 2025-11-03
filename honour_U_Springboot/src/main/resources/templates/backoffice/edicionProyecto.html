@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">URL del Administrador</label>
+                    <label class="form-label">URL del panel para el organizador</label>
                     <input type="url" th:field="*{urlAdmin}" class="form-control" readonly>
                 </div>
 
@@ -118,7 +118,7 @@
                 </li>
             </ul>
 
-            <!-- Botón verde -->
+            <!-- Botón editar o añadir aportaciones-->
             <div class="d-grid gap-2">
                 <a th:href="@{/backoffice/proyectos/{id}/aportaciones(id=${proyecto.proyectoId})}" class="btn btn-success">
                     Editar o Añadir Aportaciones

@@ -18,7 +18,12 @@ public class ProyectoBackofficeViewController {
     private ProyectoService proyectoService;
     @Autowired private AportacionService aportacionService;
 
-    // Mostrar listado de proyectos
+    /**
+     * Método que muestra la lista completa de proyectos en el backoffice
+     * @param model que añade un atributo proyectos con una instancia de proyectos para que pueda enlazarse
+     *              con los campos del formulario
+     * @return el nombre de la vista
+     */
     @GetMapping
     public String mostrarListadoProyectos(Model model) {
         List<Proyecto> proyectos = proyectoService.findAllProyectos();
@@ -26,9 +31,17 @@ public class ProyectoBackofficeViewController {
         return "backoffice/listadoProyectos";
     }
 
+    /**
+     * Método para editar proyecto
+     * @param id del proyecto que se utilizará para obtener el proyecto y sus aportaciones
+     * @param model se añaden los atributos de proyecto y aportaciones con las instancias de Proyecto y
+     *              aportaciones de ese proyecto para que se puedan enlazar con los campos de la vista
+     * @return el nombre de la vista (backoffice/edicionProyecto)
+     * @throws Exception en caso de no encontrar el proyecto.
+     */
     @GetMapping("/{id}/edit")
     public String editar(@PathVariable Long id, Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity(); // o findProyectoById(id)
+        Proyecto proyecto = proyectoService.findById(id);
         List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
 
         model.addAttribute("proyecto", proyecto);
@@ -36,78 +49,29 @@ public class ProyectoBackofficeViewController {
         return "backoffice/edicionProyecto";
     }
 
-    // Guardar proyecto editado
+    /**
+     * Método para guardar el proyecto editado y actualizarlo
+     * @param id con el proyecto que se quiere actualizar
+     * @param proyecto : datos del proyecto que se queire actualizar
+     * @return la vista que muestra la lista de proyectos actualizada
+     */
     @PostMapping("/{id}/update")
     public String actualizarProyecto(@PathVariable Long id, @ModelAttribute Proyecto proyecto) {
         proyectoService.updateProyecto(id, proyecto);
         return "redirect:/backoffice/proyectos";
     }
 
-    // Eliminar proyecto
+    /**
+     * Método para eliminar proyecto
+     * @param id del proyecto que se quiere actualizar
+     * @return la vista de proyectos actualizada
+     */
     @GetMapping("/{id}/delete")
     public String eliminarProyecto(@PathVariable Long id) {
         proyectoService.deleteProyectoById(id);
         return "redirect:/backoffice/proyectos";
     }
 
-    // LISTAR + FORM (crear/editar en la misma vista)
-    @GetMapping("/{id}/aportaciones")
-    public String gestionarAportacionesBackoffice(
-            @PathVariable Long id,
-            @RequestParam(value = "editId", required = false) Long editId,
-            Model model) throws Exception {
-
-        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-        List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
-
-        Aportacion formBean = (editId != null)
-                ? aportacionService.findAportacionById(editId)   // carga la que vas a editar
-                : new Aportacion();                               // creación
-
-        model.addAttribute("proyecto", proyecto);
-        model.addAttribute("aportaciones", aportaciones);
-        model.addAttribute("aportacion", formBean);
-        model.addAttribute("editMode", editId != null);
-
-        return "backoffice/listadoAportaciones";
-    }
-
-    // EDIT → redirige a la misma página con editId
-    @GetMapping("/{projectId}/aportaciones/{aportacionId}/edit")
-    public String editarEnMismaPagina(@PathVariable Long projectId, @PathVariable Long aportacionId) {
-        return "redirect:/backoffice/proyectos/" + projectId + "/aportaciones?editId=" + aportacionId;
-    }
-
-    // CREAR
-    @PostMapping("/{id}/aportaciones")
-    public String crearAportacion(@PathVariable Long id, @ModelAttribute Aportacion aportacion) throws Exception {
-        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-        aportacion.setProyecto(proyecto);
-        aportacionService.saveAportacion(aportacion);
-        return "redirect:/backoffice/proyectos/" + id + "/aportaciones";
-    }
-
-    // ACTUALIZAR
-    @PostMapping("/{id}/aportaciones/{aportacionId}")
-    public String actualizarAportacion(@PathVariable Long id,
-                                       @PathVariable Long aportacionId,
-                                       @ModelAttribute Aportacion form) throws Exception {
-        Aportacion existente = aportacionService.findAportacionById(aportacionId);
-        existente.setMensaje(form.getMensaje());
-        existente.setRemitente(form.getRemitente());
-        existente.setUrl(form.getUrl());
-        existente.setMediaType(form.getMediaType());
-        existente.setEsVisible(form.isEsVisible());
-        aportacionService.saveAportacion(existente);
-        return "redirect:/backoffice/proyectos/" + id + "/aportaciones";
-    }
-
-    @GetMapping("/{projectId}/aportaciones/{aportacionId}/delete")
-    public String eliminarAportacionBackoffice(@PathVariable Long projectId,
-                                               @PathVariable Long aportacionId) {
-        aportacionService.deleteAportacionById(aportacionId);
-        return "redirect:/backoffice/proyectos/" + projectId + "/aportaciones";
-    }
 
 }
 

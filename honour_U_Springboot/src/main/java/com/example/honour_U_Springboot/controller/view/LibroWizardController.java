@@ -1,12 +1,13 @@
 // src/main/java/com/example/honour_U_Springboot/web/controller/LibroWizardController.java
-package com.example.honour_U_Springboot.web.controller;
+package com.example.honour_U_Springboot.controller.view;
+
 
 import com.example.honour_U_Springboot.model.*;
 import com.example.honour_U_Springboot.repository.LibroRepository;
 import com.example.honour_U_Springboot.repository.ProyectoRepository;
 import com.example.honour_U_Springboot.service.DestinatarioService;
 import com.example.honour_U_Springboot.service.LibroService;
-import com.example.honour_U_Springboot.web.form.LibroWizardForm;
+import com.example.honour_U_Springboot.web.formularioParaLibro.LibroWizardForm;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -72,6 +73,7 @@ public class LibroWizardController {
         if (form.isEnvioFisico()) {
             if (form.getDestinatarioNombre() == null || form.getDestinatarioNombre().isBlank()
                     || form.getCalle() == null || form.getCalle().isBlank()
+                    || form.getNumero() == null || form.getNumero().isBlank()
                     || form.getPais() == null || form.getPais().isBlank()) {
                 model.addAttribute("globalError", "Para envío físico, indica al menos Nombre, Calle y País.");
                 return "proyectos/libro-wizard";
@@ -105,6 +107,7 @@ public class LibroWizardController {
                 dest.getDirecciones().add(dir);
             }
             dir.setCalle(form.getCalle());
+            dir.setNumero(form.getNumero());
             dir.setPiso(form.getPiso());
             dir.setLetra(form.getLetra());
             dir.setCodigoPostal(form.getCodigoPostal());

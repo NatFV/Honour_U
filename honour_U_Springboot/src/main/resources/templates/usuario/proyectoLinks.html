@@ -18,41 +18,23 @@
         <label class="form-label">Enlace para aportaciones (compártelo):</label>
         <div class="input-group">
             <input class="form-control" type="text" readonly th:value="${linkAportaciones}">
-            <button class="btn btn-outline-secondary copy" data-target="aport">Copiar</button>
         </div>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Enlace del organizador (¡privado!):</label>
+        <label class="form-label">Enlace al panel de control del organizador (¡privado!):</label>
         <div class="input-group">
             <input class="form-control" type="text" readonly th:value="${linkAdmin}">
-            <button class="btn btn-outline-secondary copy" data-target="admin">Copiar</button>
         </div>
         <div class="form-text text-danger">
-            Con este enlace podrás ordenar páginas, ocultar/mostrar y generar el PDF.
+            Con este enlace podrás organizar las páginas de las aportaciones de la gente y crear un libro digital o físico.
         </div>
     </div>
 
     <div class="d-flex gap-2">
         <a class="btn btn-primary" th:href="@{${linkAdmin}}">Abrir panel del organizador</a>
-        <a class="btn btn-outline-secondary" th:href="@{${linkAportaciones}}">Abrir enlace público</a>
+        <a class="btn btn-outline-secondary" th:href="@{${linkAportaciones}}">Abrir enlace para compartir</a>
     </div>
-
-    <script>
-        document.addEventListener('click', async (e) => {
-            const btn = e.target.closest('.copy');
-            if (!btn) return;
-            const input = btn.previousElementSibling;
-            input.select();
-            try {
-                await navigator.clipboard.writeText(input.value);
-                btn.textContent = 'Copiado';
-                setTimeout(() => btn.textContent = 'Copiar', 1200);
-            } catch {
-                document.execCommand('copy'); // fallback antiguo
-            }
-        });
-    </script>
 </section>
 </body>
 </html>

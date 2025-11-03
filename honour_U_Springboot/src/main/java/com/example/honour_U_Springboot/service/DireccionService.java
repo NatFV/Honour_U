@@ -67,6 +67,7 @@ public class DireccionService {
         // Solo actualizamos los campos que pueden cambiar
         existente.setCalle(direccion.getCalle());
         existente.setPiso(direccion.getPiso());
+        existente.setNumero(direccion.getNumero());
         existente.setLetra(direccion.getLetra());
         existente.setCodigoPostal(direccion.getCodigoPostal());
         existente.setPais(direccion.getPais());
@@ -100,6 +101,7 @@ public class DireccionService {
     public DireccionDTO createDireccionFromDTO(DireccionDTO dto) {
         Direccion direccion = new Direccion();
         direccion.setCalle(dto.getCalle());
+        direccion.setNumero(dto.getNumero());
         direccion.setPiso(dto.getPiso());
         direccion.setLetra(dto.getLetra());
         direccion.setCodigoPostal(dto.getCodigoPostal());
@@ -148,6 +150,7 @@ public class DireccionService {
                 .orElseThrow(() -> new RuntimeException("Dirección no encontrada"));
 
         direccion.setCalle(dto.getCalle());
+        direccion.setNumero(dto.getNumero());
         direccion.setPiso(dto.getPiso());
         direccion.setLetra(dto.getLetra());
         direccion.setCodigoPostal(dto.getCodigoPostal());

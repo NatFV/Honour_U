@@ -54,7 +54,7 @@ public class Aportacion {
     private Integer orden;
 
     //Añadimos un enum para poder distinguir páginas especiales (normal, portada,índice) de páginas normales
-    public enum PageType { NORMAL, PORTADA, INDICE }
+    public enum PageType { NORMAL, PORTADA, INDICE, BLANCA }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "page_type", nullable = false)
@@ -65,6 +65,7 @@ public class Aportacion {
 
     public List<String> getMediaUrls() { return mediaUrls; }
     public void setMediaUrls(List<String> mediaUrls) { this.mediaUrls = mediaUrls; }
+
 
     public Long getAportacionId() {
         return aportacionId;

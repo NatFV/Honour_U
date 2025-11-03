@@ -9,18 +9,17 @@ import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Clase AportacionViewController
- * Maneja las vistas del controlador
+ * Clase AportacionBackofficeViewController
+ * Maneja las vistas del controlador para el backoffice del listado de aportaciones
+ * Permite editar,crear, eliminar y actualizar aportaciones desde el backoffice
  */
 @Controller
+@RequestMapping("/backoffice/proyectos")
 public class AportacionBackofficeViewController {
   @Autowired
     private AportacionService aportacionService;
@@ -32,125 +31,98 @@ public class AportacionBackofficeViewController {
     private ParticipanteService participanteService;
 
     /**
-     * Método mostrar aport
-     * @param model para pasar información del controlador a la vista
-     * @return la lista en el html crearAportación
+     * Método para editar las aportaciones
+     * @param id del proyecto del que queremos editar las aportaciones
+     * @param editId parámetro opcional que indica la aportación a editar
+     * @param model para conectar los datos con la vista
+     * @return la vista con el listado de aportaciones
+     * @throws Exception
      */
-   @GetMapping("/aportaciones")
-    public String mostrarAportaciones(Model model) {
-        List<Aportacion> aportaciones = aportacionService.findAllAportaciones();
-        // Verificamos si los proyectos se recuperan correctamente (opcional para depuración)
-        System.out.println("Aportaciones cargadas: " + aportaciones);
-        model.addAttribute("aportaciones", aportaciones);
-        model.addAttribute("aportacion", new Aportacion()); // Para el formulario
-        return "crearAportacion"; // El nombre del archivo HTML .html)
-    }
-
-    /**
-     * Método guardar aportaciones
-     * @param aportacion con la información de la aportación
-     * @return la lista actualizada de aportaciones en proyectos
-     */
-   // @PostMapping("/aportaciones")
-    public String guardarAportacion(Aportacion aportacion) {
-        aportacionService.saveAportacion(aportacion);
-        Long proyectoId = aportacion.getProyecto().getProyectoId(); // Obtener el id del proyecto asociado
-        return "redirect:/proyectos/" + proyectoId + "/edit";
-    }
-
-    /**
-     * Método para editar aportaciones
-     * @param id de la aportación que se quiere editar
-     * @param model conecta vista con controlador
-     * @return la vista editar aportacion
-     * @throws Exception si no la encuentra
-     */
-    @GetMapping("/aportaciones/{id}/edit")
-    public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
-        Aportacion aportacion = aportacionService.findAportacionById(id);
-        List<Participante> participantes = participanteService.findAll();  // Trae todos los participantes
-
-        model.addAttribute("aportacion", aportacion);
-        model.addAttribute("participantes", participantes);  // Pasa la lista al modelo
-
-        return "editarAportacion"; // Vista a crear
-    }
-
-    /**
-     * Método para actualizar aportación
-     * @param id
-     * @param aportacionForm
-     * @return redirige a la página de gestión de aportaciones
-     * @throws Exception si no se puede actualizar
-     */
-   @PostMapping("/aportaciones/{id}/update")
-    public String actualizarAportacion(@PathVariable Long id, @ModelAttribute Aportacion aportacionForm) throws Exception {
-        Aportacion existente = aportacionService.findAportacionById(id);
-
-        // Actualiza los campos necesarios
-        existente.setMensaje(aportacionForm.getMensaje());
-        existente.setRemitente(aportacionForm.getRemitente());
-        existente.setUrl(aportacionForm.getUrl());
-        existente.setMediaType(aportacionForm.getMediaType());
-        existente.setEsVisible(aportacionForm.isEsVisible());
-
-        // Guarda los cambios
-        aportacionService.saveAportacion(existente);
-
-        // Obtiene el ID del proyecto al que pertenece esta aportación
-        Long proyectoId = existente.getProyecto().getProyectoId();
-
-        // Redirige a la página de gestión de aportaciones
-        return "redirect:/proyectos/" + proyectoId + "/aportaciones";
-    }
-
-    /**
-     * Método para eliminar aportación
-     * @param id de la aportación a eliminar
-     * @return redirige a la lista de aportaciones
-     */
-   @GetMapping("/aportaciones/{id}/delete")
-    public String eliminarAportaciones(@PathVariable Long id) {
-        aportacionService.deleteAportacionById(id);
-        return "redirect:/aportaciones";
-    }
-
-    /**
-     * Método para gestionar aportaciones
-     * @param id
-     * @param model
-     * @return la vista de gestión de aportaciones
-     * @throws Exception si no se puede obtener
-     */
-//   @GetMapping("/proyectos/{id}/aportaciones")
-//    public String gestionarAportaciones(@PathVariable Long id, Model model) throws Exception {
-//        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-//        List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
-//
-//        model.addAttribute("proyecto", proyecto);
-//        model.addAttribute("aportaciones", aportaciones);
-//        model.addAttribute("nuevaAportacion", new Aportacion());
-//
-//        return "gestionarAportaciones"; // nueva vista
-//    }
-
-    /**
-     * Método para gestionar participantes
-     * @param id
-     * @param model
-     * @return vista de los partipantes a gestionar
-     * @throws Exception si no se puede gestionar
-     */
-    @GetMapping("/proyectos/{id}/participantes")
-    public String gestionarParticipantes(@PathVariable Long id, Model model) throws Exception {
+    @GetMapping("/{id}/aportaciones")
+    public String gestionarAportacionesBackoffice(
+            @PathVariable Long id,
+            @RequestParam(value = "editId", required = false) Long editId,
+            Model model) throws Exception {
+        //A través de proyectoService se identifica el proyecto y se cargan las aportaciones
         Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
-        List<Participante> participantes = participanteService.findByProyecto(proyecto); // O findAll() si no tienes filtro
+        List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
+
+        //Aportación para editar o crear
+        Aportacion aptEditarCrear;
+        if (editId != null) {
+            aptEditarCrear = aportacionService.findAportacionById(editId); // cargar para editar
+        } else {
+            aptEditarCrear = new Aportacion(); // objeto vacío para crear
+        }
 
         model.addAttribute("proyecto", proyecto);
-        model.addAttribute("participantes", participantes);
-        model.addAttribute("nuevoParticipante", new Participante());
+        model.addAttribute("aportaciones", aportaciones);
+        model.addAttribute("aportacion", aptEditarCrear);
+        model.addAttribute("editMode", editId != null);
 
-        return "gestionarParticipantes"; // nombre del template Thymeleaf a crear
+        return "backoffice/listadoAportaciones";
+    }
+
+    /**
+     * Método para que editar una aportación en la misma página
+     * @param projectId
+     * @param aportacionId
+     * @return la página de la aportación que se edita
+     */
+    // EDIT → redirige a la misma página con editId
+    @GetMapping("/{projectId}/aportaciones/{aportacionId}/edit")
+    public String editarEnMismaPagina(@PathVariable Long projectId, @PathVariable Long aportacionId) {
+        return "redirect:/backoffice/proyectos/" + projectId + "/aportaciones?editId=" + aportacionId;
+    }
+
+    /**
+     * Método para crear aportación dentro de un proyecto en el back office
+     * @param id
+     * @param aportacion
+     * @return la página actualizada de proyectos con la nueva aportación
+     * @throws Exception si no la encuentra
+     */
+    @PostMapping("/{id}/aportaciones")
+    public String crearAportacion(@PathVariable Long id, @ModelAttribute Aportacion aportacion) throws Exception {
+        Proyecto proyecto = proyectoService.findProyectoByIdAPI(id).toEntity();
+        aportacion.setProyecto(proyecto);
+        aportacionService.saveAportacion(aportacion);
+        return "redirect:/backoffice/proyectos/" + id + "/aportaciones";
+    }
+
+    /**
+     * Método para actualizar aportación desde el backoffice
+     * @param id del proyecto
+     * @param aportacionId el id de la aportación
+     * @param form objeto comando que Spring rellena con datos que vienen en la petición de POST
+     * @return la página de aportaciones de proyecto actualizada
+     * @throws Exception
+     */
+    @PostMapping("/{id}/aportaciones/{aportacionId}")
+    public String actualizarAportacion(@PathVariable Long id,
+                                       @PathVariable Long aportacionId,
+                                       @ModelAttribute Aportacion form) throws Exception {
+        Aportacion existente = aportacionService.findAportacionById(aportacionId);
+        existente.setMensaje(form.getMensaje());
+        existente.setRemitente(form.getRemitente());
+        existente.setUrl(form.getUrl());
+        existente.setMediaType(form.getMediaType());
+        existente.setEsVisible(form.isEsVisible());
+        aportacionService.saveAportacion(existente);
+        return "redirect:/backoffice/proyectos/" + id + "/aportaciones";
+    }
+
+    /**
+     * Método para eliminar las aportaciones dentro del backoffice
+     * @param projectId
+     * @param aportacionId
+     * @return el template actualizado con las aportaciones de proyecto.
+     */
+    @GetMapping("/{projectId}/aportaciones/{aportacionId}/delete")
+    public String eliminarAportacionBackoffice(@PathVariable Long projectId,
+                                               @PathVariable Long aportacionId) {
+        aportacionService.deleteAportacionById(aportacionId);
+        return "redirect:/backoffice/proyectos/" + projectId + "/aportaciones";
     }
 
 }

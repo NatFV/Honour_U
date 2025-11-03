@@ -1,5 +1,4 @@
 package com.example.honour_U_Springboot.controller.view;
-
 import com.example.honour_U_Springboot.model.Aportacion;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.AportacionService;
@@ -28,10 +27,27 @@ public class AportacionUsuarioViewController {
     @Autowired private AportacionService aportacionService;
     @Autowired private ProyectoService proyectoService;
 
-    // ---------- Helpers cookie ----------
+    // ---------- Cookies ----------
+    //Se utilizan para recordar el autor de las aportaciones en un sistema
+    //sin login para fomentar la colaboración directa de los participantes
+
+    /**
+     * Método para crear un nombre de cookie por navegador y proyecto
+     * @param token del proyecto
+     * @return un nombre de cookie por proyecto que no rompe las reglas de http
+     */
     private String cookieNameFor(String token) {
         return "ok_" + token.replaceAll("[^A-Za-z0-9_-]", "_");
     }
+
+    /**
+     * Método para buscaruna cookie guardada previamente
+     * @param request que es la petición que el navegador envía al servidor,
+     *                para que muestre las cookies guardadas
+     * @param name el nombre de la cookie
+     * @return el valor si encuentra la cookie y si no la encuentra devuelve null
+     * De esa manera se podrá editar/eliminar aportación
+     */
     private String getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
@@ -39,7 +55,16 @@ public class AportacionUsuarioViewController {
         return null;
     }
 
-    // ---------- Página principal: crear + listar ----------
+    /**
+     * Método para mostrar aportaciones
+     * @param token del proyecto
+     * @param model que expone los datos a la plantilla de Thymeleaf
+     * @param session almacena datos por usuario para conservarlos entre peticiones
+     * @param request para hacer peticiones al servidor
+     * @param response para recibir respuestas del servidor
+     * @return la vista de nueva Aportación y aportaciones existentes
+     * @throws Exception si no encuentra el proyecto
+     */
     @GetMapping("/{token}/aportaciones")
     public String mostrarFormularioAportacion(@PathVariable String token,
                                               Model model,
@@ -49,10 +74,13 @@ public class AportacionUsuarioViewController {
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
+        //Captura la ownerkey de la sessión y genera la cookie
         String sessionKey = "ownerKey:" + token;     // en sesión puede llevar ':'
         String cookieName = cookieNameFor(token);    // la cookie NO
+        //El servidor busca las ownerkeys disponibles en la sesión y en la cookie
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
+        //Si no la hay crea una ownerKey y una cookie que dura un máximo de 180 días
         if (ownerKey == null) {
             ownerKey = UUID.randomUUID().toString();
             Cookie cookie = new Cookie(cookieName, ownerKey);
@@ -63,14 +91,20 @@ public class AportacionUsuarioViewController {
         }
         session.setAttribute(sessionKey, ownerKey);
 
-        // Filtrado en servidor: SOLO PageType.NORMAL
+        // Obtención de todas las aportaciones del proyecto
         List<Aportacion> todas = aportacionService.findByProyecto(proyecto);
+        //Filtro paraa las aportaciones propias clasificadas como normal
+        //Si la ownerkey de las aportaciones coinciden con las de la sesión, se obtienen
+        //las aportaciones propias
         String finalOwnerKey = ownerKey;
         List<Aportacion> mias = todas.stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
                 .filter(a -> finalOwnerKey.equals(a.getOwnerKey()))
                 .toList();
-        // Otras: AÑADIR filtro para excluir páginas sin ownerKey (las “en blanco”)
+
+        // Filtro para  obtener las aportaciones de otros participantes
+        // Si la ownerkey es distinta de null y no es una página en blanco se obtiene
+        //las aportaciones de otros participantes
         String finalOwnerKey1 = ownerKey;
         List<Aportacion> otras = todas.stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
@@ -85,23 +119,34 @@ public class AportacionUsuarioViewController {
                 .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .toList();
 
+        //Se trasladan los datos del controlador a la vista (Thymeleaf)
         model.addAttribute("proyecto", proyecto);
         model.addAttribute("nuevaAportacion", new Aportacion());
         model.addAttribute("mias", mias);
         model.addAttribute("otras", otras);
-        model.addAttribute("sessionOwnerKey", ownerKey); // por si lo necesitas en la vista
+       // model.addAttribute("sessionOwnerKey", ownerKey); // por si lo necesitas en la vista
 
-        // Cargar aportaciones frescas desde la BD
+        // Cargar aportaciones ordenadas
         List<Aportacion> aportaciones = aportacionService.findByProyectoOrderado(proyecto)
                 .stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
                 .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .toList();
         model.addAttribute("aportaciones", aportaciones);
+
         return "usuario/nuevaAportacion";
     }
 
-    // ---------- Crear aportación ----------
+    /**
+     * Método para guardar aportaciones
+     * @param token del proyecto
+     * @param aportacion a guardar
+     * @param imagenes a guardar
+     * @param session almacena datos por usuario para conservarlos entre peticiones
+     * @param request para hacer peticiones
+     * @return el link con las aportaciones actualizadas
+     * @throws Exception si no encuentra proyecto
+     */
     @PostMapping("/{token}/aportaciones")
     public String guardarAportacion(@PathVariable String token,
                                     @ModelAttribute("nuevaAportacion") Aportacion aportacion,
@@ -129,21 +174,25 @@ public class AportacionUsuarioViewController {
         aportacion.setProyecto(proyecto);
         aportacion.setPageType(Aportacion.PageType.NORMAL);
 
-        // 🔹 Guarda temporalmente para generar el ID
+        // Guarda temporalmente para generar el ID
         aportacionService.saveAportacion(aportacion);
         Long idGenerado = aportacion.getAportacionId();
 
-        // 🔹 Subida de archivos
+        // Subida de archivos
+        //Creación de carpetas en disco
+        //Ruta final:
         String baseDir = System.getProperty("user.dir") + "/uploads/"
                 + proyecto.getTokenUrl() + "/" + idGenerado + "/";
         Path carpeta = Paths.get(baseDir);
         Files.createDirectories(carpeta);
 
+        //Creación de una lista para guardar URLS de los archivos
         List<String> urls = new ArrayList<>();
         if (imagenes != null) {
             for (MultipartFile img : imagenes) {
                 if (img == null || img.isEmpty()) continue;
                 String original = img.getOriginalFilename();
+                //quita caracteres raros y le antepone un timestamp para evitar colisiones
                 String safe = System.currentTimeMillis() + "_" +
                         (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "archivo");
                 Path destino = carpeta.resolve(safe);
@@ -152,6 +201,7 @@ public class AportacionUsuarioViewController {
                 urls.add(urlRel);
             }
         }
+        //guarda los urls en la entidad de aportación
         aportacion.setMediaUrls(urls);
 
         // Siempre asigna una URL (sea archivo o enlace de visualización)
@@ -168,7 +218,16 @@ public class AportacionUsuarioViewController {
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 
-    // ---------- Editar (GET) ----------
+    /**
+     * Método para editar aportación
+     * @param token del proyecto
+     * @param aportacionId
+     * @param model para exponer los datos a la plantilla de Thymeleaf
+     * @param session almacena datos por usuario para conservarlos entre peticiones
+     * @param request para hacer peticiones
+     * @return el formulario para editar aportación
+     * @throws Exception si no encuentra el proyecto
+     */
     @GetMapping("/{token}/aportaciones/{aportacionId}/editar")
     public String editarAportacion(@PathVariable String token,
                                    @PathVariable Long aportacionId,
@@ -195,7 +254,17 @@ public class AportacionUsuarioViewController {
         return "usuario/editarAportacion";
     }
 
-    // ---------- Editar (POST) ----------
+    /**
+     * Método para editar aportación (POST)
+     * @param token del proyecto
+     * @param aportacionId
+     * @param form con la aportación a editar
+     * @param nuevasImagenes en caso de que se añadan
+     * @param session almacena datos por usuario para conservarlos entre peticiones
+     * @param request para hacer peticiones
+     * @return el link con las aportaciones actualizadas
+     * @throws Exception si no encuentra el proyecto
+     */
     @PostMapping("/{token}/aportaciones/{aportacionId}/editar")
     public String actualizarAportacion(@PathVariable String token,
                                        @PathVariable Long aportacionId,
@@ -251,7 +320,15 @@ public class AportacionUsuarioViewController {
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 
-    // ---------- Ver (solo lectura pública si visible) ----------
+    /**
+     * Método para mostrar las aportaciones de otros participantes
+     * en caso de ser visibles
+     * @param token del proyecto
+     * @param aportacionId
+     * @param model que expone los datos a la plantilla de Thymeleaf
+     * @return el formulario ver Aportación
+     * @throws Exception si no encuentra el proyecto
+     */
     @GetMapping("/{token}/aportaciones/{aportacionId}/ver")
     public String verAportacionPublica(@PathVariable String token,
                                        @PathVariable Long aportacionId,
@@ -271,7 +348,15 @@ public class AportacionUsuarioViewController {
         return "usuario/verAportacion";
     }
 
-    // ---------- Eliminar ----------
+    /**
+     * Método para eliminar aportaciones
+     * @param token del proyecto
+     * @param aportacionId
+     * @param session almacena datos por usuario para conservarlos entre peticiones
+     * @param request para hacer peticiones
+     * @return el link con la lista actualizada de aportaciones
+     * @throws Exception si no encuentra el proyecto
+     */
     @PostMapping("/{token}/aportaciones/{aportacionId}/eliminar")
     public String eliminarAportacion(@PathVariable String token,
                                      @PathVariable Long aportacionId,

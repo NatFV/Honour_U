@@ -14,6 +14,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.UUID;
 
+/**
+ * @author Natalia Fernández
+ * Clase ProyectoUsuarioViewController
+ * Contiene los métodos para mostrar el formulario de proyecto,
+ * crear un proyecto y guardarlo.
+ */
+
 @Controller
 @RequestMapping("/usuario/proyectos")
 public class ProyectoUsuarioViewController {
@@ -21,15 +28,24 @@ public class ProyectoUsuarioViewController {
     @Autowired
     private ProyectoService proyectoService;
 
-    // Mostrar formulario para crear proyecto
+    /**
+     * Método para mostrar el formulario que crea el proyecto
+     * @param model que añade un atributo llamado proyecto con una instancia vacía de Proyecto para enlazar el formulario.
+     * @return la vista de nuevo proyecto que mostrará ese formulario
+     */
     @GetMapping ("/nuevo")
     public String mostrarFormularioProyecto(Model model) {
         model.addAttribute("proyecto", new Proyecto());
         return "usuario/nuevoProyecto"; // apunta al template dentro de /usuario
     }
 
-    // Guardar proyecto creado por el usuario
-    // Guardar proyecto y mostrar enlaces (público + admin)
+    /**
+     * Método para guardar proyecto y generar las direcciones públicas y de administrador
+     * @param proyecto que se pasa con los datos del proyecto
+     * Se construyen los urls a partir del ServerUriComponentsBuilder, y de los tokens
+     * @param model para pasar los datos a la vista
+     * @return una vista que muestra ambos enlaces
+     */
     @PostMapping("/nuevo")
     public String guardarProyecto(Proyecto proyecto, Model model) {
 
@@ -41,25 +57,26 @@ public class ProyectoUsuarioViewController {
             proyecto.setAdminToken(UUID.randomUUID().toString());
         }
 
-        // Construir base (http://host:port)
+        // Utilizamos ServerletUriComponentsBuilder (clase de Spring Web que construye
+        //el identificador de un recurso (URI)) En este caso construiría: http://localhost:8081/...
         String base = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .build()
-                .toUriString();
+                .fromCurrentContextPath() //toma datos desde el contexto actual (protocolo, host,ruta,query)
+                .build() //lo ensambla
+                .toUriString(); //serializa los componentes para construir la URL final
 
-        // Enlaces
+        // Creación de los enlaces con la base y los tokens
         String linkAportaciones = base + "/proyectos/token/" + proyecto.getTokenUrl() + "/aportaciones";
         String linkAdmin        = base + "/proyectos/admin/" + proyecto.getAdminToken() + "/panel";
 
-        // Asigna las URLS antes de guardar
+        // Asignación de las URLS antes de guardar
         proyecto.setUrlProyecto(linkAportaciones);
         proyecto.setUrlAdmin(linkAdmin);
 
-        // Persistir
+        // Persistencia para salvar el proyecto
         Proyecto guardado = proyectoService.saveProyecto(proyecto);
 
 
-        // Pasar datos a la vista de enlaces
+        // Se pasan los datos a la vista de enlaces
         model.addAttribute("proyecto", guardado);
         model.addAttribute("linkAportaciones", linkAportaciones);
         model.addAttribute("linkAdmin", linkAdmin);
@@ -68,16 +85,5 @@ public class ProyectoUsuarioViewController {
         return "usuario/proyectoLinks"; // vista que muestra ambos enlaces
     }
 
-    @GetMapping("/aportar/{token}")
-    public String mostrarFormularioAportacion(@PathVariable String token, Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findByTokenUrl(token);
-        if (proyecto == null) {
-            throw new Exception("Proyecto no encontrado");
-        }
-
-        model.addAttribute("proyecto", proyecto);
-        model.addAttribute("nuevaAportacion", new Aportacion());
-        return "OldAportacion"; // template para añadir aportaciones
-    }
 }
 

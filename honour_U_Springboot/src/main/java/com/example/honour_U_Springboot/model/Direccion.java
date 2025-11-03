@@ -20,9 +20,12 @@ public class Direccion {
     private Long direccionId;
     @Column(name="calle", nullable = false)
     private String calle;
-    @Column(name="piso", nullable = false)
+
+    @Column(name="número", nullable = false)
+    private String numero;
+    @Column(name="piso")
     private String piso;
-    @Column(name="letra", nullable = false)
+    @Column(name="letra")
     private String letra;
     @Column(name = "codigo_postal")
     private String codigoPostal;
@@ -43,6 +46,10 @@ public class Direccion {
     public void setCalle(String calle) {
         this.calle = calle;
     }
+
+    public String getNumero() { return numero; }
+
+    public void setNumero(String numero) { this.numero = numero;}
 
     public String getPiso() {
         return piso;

@@ -1,11 +1,8 @@
 package com.example.honour_U_Springboot.controller.view;
 
-import com.example.honour_U_Springboot.dto.ParticipanteDTO;
 import com.example.honour_U_Springboot.model.Libro;
-import com.example.honour_U_Springboot.model.Participante;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.LibroService;
-import com.example.honour_U_Springboot.service.ParticipanteService;
 import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -100,7 +97,7 @@ public class LibroViewController {
 
         model.addAttribute("proyectos", proyectosDisponibles);
 
-        return "crearLibro";
+        return "listaLibros";
     }
 
     /**
@@ -113,7 +110,7 @@ public class LibroViewController {
         if (!model.containsAttribute("libro")) {
             model.addAttribute("libro", new Libro()); // Libro vacío para evitar null
         }
-        return "crearLibro";
+        return "listaLibros";
     }
 
     @Bean

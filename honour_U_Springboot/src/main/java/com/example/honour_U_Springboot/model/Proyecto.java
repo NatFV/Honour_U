@@ -32,24 +32,26 @@ public class Proyecto {
     private String organizador;
     private String descripcion;
 
-    //token_url representa un token único que se genera automáticamente
+    //Generamos token único que se genera automáticamente para las aportaciones de proyecto
     @Column(name = "token_url", unique = true, nullable = false)
     private String tokenUrl;
 
-    //Generamos un atributo url_proyecto por si lo queremos generar manualmente
-    @Column(name= "url_proyecto")
-    private String urlProyecto;
-
-    //Generamos un token para el administrador
+    //Generamos un token para el administrador que le dará acceso al panel de control
     @Column(name = "admin_token", unique = true)
     private String adminToken;
+
+    //URL generada a partir del token para los participantes
+    @Column(name= "url_proyecto")
+    private String urlProyecto;
+    //URL generada a partir del adminToken para el administrador
+    @Column
+    private String urlAdmin;
 
     @Column(name="plazo_finalizacion")
     //@Temporal(TemporalType.DATE) //Incluimos la fecha pero no la hora
     private LocalDate plazoFinalizacion;
 
-    @Column
-    private String urlAdmin;
+
 
     public Long getProyectoId() {
         return proyectoId;
@@ -154,10 +156,14 @@ public class Proyecto {
         this.libro = libro;
     }
 
+
     /**
-     * Método para generar los link de aportaciones y de administrador
+     * Método para generar tokens públicos y de administrador, necesarios para generar URLS
+     * Si no existe un token para aportaciones o un token de administrador,
+     * se crea un Universally Unique Identifier (UUID), que usa números aleatorios con probabilidad
+     * muy baja para repetirse (128bits).
      */
-    @PrePersist
+    @PrePersist //se asegura de que antes de guardar el proyecto en la base de datos, ejecute este método
     public void ensureTokens() {
         if (this.adminToken == null || this.adminToken.isBlank()) {
             this.adminToken = java.util.UUID.randomUUID().toString();
