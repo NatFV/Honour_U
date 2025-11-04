@@ -15,6 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador para poder crear un libro físico o en pdf
+ * Utiliza la clase LibroWizard Form para que el usuario cree el libro en
+ * función de sus preferencias
+ */
 @Controller
 @RequestMapping("/proyectos/admin/{adminToken}")
 public class LibroWizardController {
@@ -24,6 +29,7 @@ public class LibroWizardController {
     private final LibroService libroService;
     private final DestinatarioService destinatarioService;
 
+    //Constructor
     public LibroWizardController(ProyectoRepository proyectoRepo,
                                  LibroRepository libroRepo,
                                  LibroService libroService,
@@ -34,8 +40,13 @@ public class LibroWizardController {
         this.destinatarioService = destinatarioService;
     }
 
+    /**
+     * Método para cargar el proyecto
+     * @param adminToken para encontrar el proyecto
+     * @return el proyecto cargado
+     */
     @ModelAttribute("proyecto")
-    public Proyecto loadProyecto(@PathVariable String adminToken) {
+    public Proyecto cargarProyecto(@PathVariable String adminToken) {
         return proyectoRepo.findByAdminToken(adminToken)
                 .orElseThrow(() -> new IllegalArgumentException("Proyecto no encontrado: " + adminToken));
     }
@@ -48,12 +59,20 @@ public class LibroWizardController {
         form.setPaginas(1);
         // por UX podrías prechequear email o físico según contexto
         model.addAttribute("form", form);
-        return "proyectos/libro-wizard";
+        return "pdf/libro-wizard";
     }
 
+    /**
+     * Método para crear libro físico o virtual
+     * @param proyecto del libro que se quiere realizar
+     * @param form el formulario a rellenar
+     * @param br interfaz que detecta errores cuando no se pone el valor adecuado
+     * @param model para mostrar los datos en Thymeleaf
+     * @return el formulario completado
+     */
     @PostMapping("/libro")
     @Transactional
-    public String createOrUpdate(@ModelAttribute("proyecto") Proyecto proyecto,
+    public String crearLibroFisicoOvirtual(@ModelAttribute("proyecto") Proyecto proyecto,
                                  @Valid @ModelAttribute("form") LibroWizardForm form,
                                  BindingResult br,
                                  Model model) {
@@ -61,7 +80,7 @@ public class LibroWizardController {
         // Validación: al menos una opción
         if (!form.isEnvioEmail() && !form.isEnvioFisico()) {
             model.addAttribute("globalError", "Selecciona al menos una opción: email o envío físico.");
-            return "proyectos/libro-wizard";
+            return "pdf/libro-wizard";
         }
         // Si email marcado, email requerido
         if (form.isEnvioEmail()) {
@@ -69,17 +88,17 @@ public class LibroWizardController {
                 br.rejectValue("email", "email.requerido", "El email es obligatorio al seleccionar 'Enviar por email'.");
             }
         }
-        // Si físico marcado, campos mínimos
+        // Si se marca el físico, campos mínimos
         if (form.isEnvioFisico()) {
             if (form.getDestinatarioNombre() == null || form.getDestinatarioNombre().isBlank()
                     || form.getCalle() == null || form.getCalle().isBlank()
                     || form.getNumero() == null || form.getNumero().isBlank()
                     || form.getPais() == null || form.getPais().isBlank()) {
                 model.addAttribute("globalError", "Para envío físico, indica al menos Nombre, Calle y País.");
-                return "proyectos/libro-wizard";
+                return "pdf/libro-wizard";
             }
         }
-        if (br.hasErrors()) return "proyectos/libro-wizard";
+        if (br.hasErrors()) return "pdf/libro-wizard";
 
         // Un solo libro por proyecto: crear o actualizar
         Libro libro = libroRepo.findByProyecto(proyecto).orElseGet(Libro::new);
@@ -114,22 +133,29 @@ public class LibroWizardController {
             dir.setPais(form.getPais());
 
             dest = destinatarioService.saveDestinatario(dest);
-            libro.setDestinatario(dest);       // mantener inverso
+            libro.setDestinatario(dest);
             libroService.saveLibro(libro);
         }
 
-        // Envío por email (placeholder)
-        if (form.isEnvioEmail()) {
-            // TODO: aquí pondrías tu servicio real de emailing (adjuntar PDF, link, etc.)
-            // emailService.enviarLibro(form.getEmail(), libro);
-        }
+//        // Envío por email (placeholder)
+//        if (form.isEnvioEmail()) {
+//            // TODO: aquí pondrías tu servicio real de emailing (adjuntar PDF, link, etc.)
+//            // emailService.enviarLibro(form.getEmail(), libro);
+//        }
 
         return "redirect:/proyectos/admin/" + proyecto.getAdminToken()
                 + "/libro/" + libro.getLibroId() + "/confirmacion";
     }
 
+    /**
+     * Método para confirmar que el libro se ha creado
+     * @param libroId
+     * @param proyecto
+     * @param model
+     * @return el formulario de confirmación del libro
+     */
     @GetMapping("/libro/{libroId}/confirmacion")
-    public String confirm(@PathVariable Long libroId,
+    public String confirmarLibro(@PathVariable Long libroId,
                           @ModelAttribute("proyecto") Proyecto proyecto,
                           Model model) {
         // Carga el libro para decidir si mostrar "Descargar PDF"
@@ -141,7 +167,7 @@ public class LibroWizardController {
             throw new IllegalArgumentException("Libro no encontrado: " + libroId, e);
         }
         model.addAttribute("libro", libro);
-        return "proyectos/libro-confirmacion";
+        return "pdf/libro-confirmacion";
     }
 
 

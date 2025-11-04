@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  * Maneja las vistas del controlador
  */
 @Controller
+@RequestMapping("/backoffice")
 public class LibroViewController {
     @Autowired
     private LibroService libroService;
@@ -39,7 +40,7 @@ public class LibroViewController {
             libro.setProyecto(proyecto);
         }
         libroService.saveLibro(libro);
-        return "redirect:/libros";
+        return "redirect:/backoffice/libros";
     }
 
     /**
@@ -54,7 +55,7 @@ public class LibroViewController {
         Libro libro = libroService.findLibroById(id);
         model.addAttribute("libro", libro);
         model.addAttribute("proyectos", proyectoService.findAll());
-        return "editarLibro"; // Vista a crear
+        return "backoffice/editarLibro"; // Vista a crear
     }
 
     /**
@@ -66,7 +67,7 @@ public class LibroViewController {
     @PostMapping("/libros/{id}/update")
     public String actualizarLibro(@PathVariable Long id, @ModelAttribute Libro libro) {
         libroService.updateLibro(id, libro);
-        return "redirect:/libros";
+        return "redirect:/backoffice/libros";
     }
 
     /**
@@ -77,7 +78,7 @@ public class LibroViewController {
     @GetMapping("/libros/{id}/delete")
     public String eliminarLibro(@PathVariable Long id) {
         libroService.deleteLibroById(id);
-        return "redirect:/libros";
+        return "redirect:/backoffice/libros";
     }
 
     /**
@@ -97,7 +98,7 @@ public class LibroViewController {
 
         model.addAttribute("proyectos", proyectosDisponibles);
 
-        return "listaLibros";
+        return "backoffice/listaLibros";
     }
 
     /**
@@ -110,7 +111,7 @@ public class LibroViewController {
         if (!model.containsAttribute("libro")) {
             model.addAttribute("libro", new Libro()); // Libro vacío para evitar null
         }
-        return "listaLibros";
+        return "backoffice/listaLibros";
     }
 
     @Bean

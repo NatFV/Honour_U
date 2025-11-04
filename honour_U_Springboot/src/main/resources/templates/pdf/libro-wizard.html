@@ -19,7 +19,7 @@
         <div class="card mb-3">
             <div class="fw-semibold mb-2">Datos del libro</div>
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <label class="form-label">Título</label>
                     <input class="form-control" th:field="*{tituloLibro}" required>
                 </div>
@@ -34,10 +34,6 @@
                 <div class="col-md-1">
                     <label class="form-label">Copias</label>
                     <input type="number" class="form-control" min="1" th:field="*{copias}" required>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Páginas</label>
-                    <input type="number" class="form-control" min="1" th:field="*{paginas}" required>
                 </div>
             </div>
         </div>
