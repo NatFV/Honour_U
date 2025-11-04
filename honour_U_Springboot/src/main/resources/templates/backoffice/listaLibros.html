@@ -36,7 +36,7 @@
 <div class="d-flex justify-content-end mt-3 me-3 mb-3">
     <a th:href="@{/backoffice/proyectos}" class="btn btn-success me-2">Proyectos</a>
     <a th:href="@{/backoffice/libros}" class="btn btn-info me-2">Libros</a>
-    <a th:href="@{/mapa-libros-v2}" class="btn btn-warning">Mundo Honour U</a>
+    <a th:href="@{/backoffice/mapa-libros-v2}" class="btn btn-warning">Mundo Honour U</a>
 </div>
 <!-- Imagen centrada en la parte superior -->
 <div class="text-center my-4">
@@ -69,10 +69,10 @@
             <td>
                 <a th:href="@{/backoffice/libros/{id}/edit(id=${libro.libroId})}" class="btn btn-warning btn-sm">Editar</a>
                 <span th:if="${libro.destinatario != null}">
-                    <a th:href="@{/destinatarios/{id}/edit(id=${libro.destinatario.destinatarioId})}" class="btn btn-info btn-sm ms-1">Editar Destinatario</a>
+                    <a th:href="@{/backoffice/destinatarios/{id}/edit(id=${libro.destinatario.destinatarioId})}" class="btn btn-info btn-sm ms-1">Editar Destinatario</a>
                 </span>
                 <span th:if="${libro.destinatario == null}">
-                    <a th:href="@{/destinatarios(libroId=${libro.libroId})}" class="btn btn-primary btn-sm ms-1">Crear Destinatario</a>
+                    <a th:href="@{/backoffice/destinatarios(libroId=${libro.libroId})}" class="btn btn-primary btn-sm ms-1">Crear Destinatario</a>
                 </span>
                 <a th:href="@{/backoffice/libros/{id}/delete(id=${libro.libroId})}" class="btn btn-danger btn-sm">Eliminar</a>
             </td>

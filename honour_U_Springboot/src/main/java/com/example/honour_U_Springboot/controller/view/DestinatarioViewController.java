@@ -4,7 +4,6 @@ import com.example.honour_U_Springboot.model.Destinatario;
 import com.example.honour_U_Springboot.model.Libro;
 import com.example.honour_U_Springboot.repository.LibroRepository;
 import com.example.honour_U_Springboot.service.DestinatarioService;
-import com.example.honour_U_Springboot.service.LibroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +16,7 @@ import java.util.List;
  * Maneja las vistas del controlador
  */
 @Controller
+@RequestMapping("/backoffice")
 public class DestinatarioViewController {
     @Autowired
     private DestinatarioService destinatarioService;
@@ -34,7 +34,7 @@ public class DestinatarioViewController {
         Libro libro = libroRepository.findById(libroId).orElse(null);
         if (libro == null) {
             // Si no existe libro con ese id, redirige o muestra error (por ejemplo redirigir a lista de libros)
-            return "redirect:/libros";
+            return "redirect:/backoffice/libros";
         }
 
         List<Destinatario> destinatarios = destinatarioService.findAllDestinatarios();
@@ -44,7 +44,7 @@ public class DestinatarioViewController {
         destinatario.setLibro(libro);  // asociamos el libro
         model.addAttribute("destinatario", destinatario);
 
-        return "crearDestinatario";
+        return "backoffice/crearDestinatario";
     }
 
     /**
@@ -61,7 +61,7 @@ public class DestinatarioViewController {
 
         model.addAttribute("destinatario", new Destinatario()); // Limpiar formulario
 
-        return "crearDestinatario"; // Volver a la misma vista con la lista actualizada
+        return "backoffice/crearDestinatario"; // Volver a la misma vista con la lista actualizada
     }
 
     /**
@@ -75,7 +75,7 @@ public class DestinatarioViewController {
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Destinatario destinatario = destinatarioService.findDestinatarioById(id);
         model.addAttribute("destinatario", destinatario);
-        return "editarDestinatario"; // Vista a crear
+        return "backoffice/editarDestinatario"; // Vista a crear
     }
 
     /**
@@ -87,7 +87,7 @@ public class DestinatarioViewController {
     @PostMapping("/destinatarios/{id}/update")
     public String actualizarDestinatario(@PathVariable Long id, @ModelAttribute Destinatario destinatario) {
         destinatarioService.updateDestinatario(id, destinatario);
-        return "redirect:/destinatarios";
+        return "redirect:/backoffice/destinatarios";
     }
 
     /**
@@ -98,7 +98,7 @@ public class DestinatarioViewController {
     @GetMapping("/destinatarios/{id}/delete")
     public String eliminarDestinatario(@PathVariable Long id) {
         destinatarioService.deleteDestinatarioById(id);
-        return "redirect:/destinatarios";
+        return "redirect:/backoffice/destinatarios";
     }
 
     /**
@@ -115,7 +115,7 @@ public class DestinatarioViewController {
             destinatario.setLibro(libro);
         }
         model.addAttribute("destinatario", destinatario);
-        return "crearDestinatario"; // tu template nuevo destinatario
+        return "backoffice/crearDestinatario"; // tu template nuevo destinatario
     }
 
 }

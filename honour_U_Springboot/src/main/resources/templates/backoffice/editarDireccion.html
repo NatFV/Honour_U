@@ -36,7 +36,7 @@
 
 <!-- Botón de navegación arriba a la derecha -->
 <div class="d-flex justify-content-end mt-4 me-3 mb-3">
-    <a href="/direcciones" class="btn btn-outline-light">Volver a la lista de direcciones</a>
+    <a href="/backoffice/direcciones" class="btn btn-outline-light">Volver a la lista de direcciones</a>
 </div>
 <div class="text-center my-4">
     <img th:src="@{/img/honourU.jpg}" alt="Encabezado visual" style="max-width: 10%; max-height: 10%;">
@@ -45,11 +45,18 @@
 <h1 class="text-center mb-4" style="color: #ffe6f0;">Editar Dirección</h1>
 
 <div class="container">
-    <form th:action="@{/direcciones/{id}/update(id=${direccion.direccionId})}" th:object="${direccion}" method="post">
+    <form th:action="@{/backoffice/direcciones/{id}/update(id=${direccion.direccionId})}" th:object="${direccion}" method="post">
         <div class="mb-3">
             <label class="form-label">Calle</label>
             <input type="text" th:field="*{calle}" class="form-control" required>
         </div>
+        <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="number" th:field="*{numero}" class="form-control" required>
+        </div>
+
+        <!-- Campo oculto para mantener la relación con el destinatario -->
+        <input type="hidden" th:field="*{destinatario.destinatarioId}" />
 
         <div class="mb-3">
             <label class="form-label">Piso</label>
@@ -77,7 +84,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-        <a href="/direcciones" class="btn btn-secondary">Cancelar</a>
+        <a href="/backoffice/direcciones" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 </body>

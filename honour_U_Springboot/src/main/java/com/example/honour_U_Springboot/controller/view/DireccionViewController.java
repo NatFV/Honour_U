@@ -2,10 +2,8 @@ package com.example.honour_U_Springboot.controller.view;
 
 import com.example.honour_U_Springboot.model.Destinatario;
 import com.example.honour_U_Springboot.model.Direccion;
-import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.DestinatarioService;
 import com.example.honour_U_Springboot.service.DireccionService;
-import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +17,7 @@ import java.util.Map;
  * Maneja las vistas del controlador
  */
 @Controller
+@RequestMapping("/backoffice")
 public class DireccionViewController {
     @Autowired
     private DireccionService direccionService;
@@ -58,7 +57,7 @@ public class DireccionViewController {
         model.addAttribute("direccion", direccion);
         model.addAttribute("destinatarios", destinatarios);
 
-        return "crearDireccion";
+        return "backoffice/crearDireccion";
     }
 
     /**
@@ -73,7 +72,7 @@ public class DireccionViewController {
         Destinatario destinatario = destinatarioService.findDestinatarioById(destinatarioId);
         direccion.setDestinatario(destinatario);
         direccionService.saveDireccion(direccion);
-        return "redirect:/direcciones";
+        return "redirect:/backoffice/direcciones";
     }
 
     /**
@@ -89,7 +88,7 @@ public class DireccionViewController {
         List<Destinatario> destinatarios = destinatarioService.findAllDestinatarios();
         model.addAttribute("direccion", direccion);
         model.addAttribute("destinatarios", destinatarios);
-        return "editarDireccion"; // Vista a crear
+        return "backoffice/editarDireccion"; // Vista a crear
     }
 
     /**
@@ -101,7 +100,7 @@ public class DireccionViewController {
     @PostMapping("/direcciones/{id}/update")
     public String actualizarDireccion(@PathVariable Long id, @ModelAttribute Direccion direccion) {
         direccionService.updateDireccion(id,direccion);
-        return "redirect:/direcciones";
+        return "redirect:/backoffice/direcciones";
     }
 
     /**
@@ -112,7 +111,7 @@ public class DireccionViewController {
     @GetMapping("/direcciones/{id}/delete")
     public String eliminarDireccion(@PathVariable Long id) {
         direccionService.deleteDireccionById(id);
-        return "redirect:/direcciones";
+        return "redirect:/backoffice/direcciones";
     }
 
     /**

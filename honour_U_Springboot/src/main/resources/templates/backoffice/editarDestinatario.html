@@ -31,7 +31,7 @@
 
 <!-- Botón de navegación arriba a la derecha -->
 <div class="d-flex justify-content-end mt-4 me-3 mb-3">
-    <a href="/libros" class="btn btn-outline-light">Volver a la lista de libros</a>
+    <a href="/backoffice/libros" class="btn btn-outline-light">Volver a la lista de libros</a>
 </div>
 
 <!-- Imagen centrada -->
@@ -44,7 +44,7 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form th:action="@{/destinatarios/{id}/update(id=${destinatario.destinatarioId})}" th:object="${destinatario}" method="post">
+            <form th:action="@{/backoffice/destinatarios/{id}/update(id=${destinatario.destinatarioId})}" th:object="${destinatario}" method="post">
                 <div class="mb-3">
                     <label class="form-label">Nombre</label>
                     <input type="text" th:field="*{nombre}" class="form-control" required>
@@ -77,8 +77,8 @@
                 <!-- Botones alineados horizontalmente -->
                 <div class="d-flex flex-wrap gap-2">
                     <button type="submit" class="btn btn-success">Guardar Cambios</button>
-                    <a href="/libros" class="btn btn-secondary">Cancelar</a>
-                    <a th:href="@{/direcciones(destinatarioId=${destinatario.destinatarioId})}" class="btn btn-primary">Crear Dirección para este Destinatario</a>
+                    <a href="/backoffice/libros" class="btn btn-secondary">Cancelar</a>
+                    <a th:href="@{/backoffice/direcciones(destinatarioId=${destinatario.destinatarioId})}" class="btn btn-primary">Crear Dirección para este Destinatario</a>
                 </div>
             </form>
         </div>

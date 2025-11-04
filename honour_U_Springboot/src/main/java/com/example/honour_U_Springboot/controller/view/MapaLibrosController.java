@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,6 +14,7 @@ import java.util.Map;
  * Maneja las vistas del mapa
  */
 @Controller
+@RequestMapping("/backoffice")
 public class MapaLibrosController {
 
     @Autowired
@@ -28,7 +29,7 @@ public class MapaLibrosController {
     public String mostrarMapaLibros(Model model) {
         Map<String, Long> librosPorPais = direccionService.contarLibrosPorPais();
         model.addAttribute("librosPorPais", librosPorPais);
-        return "mapaLibros";
+        return "backoffice/mapaLibros";
     }
 }
 
