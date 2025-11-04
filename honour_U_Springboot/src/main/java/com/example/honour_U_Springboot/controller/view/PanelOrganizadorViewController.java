@@ -43,7 +43,7 @@ public class PanelOrganizadorViewController {
         List<Aportacion> aportes = aportacionService.findByProyectoOrderado(p);
         model.addAttribute("proyecto", p);
         model.addAttribute("aportaciones", aportes);
-        return "admin/panelProyecto";
+        return "organizador/panelProyecto";
     }
 
     /**
@@ -234,7 +234,7 @@ public class PanelOrganizadorViewController {
 
         model.addAttribute("proyecto", p);
         model.addAttribute("portada", portada); // puede ser null
-        return "admin/portadaForm";
+        return "organizador/portadaForm";
     }
 
 
@@ -436,17 +436,6 @@ public class PanelOrganizadorViewController {
         builder.toStream(response.getOutputStream());
         builder.run();
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
