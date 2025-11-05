@@ -272,6 +272,7 @@ public class AportacionUsuarioViewController {
                                        @RequestParam(value="imagenes", required=false) MultipartFile[] nuevasImagenes,
                                        HttpSession session,
                                        HttpServletRequest request) throws Exception {
+
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
@@ -286,22 +287,42 @@ public class AportacionUsuarioViewController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes editar esta aportación");
         }
 
-        // Actualizar campos permitidos
+        // Actualizar texto
         aport.setMensaje(form.getMensaje() == null ? "" : form.getMensaje());
-        aport.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank()) ? "Anónimo" : form.getRemitente());
+        aport.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank())
+                ? "Anónimo"
+                : form.getRemitente());
         aport.setEsVisible(form.isEsVisible());
-        aport.setPageType(Aportacion.PageType.NORMAL); // siempre NORMAL
+        aport.setPageType(Aportacion.PageType.NORMAL);
 
-        // Añadir nuevas imágenes (opcional)
+        // Obtener los medios actuales
+        List<String> urls = (aport.getMediaUrls() != null)
+                ? new ArrayList<>(aport.getMediaUrls())
+                : new ArrayList<>();
+
+        // Reemplazar medios anteriores si se suben nuevos
+        if (nuevasImagenes != null && nuevasImagenes.length > 0) {
+
+            // Borrar archivos del disco
+            Path dir = Paths.get(System.getProperty("user.dir"), "uploads",
+                    proyecto.getTokenUrl(), String.valueOf(aport.getAportacionId()));
+            try {
+                if (Files.exists(dir)) {
+                    Files.walk(dir)
+                            .sorted(Comparator.reverseOrder())
+                            .forEach(p -> { try { Files.deleteIfExists(p); } catch (Exception ignore) {} });
+                }
+            } catch (Exception ignore) {}
+
+            urls.clear(); // <-- borrar lista de URLs anteriores
+        }
+
+        // Subir nuevos archivos
         if (nuevasImagenes != null && nuevasImagenes.length > 0) {
             String baseDir = System.getProperty("user.dir") + "/uploads/"
                     + proyecto.getTokenUrl() + "/" + aport.getAportacionId() + "/";
             Path carpeta = Paths.get(baseDir);
             Files.createDirectories(carpeta);
-
-            List<String> urls = (aport.getMediaUrls() != null)
-                    ? new ArrayList<>(aport.getMediaUrls())
-                    : new ArrayList<>();
 
             for (MultipartFile img : nuevasImagenes) {
                 if (img == null || img.isEmpty()) continue;
@@ -310,15 +331,25 @@ public class AportacionUsuarioViewController {
                         (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "archivo");
                 Path destino = carpeta.resolve(safe);
                 img.transferTo(destino.toFile());
+
                 String urlRel = "/uploads/" + proyecto.getTokenUrl() + "/" + aport.getAportacionId() + "/" + safe;
                 urls.add(urlRel);
             }
-            aport.setMediaUrls(urls);
         }
 
+        // Guardar URLs actualizadas
+        aport.setMediaUrls(urls);
+
+        // Actualizar la URL general (enlace para ver la aportación)
+        aport.setUrl(urls.isEmpty()
+                ? "/proyectos/token/" + token + "/aportaciones/" + aport.getAportacionId() + "/ver"
+                : urls.get(0));
+
         aportacionService.saveAportacion(aport);
+
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
+
 
     /**
      * Método para mostrar las aportaciones de otros participantes

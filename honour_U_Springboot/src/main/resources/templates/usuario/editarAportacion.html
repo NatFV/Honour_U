@@ -15,6 +15,11 @@
             .editor-remitente[contenteditable]:empty:before { content: attr(data-placeholder); color:#bbb; }
             .media img, .media video, .media audio { max-width:100%; height:auto; margin-top:10px; border-radius:6px; }
             .preview-container { max-width:760px; margin:0 auto; }
+             .zona-drop{
+                 border:2px dashed #b5b5b5; border-radius:8px; padding:16px; text-align:center;
+                 transition:background .2s, border-color .2s; margin-top:16px; min-height:120px;
+             }
+            .zona-drop.dragover{ background:#eef9ff; border-color:#66afe9; }
         </style>
     </th:block>
 </head>
@@ -45,12 +50,24 @@
                 <div id="editorMensaje" class="editor-mensaje" contenteditable="true"
                      data-placeholder="Escribe tu mensaje aquí..." th:text="*{mensaje}">Mensaje…</div>
 
-                <div class="media" id="preview-media">
-                    <!-- Miniaturas existentes (si hay) -->
-                    <img th:each="u : ${aportacion.mediaUrls}" th:src="@{${u}}" alt="foto" style="max-width:100%; border-radius:6px;">
+
+                <div class="zona-drop" id="zonaDrop">
+                    Arrastra aquí fotos/vídeos/audios (o haz clic para elegir)
+                    <div class="media" id="preview-nuevos">
+                        <!-- Pongo las existentes aquí -->
+                        <img th:each="u : ${aportacion.mediaUrls}" th:src="@{${u}}" alt="foto"
+                             style="max-width:100%; border-radius:6px;">
+                    </div>
                 </div>
+
             </div>
         </div>
+
+
+        <!-- Input oculto que usará el JS (opcional: lo puede crear el script si prefieres) -->
+        <input type="file" name="imagenes" id="imagenesInput" multiple hidden
+               accept="image/*,video/mp4,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav">
+
 
         <div class="text-center mt-4">
             <div class="form-check d-inline-block me-3">
@@ -92,6 +109,57 @@
             });
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const zonaDrop = document.getElementById('zonaDrop');
+            const previewNuevos = document.getElementById('preview-nuevos');
+            const input = document.getElementById('imagenesInput')
+                || (() => { const i=document.createElement('input'); i.type='file'; i.name='imagenes'; i.multiple=true; i.hidden=true; document.getElementById('editarForm').appendChild(i); return i; })();
+
+            const renderFiles = (files) => {
+                previewNuevos.innerHTML = '';
+                [...files].forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        if (file.type.startsWith('image/')) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result; img.style.maxWidth='100%'; img.style.borderRadius='6px';
+                            previewNuevos.appendChild(img);
+                        } else if (file.type.startsWith('video/')) {
+                            const v = document.createElement('video');
+                            v.src = e.target.result; v.controls = true; v.style.maxWidth='100%'; v.style.borderRadius='6px';
+                            previewNuevos.appendChild(v);
+                        } else if (file.type.startsWith('audio/')) {
+                            const a = document.createElement('audio');
+                            a.src = e.target.result; a.controls = true; a.style.width='100%';
+                            previewNuevos.appendChild(a);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            // Soporta arrastrar
+            ['dragenter','dragover'].forEach(evt =>
+                zonaDrop.addEventListener(evt, e => { e.preventDefault(); zonaDrop.classList.add('dragover'); })
+            );
+            ['dragleave','drop'].forEach(evt =>
+                zonaDrop.addEventListener(evt, e => { e.preventDefault(); zonaDrop.classList.remove('dragover'); })
+            );
+            zonaDrop.addEventListener('drop', e => {
+                const files = e.dataTransfer.files;
+                renderFiles(files);
+                const dt = new DataTransfer();
+                for (const f of files) dt.items.add(f);
+                input.files = dt.files; // listo para enviar en "imagenes"
+            });
+
+            // También clic para abrir selector de archivos
+            zonaDrop.addEventListener('click', () => input.click());
+            input.addEventListener('change', () => renderFiles(input.files));
+        });
+    </script>
+
 </th:block>
 </body>
 </html>

@@ -1,10 +1,8 @@
 package com.example.honour_U_Springboot.controller.view;
 
 import com.example.honour_U_Springboot.model.Aportacion;
-import com.example.honour_U_Springboot.model.Participante;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.AportacionService;
-import com.example.honour_U_Springboot.service.ParticipanteService;
 import com.example.honour_U_Springboot.service.ProyectoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,8 +25,6 @@ public class AportacionBackofficeViewController {
    @Autowired
     private ProyectoService proyectoService;
 
-    @Autowired
-    private ParticipanteService participanteService;
 
     /**
      * Método para editar las aportaciones

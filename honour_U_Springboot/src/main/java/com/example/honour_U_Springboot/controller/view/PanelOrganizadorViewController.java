@@ -9,11 +9,13 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -98,6 +100,8 @@ public class PanelOrganizadorViewController {
         //muestra el poryecto y la aportación existente
         model.addAttribute("proyecto", p);
         model.addAttribute("aportacion", a);
+
+        model.addAttribute("adminMode", true);
         // Reutilizamos la vista de usuario
         return "usuario/editarAportacion";
     }
@@ -113,23 +117,74 @@ public class PanelOrganizadorViewController {
     @PostMapping("/{adminToken}/aportaciones/{id}/editar")
     public String actualizarAportacionAdmin(@PathVariable String adminToken,
                                             @PathVariable Long id,
-                                            @ModelAttribute("aportacion") Aportacion form) throws Exception {
+                                            @ModelAttribute("aportacion") Aportacion form,
+                                            @RequestParam(value = "imagenes", required = false) MultipartFile[] imagenes)
+            throws Exception {
+
         Proyecto p = proyectoService.findByAdminToken(adminToken);
         Aportacion a = aportacionService.findAportacionById(id);
-
         if (!a.getProyecto().getProyectoId().equals(p.getProyectoId())) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.FORBIDDEN, "No pertenece a este proyecto");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No pertenece a este proyecto");
         }
 
+        // Texto / flags (no tocar el tipo de página)
         a.setMensaje(form.getMensaje() == null ? "" : form.getMensaje());
         a.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank()) ? "Anónimo" : form.getRemitente());
         a.setEsVisible(form.isEsVisible());
-        // Mantén el tipo de página tal cual (NORMAL/PORTADA/INDICE)
-        aportacionService.saveAportacion(a);
 
+        // ¿Hay archivos nuevos?
+        boolean hayNuevos = imagenes != null && Arrays.stream(imagenes).anyMatch(f -> f != null && !f.isEmpty());
+        if (hayNuevos) {
+            List<String> nuevas = new ArrayList<>();
+
+            if (a.getPageType() == Aportacion.PageType.PORTADA) {
+                // Reemplaza TODO lo que hubiera en /uploads/{token}/portada
+                Path base = Paths.get(System.getProperty("user.dir"), "uploads", p.getTokenUrl(), "portada");
+                if (Files.exists(base)) {
+                    Files.walk(base).sorted(Comparator.reverseOrder())
+                            .forEach(q -> { try { Files.deleteIfExists(q); } catch (Exception ignore) {} });
+                }
+                Files.createDirectories(base);
+
+                for (MultipartFile mf : imagenes) {
+                    if (mf == null || mf.isEmpty()) continue;
+                    String original = mf.getOriginalFilename();
+                    String safe = System.currentTimeMillis() + "_" + (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "img");
+                    Path destino = base.resolve(safe);
+                    mf.transferTo(destino.toFile());
+                    nuevas.add("/uploads/" + p.getTokenUrl() + "/portada/" + safe);
+                }
+
+                a.setMediaUrls(nuevas);
+                if (!nuevas.isEmpty()) a.setUrl(nuevas.get(0));
+
+            } else {
+                // Reemplaza TODO lo que hubiera en /uploads/{token}/{aportacionId}
+                Path base = Paths.get(System.getProperty("user.dir"), "uploads", p.getTokenUrl(), String.valueOf(a.getAportacionId()));
+                if (Files.exists(base)) {
+                    Files.walk(base).sorted(Comparator.reverseOrder())
+                            .forEach(q -> { try { Files.deleteIfExists(q); } catch (Exception ignore) {} });
+                }
+                Files.createDirectories(base);
+
+                for (MultipartFile mf : imagenes) {
+                    if (mf == null || mf.isEmpty()) continue;
+                    String original = mf.getOriginalFilename();
+                    String safe = System.currentTimeMillis() + "_" + (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "archivo");
+                    Path destino = base.resolve(safe);
+                    mf.transferTo(destino.toFile());
+                    nuevas.add("/uploads/" + p.getTokenUrl() + "/" + a.getAportacionId() + "/" + safe);
+                }
+
+                a.setMediaUrls(nuevas);
+                if (!nuevas.isEmpty()) a.setUrl(nuevas.get(0));
+            }
+        }
+
+        aportacionService.saveAportacion(a);
         return "redirect:/proyectos/admin/" + adminToken + "/panel";
     }
+
 
     /**
      * Método para eliminar la aportación desde el panel de control

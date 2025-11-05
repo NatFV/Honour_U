@@ -47,21 +47,14 @@ public class DestinatarioViewController {
         return "backoffice/crearDestinatario";
     }
 
-    /**
-     * Método guardar destinatario
-     * @param destinatario a guardar
-     * @param model que conecta la información entre controlador y vistas
-     * @return vista de destinatario con lista actualizada
-     */
+
     @PostMapping("/destinatarios")
-    public String guardarDestinatario(Destinatario destinatario, Model model) {
+    public String guardarDestinatario(@ModelAttribute Destinatario destinatario) {
         destinatarioService.saveDestinatario(destinatario);
-        List<Destinatario> destinatarios = destinatarioService.findAllDestinatarios();
-        model.addAttribute("destinatarios", destinatarios);
-
-        model.addAttribute("destinatario", new Destinatario()); // Limpiar formulario
-
-        return "backoffice/crearDestinatario"; // Volver a la misma vista con la lista actualizada
+        Long libroId = (destinatario.getLibro() != null) ? destinatario.getLibro().getLibroId() : null;
+        return (libroId != null)
+                ? "redirect:/backoffice/destinatarios?libroId=" + libroId
+                : "redirect:/backoffice/libros";
     }
 
     /**
@@ -87,7 +80,10 @@ public class DestinatarioViewController {
     @PostMapping("/destinatarios/{id}/update")
     public String actualizarDestinatario(@PathVariable Long id, @ModelAttribute Destinatario destinatario) {
         destinatarioService.updateDestinatario(id, destinatario);
-        return "redirect:/backoffice/destinatarios";
+        Long libroId = (destinatario.getLibro() != null) ? destinatario.getLibro().getLibroId() : null;
+        return (libroId != null)
+                ? "redirect:/backoffice/destinatarios?libroId=" + libroId
+                : "redirect:/backoffice/libros";
     }
 
     /**
@@ -96,9 +92,16 @@ public class DestinatarioViewController {
      * @return lista actualizada de destinatarios
      */
     @GetMapping("/destinatarios/{id}/delete")
-    public String eliminarDestinatario(@PathVariable Long id) {
+    public String eliminarDestinatario(@PathVariable Long id) throws Exception {
+        // obtenemos el destinatario para saber su libro antes de borrar
+        Destinatario dest = destinatarioService.findDestinatarioById(id);
+        Long libroId = (dest != null && dest.getLibro() != null) ? dest.getLibro().getLibroId() : null;
+
         destinatarioService.deleteDestinatarioById(id);
-        return "redirect:/backoffice/destinatarios";
+
+        return (libroId != null)
+                ? "redirect:/backoffice/destinatarios?libroId=" + libroId
+                : "redirect:/backoffice/libros";
     }
 
     /**

@@ -149,20 +149,6 @@ public class Aportacion {
     @JsonBackReference
     private Proyecto proyecto;
 
-   // Relación Aportación-Participante: uno a muchos bidireccional
-   // Aportación es el lado de muchos
-   @JsonIgnore
-    @ManyToOne(fetch =FetchType.LAZY)
-    @JoinColumn(name = "participante_id")
-    private Participante participante;
-    // Getters y setters de participante
-    public void setParticipante(Participante participante) {
-        this.participante = participante;
-    }
-
-    public Participante getParticipante() {
-        return participante;
-    }
 
 
     //Blindaje en la entidad
