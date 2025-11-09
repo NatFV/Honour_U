@@ -79,14 +79,13 @@
             <table th:if="${!#lists.isEmpty(aportaciones)}" class="table table-bordered table-sm">
                 <thead class="table-light">
                 <tr>
-                    <th>Mensaje</th><th>Remitente</th><th>URL</th><th>Media</th><th>Visible</th><th>Acciones</th>
+                    <th>Mensaje</th><th>Remitente</th><th>Media</th><th>Visible</th><th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="ap : ${aportaciones}">
                     <td th:text="${ap.mensaje}"></td>
                     <td th:text="${ap.remitente}"></td>
-                    <td><a th:href="${ap.url}" th:text="${ap.url}" target="_blank"></a></td>
                     <td th:text="${ap.mediaType}"></td>
                     <td th:text="${ap.esVisible ? 'Sí' : 'No'}"></td>
                     <td class="d-flex gap-2">

@@ -9,125 +9,123 @@
     <style type="text/css">
         /* Página y márgenes */
         @page { size: A4; margin: 20mm; }
-
-        /* Variables de espaciado (mm imprime mejor que px) */
-        :root {
-            --space-1: 4mm;
-            --space-2: 6mm;
-            --space-3: 10mm;
-            --content-width: 160mm; /* ancho legible en A4 */
-        }
-
+        /*Ponemos margin y padding 0 para quitar los márgenes predeterminados del navegador*/
         html, body { margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color:#222; }
+        body { font-family: system-ui, sans-serif; }
+
 
         /* Cada .page es una hoja */
         .page {
             display: block;
-            page-break-after: always;   /* compat */
+            page-break-after: always;   /* propiedad antigua (compatibilidad) */
             break-after: page;
             box-sizing: border-box;
         }
-        .page:last-child { page-break-after: auto; }
+        .page:last-child { page-break-after: auto; } /*La última página le quita el salto para
+        que no haya hoja en blanco al final*/
 
         /* Contenedor centrado y de ancho legible */
         .page .narrow {
-            max-width: var(--content-width);
+            max-width: 160mm;
             margin: 0 auto;
+
         }
+
 
         /* Página en blanco: caja vacía que contiene un relleno con altura de la hoja útil */
         .page.blank .fill {
             height: calc(297mm - 40mm); /* alto A4 - márgenes @page */
         }
 
-        h1,h2,h3 { margin: 0 0 var(--space-1) 0; padding: 0; line-height: 1.15; }
-
-        /* Tipografía de títulos más elegante */
-        .portada h1,
-        .indice h2,
-        .normal h3 {
-            font-family: "Playfair Display", Georgia, "Times New Roman", Times, serif;
-        }
+        h1,h2,h3 { margin: 0 0 4mm 0; padding: 0; line-height: 1.15; }
 
         .msg {
             white-space: pre-wrap;
             line-height: 1.6;
-            margin-top: 12px;
-            margin-bottom: var(--space-2); /* más aire antes de imágenes */
+            font-size: 20pt;
+            margin-top: 15px;
+            margin-bottom: 6mm;
+            font-style: italic;
+            text-align: center;
         }
 
         .thumb { max-width: 100%; max-height: 500px; display:block; margin: 10px auto; }
         .muted { color:#777; font-size: 12px; }
 
-        /* Portada más centrada y con aire */
-        .portada h1 {
+        @page :first { margin: 0; }               /* quita el margen de la 1ª página */
+        .page.portada {                            /* pinta el fondo de la hoja */
+            background-color: #65a3ff;
+            color: white;
+            min-height: 297mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page.portada .narrow {
+            max-width: none;        /* ← quita el tope de 160 mm SOLO en portada */
+            padding: 30mm;            /* “márgenes” internos para la portada */
+            box-sizing: border-box;   /* mantiene la columna en 160mm sin crecer por el padding */
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .portada h1{
             text-align: center;
             font-weight: 700;
             font-size: 60pt;
             letter-spacing: 0.2px;
-            margin-bottom: 80px;
-            text-wrap: balance;
-        }
-        .portada img[th\\:src] {
-            display: block;
-            width: 100%;
-            height: 420px;
-            object-fit: cover;
-            border-radius: 40px;
-            margin: var(--space-2) auto 0 auto;
-            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-        }
-        .portada .thumbs {
-            display:grid;
-            grid-template-columns:repeat(4,1fr);
-            gap: 8px;
-            max-width: var(--content-width);
-            margin: var(--space-1) auto 0 auto;
-        }
-        .portada .thumbs img {
-            width:100%; height:84px; object-fit:cover; border-radius:6px;
+            margin-bottom: 20mm;
+            color: white;
+
         }
 
-        /* Índice centrado visualmente */
+        .page.portada .narrow > img {
+            display: inline-block;
+            margin-top: 25mm;
+            margin: 25mm auto 0 !important;  /* centra y separa */
+            width: auto;                      /* que no fuerce 100% */
+            max-width: 100%;                  /* pero no se salga */
+            height: auto;
+            border-radius: 40px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+        }
+
+        /*Índice*/
         .indice h2 {
             text-align:center;
-            margin-bottom: var(--space-2);
+            font-size: 35pt;
+            margin-bottom: 40px;
+            margin-bottom: 6mm;
+
         }
+        /*Contenedor de la lista de entradas*/
         .indice .toc {
+            padding: 6mm 0;
             padding-left: 0;
             list-style: none;
-            max-width: var(--content-width);
+            max-width: 160mm;
             margin: 0 auto;
+            background-color: #b0d4ff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
+
+        /*Cada fila del índice*/
         .toc li {
             display: flex;
             align-items: baseline;
             gap: 12px;
             margin: 4px 0;
-        }
-        .toc a {
-            text-decoration: none;
-            color: #222;
-            max-width: 75%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        /* número de página real del destino (si está soportado) */
-        .toc a::after {
-            content: target-counter(attr(href url), page);
-        }
-        .dot-fill {
-            flex: 1 1 auto;
-            border-bottom: 1px dotted #999;
-            transform: translateY(-3px);
-            margin: 0 6px;
-        }
+            font-size: 25px;
+            text-align: center;
+            color: #b0d4ff;
 
+        }
         /* Bloques de medios con separación constante */
         .media {
-            margin-top: var(--space-2);
+            margin-top: 15mm;
+            text-align: center;
         }
 
         /* Imágenes en páginas normales: centradas y con radio */
@@ -137,6 +135,16 @@
             height:auto;
             margin: 8px auto 0 auto;
             border-radius:6px;
+            display: inline-block;
+
+        }
+
+        .remitente{
+            font-size: 40px;
+            font-weight: 600;
+            margin-bottom: 4mm;
+            text-align: center;
+            color: #1a237e;
         }
     </style>
 </head>
@@ -185,7 +193,7 @@
     <!-- NORMAL -->
     <section th:if="${a.pageType.name() == 'NORMAL'}" class="page normal" th:attr="id=${'p' + a.aportacionId}">
         <div class="narrow">
-            <h3 th:text="${#strings.isEmpty(a.remitente) ? 'Anónimo' : a.remitente}">Anónimo</h3>
+            <div class="remitente" th:text="${#strings.isEmpty(a.remitente) ? 'Anónimo' : a.remitente}">Anónimo</div>
             <div class="msg" th:text="${a.mensaje}">Mensaje…</div>
 
             <div class="media" th:if="${a.mediaUrls != null && !a.mediaUrls.isEmpty()}">

@@ -20,7 +20,6 @@ import java.util.Set;
 @Entity //la clase es una entidad y será mapeada en tabla
 //@Data No funciona la notación, he tenido que generar getters y setters manualmente
 @Table(name = "proyecto")
-@NoArgsConstructor //Genera constructor sin parámetros para Hibernate
 public class Proyecto {
     @Id //Esta anotación indica que el atributo id es la clave primaria de la entidad
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Se utiliza con bases de datos que admiten columnas de identidad
@@ -51,7 +50,16 @@ public class Proyecto {
     //@Temporal(TemporalType.DATE) //Incluimos la fecha pero no la hora
     private LocalDate plazoFinalizacion;
 
+   //Constructor
+    public Proyecto() {
+    }
 
+    public Proyecto(String nombreProyecto, String organizador, String descripcion, LocalDate plazoFinalizacion) {
+        this.nombreProyecto = nombreProyecto;
+        this.organizador = organizador;
+        this.descripcion = descripcion;
+        this.plazoFinalizacion = plazoFinalizacion;
+    }
 
     public Long getProyectoId() {
         return proyectoId;
