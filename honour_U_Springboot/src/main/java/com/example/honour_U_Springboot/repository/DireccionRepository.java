@@ -1,5 +1,6 @@
 package com.example.honour_U_Springboot.repository;
 
+import com.example.honour_U_Springboot.model.Destinatario;
 import com.example.honour_U_Springboot.model.Direccion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +18,9 @@ public interface DireccionRepository extends JpaRepository<Direccion, Long> {
 
     @Query("SELECT d.pais, COUNT(l) FROM Direccion d JOIN d.destinatario des JOIN des.libro l GROUP BY d.pais")
     List<Object[]> countLibrosPorPais();
+
+    List<Direccion> findByDestinatario(Destinatario destinatario);
+
 
 
 }
