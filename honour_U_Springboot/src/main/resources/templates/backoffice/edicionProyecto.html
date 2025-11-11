@@ -1,65 +1,60 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Editar Proyecto</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <th:block layout:fragment="extra_head">
+        <style>
+            /* CSS específico de esta página */
+            .card-proyecto, .card-aportaciones {
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: #ffffff;
+            }
 
-    <style>
-        body {
-            background-color: #000000;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
+            label, .form-label {
+                color: #f1f1f1;
+            }
 
-        .card-proyecto {
-            background-color: #ffe6f0;
-            color: black;
-        }
+            .top-image {
+                max-width: 10%;
+                height: auto;
+            }
 
-        .card-aportaciones {
-            background-color: #f0f8ff;
-            color: black;
-        }
+            .list-group-item {
+                background: rgba(255, 255, 255, 0.08);
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 6px;
+                margin-bottom: 0.5rem;
+            }
 
-        h1, h2 {
-            color: #ccffcc;
-        }
+            .list-group-item a {
+                color: darkblue;
+            }
 
-        .top-image {
-            max-width: 10%;
-            height: auto;
-        }
-
-        .btn-outline-light {
-            color: white;
-            border-color: white;
-        }
-
-        .btn-outline-light:hover {
-            background-color: white;
-            color: black;
-        }
-    </style>
+            .list-group-item a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </th:block>
 </head>
+
 <body>
+<section layout:fragment="content">
 
-<!-- Botón de navegación arriba a la derecha -->
-<div class="d-flex justify-content-end mt-4 me-3 mb-3">
-    <a href="/backoffice/proyectos" class="btn btn-outline-light">Volver a la lista de proyectos</a>
-</div>
+    <!-- Botón de navegación -->
+    <div class="d-flex justify-content-end mt-4 me-3 mb-3">
+        <a href="/backoffice/proyectos" class="btn btn-accent">Volver a la lista de proyectos</a>
+    </div>
 
-<!-- Imagen centrada arriba -->
-<div class="text-center my-4">
-    <img th:src="@{/img/honourU.jpg}" alt="Encabezado visual" class="top-image">
-</div>
-
-<!-- Contenedor principal -->
-<div class="container">
+    <!-- Imagen centrada -->
+    <div class="text-center my-4">
+        <img th:src="@{/img/honourU.jpg}" alt="Encabezado visual" class="top-image">
+    </div>
 
     <!-- Formulario de edición de proyecto -->
-    <h1 class="mb-4" >Editar Proyecto</h1>
+    <h1 class="mb-4">Editar Proyecto</h1>
     <div class="card shadow-sm card-proyecto mb-4">
         <div class="card-body">
             <form th:action="@{/backoffice/proyectos/{id}/update(id=${proyecto.proyectoId})}" th:object="${proyecto}" method="post">
@@ -88,13 +83,12 @@
                     <input type="url" th:field="*{urlAdmin}" class="form-control" readonly>
                 </div>
 
-
                 <div class="mb-3">
                     <label class="form-label">Plazo de Finalización</label>
                     <input type="date" th:field="*{plazoFinalizacion}" class="form-control" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <button type="submit" class="btn btn-accent">Guardar Cambios</button>
                 <a href="/backoffice/proyectos" class="btn btn-secondary">Cancelar</a>
             </form>
         </div>
@@ -113,22 +107,22 @@
                     <strong th:text="${aportacion.remitente}">Remitente</strong>:
                     <span th:text="${aportacion.mensaje}">Mensaje</span><br>
                     <a th:href="${aportacion.url}" th:text="${aportacion.url}" target="_blank"></a><br>
-                    <small>Tipo de media: <span th:text="${aportacion.mediaType}">MEDIA_TYPE</span></small><br>
                     <small th:text="${aportacion.esVisible ? 'Visible' : 'No visible'}"></small>
                 </li>
             </ul>
 
-            <!-- Botón editar o añadir aportaciones-->
             <div class="d-grid gap-2">
-                <a th:href="@{/backoffice/proyectos/{id}/aportaciones(id=${proyecto.proyectoId})}" class="btn btn-success">
+                <a th:href="@{/backoffice/proyectos/{id}/aportaciones(id=${proyecto.proyectoId})}" class="btn btn-accent">
                     Editar o Añadir Aportaciones
                 </a>
             </div>
         </div>
     </div>
 
-</div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<th:block layout:fragment="scripts">
+    <!-- Scripts adicionales si los necesitas -->
+</th:block>
 </body>
 </html>

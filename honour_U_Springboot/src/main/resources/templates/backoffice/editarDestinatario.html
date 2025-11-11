@@ -1,90 +1,107 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
 <head>
-    <meta charset="UTF-8">
     <title>Editar Destinatario</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #1a237e;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-
-        .card {
-            background-color: #90caf9 ;
-            color: #000000;
-        }
-        .bottom-btn {
-            max-width: 1140px;
-            margin: 0 auto 3rem auto;
-            text-align: center;
-        }
-
-        h1, h2 {
-            color: #90caf9;
-        }
-    </style>
 </head>
+
 <body>
+<section layout:fragment="content">
 
-<!-- Botón de navegación arriba a la derecha -->
-<div class="d-flex justify-content-end mt-4 me-3 mb-3">
-    <a href="/backoffice/libros" class="btn btn-outline-light">Volver a la lista de libros</a>
-</div>
-
-<!-- Imagen centrada -->
-<div class="text-center my-4">
-    <img th:src="@{/img/honourU.jpg}" alt="Logo" style="max-width: 10%; height: auto;" />
-</div>
-
-<div class="container">
-    <h1 class="mb-4">Editar Destinatario</h1>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form th:action="@{/backoffice/destinatarios/{id}/update(id=${destinatario.destinatarioId})}" th:object="${destinatario}" method="post">
-                <div class="mb-3">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" th:field="*{nombre}" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Apellido</label>
-                    <input type="text" th:field="*{apellido}" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Teléfono</label>
-                    <input type="text" th:field="*{telefono}" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" th:field="*{email}" class="form-control">
-                </div>
-
-                <!-- Mostrar título o ID del libro (solo lectura) -->
-                <div class="mb-3">
-                    <label class="form-label">Libro Asociado</label>
-                    <input type="text" th:value="${destinatario.libro != null ? destinatario.libro.tituloLibro : 'Sin libro asignado'}" class="form-control" readonly />
-                </div>
-
-                <!-- Campo oculto para enviar el libroId -->
-                <input type="hidden" th:field="*{libro.libroId}" />
-
-                <!-- Botones alineados horizontalmente -->
-                <div class="d-flex flex-wrap gap-2">
-                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
-                    <a href="/backoffice/libros" class="btn btn-secondary">Cancelar</a>
-                    <a th:href="@{/backoffice/direcciones(destinatarioId=${destinatario.destinatarioId})}" class="btn btn-primary">Crear Dirección para este Destinatario</a>
-                </div>
-            </form>
-        </div>
+    <!-- Botón superior a la derecha -->
+    <div class="d-flex justify-content-end mt-3 me-3 mb-4">
+        <a href="/backoffice/libros" class="btn btn-outline-light">Volver a la lista de libros</a>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Card principal -->
+    <div class="card mx-auto p-4" style="max-width: 800px; background-color: #90caf9; color: #000;">
+        <h1 class="text-center mb-4" style="color: #1a237e;">Editar Destinatario</h1>
+
+        <form th:action="@{/backoffice/destinatarios/{id}/update(id=${destinatario.destinatarioId})}"
+              th:object="${destinatario}" method="post">
+
+            <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" th:field="*{nombre}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Apellido</label>
+                <input type="text" th:field="*{apellido}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="text" th:field="*{telefono}" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Libro Asociado</label>
+                <input type="text"
+                       th:value="${destinatario.libro != null ? destinatario.libro.tituloLibro : 'Sin libro asignado'}"
+                       class="form-control" readonly />
+            </div>
+
+            <!-- Campo oculto -->
+            <input type="hidden" th:field="*{libro.libroId}" />
+
+            <!-- Botones -->
+            <div class="text-center mt-4 d-flex flex-wrap justify-content-center gap-3">
+                <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                <a href="/backoffice/libros" class="btn btn-secondary">Cancelar</a>
+                <a th:href="@{/backoffice/direcciones(destinatarioId=${destinatario.destinatarioId})}"
+                   class="btn btn-primary">Crear Dirección para este Destinatario</a>
+            </div>
+        </form>
+    </div>
+
+</section>
+
+<!-- Estilos específicos -->
+<style>
+    h1 {
+        font-weight: bold;
+    }
+
+    label {
+        font-weight: 600;
+        color: #000;
+    }
+
+    input.form-control {
+        background-color: #fdfdfd;
+        border: 1px solid #444;
+        color: #000;
+    }
+
+    input.form-control:focus {
+        border-color: #000;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-success {
+        background-color: #388e3c;
+        border-color: #2e7d32;
+    }
+
+    .btn-secondary {
+        background-color: #757575;
+        border-color: #616161;
+    }
+
+    .btn-primary {
+        background-color: #3949ab;
+        border-color: #303f9f;
+    }
+</style>
+
 </body>
 </html>

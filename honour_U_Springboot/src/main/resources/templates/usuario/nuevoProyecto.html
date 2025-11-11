@@ -8,15 +8,43 @@
 </head>
 <style>
     body {
-        background-color: #000000; /* Fondo negro */
-        color: white; /* Texto blanco */
-        font-family: Arial, sans-serif;
+        background: radial-gradient(circle at top left, #0a0a0a, #001a33, #003366, #006666);
+        color: white;
+        font-family: Poppins, sans-serif;
+        min-height: 100vh;
     }
 
     .card {
-        background-color: #66cdaa; /* Esmeralda */
-        color: #000000; /* Texto negro para contraste */
+        background-color: transparent;
+        border: none;
+        color: black;                  /* texto general en blanco */
     }
+
+    .card-body label {
+        color: white;
+        display: block;
+        text-align: center;
+        margin-bottom: 10px;
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .card-body input,
+    .card-body textarea {
+        max-width: 500px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: #03bb85;  /* verde clarito */
+        color: white;               /* texto dentro de los campos */
+        border: 1px solid #ccc;     /* borde sutil */
+    }
+
+    .card-body button {
+        display: block;      /* para poder centrarlo */
+        margin: 20px auto 0; /* centrado horizontal y con margen superior */
+    }
+
 
     .tabla-fondo th,
     .tabla-fondo td {
@@ -25,24 +53,84 @@
     }
 
     h1, h2 {
-        color: #ccffcc; /* Títulos en verde claro */
+        color: #ff5c7b;
+        text-align: center;/* Títulos en verde claro */
+        font-weight: bold;
+    }
+
+    .carousel-text h5 {
+        font-size: 45px;
+        color: white;
+    }
+    .carousel-text-margin {
+        margin-bottom: 30px;
     }
 
     .top-image {
         max-width: 100%;
         height: auto;
     }
+
+    .carousel-word {
+        font-weight: bold;      /* negrita */
+        margin-right: 10px;     /* separación horizontal entre palabras */
+        font-size: 45px;        /* mismo tamaño que el primer texto */
+    }
+    #carouselHeader .carousel-item {
+        height: 400px; /* ajusta según lo que necesites */
+    }
+
+    #carouselHeader .carousel-item img {
+        max-height: 100%;
+        object-fit: cover; /* recorta la imagen proporcionalmente para llenar el contenedor */
+        width: auto;       /* mantiene la proporción */
+        margin: 0 auto;
+    }
+
+
 </style>
 
-<!-- Imagen centrada en la parte superior -->
-<div class="text-center my-4">
-    <img th:src="@{/img/honourU.jpg}"  alt="Encabezado visual" style="max-width: 10%; max-height: 10%; ">
+<!-- Carrusel de dos fotos con texto -->
+<div id="carouselHeader" class="carousel slide my-5" data-bs-ride="carousel">
+    <div class="carousel-inner text-center">
+        <!-- Primera foto -->
+        <div class="carousel-item active">
+            <!-- Texto arriba de la foto -->
+            <div class="carousel-text carousel-text-margin">
+                <h5>Ya es hora de hacer algo útil con las tropecientas fotos de tu móvil</h5>
+            </div>
+            <img th:src="@{/img/phones.jpg}" class="d-block mx-auto" style="max-width: 400px; max-height: 270px" alt="Foto phones">
+        </div>
+
+        <!-- Segunda foto -->
+        <div class="carousel-item">
+            <!-- Texto arriba de la foto -->
+            <div class="carousel-text-margin">
+                <span class="carousel-word" style="color:lightseagreen; font-size: 45px;">HAZ</span>
+                <span class="carousel-word" style="color:yellow; font-size: 45px">UN</span>
+                <span class="carousel-word" style="color:#ff5c7b;font-size: 45px">HOMENAJE</span>
+                <span class="carousel-word" style="color:grey;font-size: 45px">.</span>
+            </div>
+            <img th:src="@{/img/honourU.jpg}" class="d-block mx-auto" style="max-width: 400px; max-height: 270px" alt="Foto HonourU">
+        </div>
+    </div>
+
+    <!-- Controles de navegación -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselHeader" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselHeader" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+    </button>
 </div>
+
 
 <body>
 <!-- Contenedor principal -->
 <div class="container">
-    <h1 class="mb-4">Crea tu proyecto</h1>
+    <h1 class="mb-6">Crea tu proyecto para homenajear a un ser querido</h1>
 
     <!-- Formulario para crear o editar un proyecto -->
     <div class="card shadow-sm">

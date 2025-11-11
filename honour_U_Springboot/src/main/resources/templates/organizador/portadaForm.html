@@ -23,7 +23,7 @@
                 position: relative;
             }
             .drop-zone.dragover { background: #eef7ff; border-color: #65a3ff; }
-            .dz-instructions { color: #7a7a7a; font-size: 0.95rem; }
+            .dz-instructions { color: black; font-size: 0.95rem; }
 
             /* Las miniaturas AHORA van dentro de la drop-zone */
             .drop-zone .preview {
@@ -36,98 +36,32 @@
                 background: #fafafa;
             }
 
-            /* ---- Pantalla completa del formulario (envoltorio) ---- */
-            .fs-target { position: relative; transition: all .3s ease; }
-            .fs-target.fullscreen {
-                width: 100vw; max-width: none; min-height: 100vh;
-                border: none; box-shadow: none; border-radius: 0;
-                padding: 40px 6vw; background: #fffef8;
-            }
-            .fs-target.fullscreen-fallback {
-                position: fixed; inset: 0; z-index: 1050;
-                width: 100vw; height: 100vh; overflow: auto;
-                border: none; box-shadow: none; border-radius: 0;
-                padding: 40px 6vw; background: #fffef8;
-            }
-            .btn-exit-fallback {
-                position: fixed; top: 12px; right: 12px; z-index: 1060;
+            .portada-container {
+                max-width: 720px;
+                margin: 0 auto;
             }
 
-            /* ---- Vista de PÁGINA (como saldrá en el PDF) ---- */
-            .cover-preview {
-                display: none;               /* se muestra al entrar en Vista previa */
-                align-items: center; justify-content: center;
-                padding: 16px;
-                overflow: auto; /*permite hacer scroll*/
-            }
-            .cover-preview.active { display: flex; }
-
-            /* Antes: width: min(92vw, 900px); aspect-ratio...  */
-            /* Después: adapta por altura para que nunca se corte en fullscreen */
-            .cover-canvas {
-                height: min(92vh, 1200px);   /* prioriza que quepa en alto */
-                aspect-ratio: 210 / 297;    /* A4 vertical */
-                width: auto;                 /* el ancho se calcula por la proporción */
-                max-width: 96vw;             /* evita desbordar a lo ancho */
-                background: #ffffff;
-                box-shadow: 0 18px 45px rgba(0,0,0,.12);
-                border: 1px solid #e9e9e9;
+            .portada-card {
+                border: 1px solid #e5e5e5;
+                background: #fffef8;
                 border-radius: 10px;
-                position: relative;
-                overflow: hidden;
-                padding: 36px 40px;
-                display: flex;
-                flex-direction: column;
-                gap: 18px;
+                padding: 40px 50px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                transition: all 0.3s ease;
             }
 
-            .cover-title {
-                font-size: clamp(28px, 5vw, 48px);
-                font-weight: 800;
-                text-align: center;
-                line-height: 1.15;
-                margin-top: 8px;
-                color: #1d1d1f;
-                flex: 0 0 auto;
-                display: block;
-                position: relative;
-                z-index: 1;           /* por si alguna imagen lo pisa */
+            .portada-card:focus-within {
+                box-shadow: 0 0 0 4px rgba(100, 180, 255, 0.2);
             }
 
-            ./* Reemplaza tu regla .cover-hero img por esta */
-            .cover-hero img{
-                width: 100%;
-                height: 100%;
-                object-fit: contain;      /* <- muestra la imagen completa */
-                object-position: center;  /* centrada */
-                image-rendering: auto;
+            .subtitulo{
+                color: white;
+                font-size: 20px;
             }
 
-            /* opcional: un fondo neutro para que se note el margen si la foto no llena */
-            .cover-hero{
-                background: #f5f5f5;      /* ya lo tienes; puedes usar #fff o #111 según gusto */
+            .form-label{
+                color: black;
             }
-            .cover-hero img {
-                width: 100%; height: 100%; object-fit: cover;
-            }
-
-            .cover-collage {
-                display: grid; grid-template-columns: repeat(4, 1fr);
-                gap: 8px;
-            }
-            .cover-collage img {
-                width: 100%; height: 84px; object-fit: cover;
-                border-radius: 8px; border: 1px solid #eee;
-            }
-
-            .card-like {
-                background: #fff; border: 1px solid #eee; border-radius: 12px;
-                box-shadow: 0 8px 24px rgba(0,0,0,.06);
-            }
-
-
-
-
         </style>
     </th:block>
 </head>
@@ -136,16 +70,9 @@
 <section layout:fragment="content" class="container py-4">
 
     <h2 class="mb-3">Portada del proyecto</h2>
-    <p class="text-muted">
+    <p class="subtitulo">
         Configura un título grande y una o varias imágenes. Esta página se usa solo para el libro/PDF y el panel de administración.
     </p>
-
-    <!-- Botón Vista previa a pantalla completa -->
-    <div class="d-flex justify-content-end mb-2">
-        <button type="button" id="btnPreviewFull" class="btn btn-outline-primary btn-sm">
-            Vista previa a pantalla completa
-        </button>
-    </div>
 
     <!-- Envoltorio del formulario (permite fullscreen del área de edición si quieres) -->
     <div id="fsTarget" class="fs-target">
@@ -153,7 +80,7 @@
         <!-- Formulario de edición -->
         <form th:action="@{/proyectos/admin/{t}/portada(t=${proyecto.adminToken})}"
               method="post" enctype="multipart/form-data"
-              class="card-like p-4 mb-3">
+              class="portada-card mb-3">
 
             <div class="mb-3">
                 <label class="form-label">Título del homenaje</label>
@@ -183,13 +110,6 @@
             </div>
         </form>
 
-        <!-- Vista de PÁGINA (cómo saldrá en el PDF): se activa al pulsar 'Vista previa' -->
-        <div id="coverPreview" class="cover-preview">
-            <div class="cover-canvas">
-                <div class="cover-title" id="pvTitle">Título del homenaje</div>
-                <div class="cover-hero"><img id="pvHero" alt=""></div>
-                <div class="cover-collage" id="pvCollage"></div>
-            </div>
         </div>
 
     </div>
@@ -231,103 +151,6 @@
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(f);
                 preview.appendChild(img);
-            });
-        }
-
-        // ---------- Vista previa de PÁGINA (como PDF) ----------
-        const btnPreviewFull = document.getElementById('btnPreviewFull');
-        const fsTarget = document.getElementById('fsTarget');
-        const coverPreview = document.getElementById('coverPreview');
-        const pvTitle = document.getElementById('pvTitle');
-        const pvHero = document.getElementById('pvHero');
-        const pvCollage = document.getElementById('pvCollage');
-        const tituloInput = document.getElementById('tituloInput');
-
-        btnPreviewFull.addEventListener('click', async () => {
-            // 1) Componer la portada
-            renderCoverPage();
-
-            // 2) Mostrar el bloque de preview y tratar de entrar en fullscreen
-            coverPreview.classList.add('active');
-
-            // Intentamos modo fullscreen de la PREVIEW (no del formulario)
-            try {
-                if (coverPreview.requestFullscreen) {
-                    await coverPreview.requestFullscreen();
-                } else {
-                    // Fallback: expandir como overlay dentro de fsTarget
-                    fsTarget.classList.add('fullscreen-fallback');
-                    addFallbackExit();
-                }
-                btnPreviewFull.textContent = 'Salir de vista previa';
-            } catch {
-                fsTarget.classList.add('fullscreen-fallback');
-                addFallbackExit();
-                btnPreviewFull.textContent = 'Salir de vista previa';
-            }
-        });
-
-        // Salir de fullscreen vuelve al estado normal
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                coverPreview.classList.remove('active');
-                btnPreviewFull.textContent = 'Vista previa a pantalla completa';
-            }
-        });
-
-        function addFallbackExit() {
-            let exitBtn = document.getElementById('exitFallbackBtn');
-            if (!exitBtn) {
-                exitBtn = document.createElement('button');
-                exitBtn.id = 'exitFallbackBtn';
-                exitBtn.type = 'button';
-                exitBtn.className = 'btn btn-outline-secondary btn-sm btn-exit-fallback';
-                exitBtn.textContent = 'Salir de vista previa';
-                document.body.appendChild(exitBtn);
-                exitBtn.addEventListener('click', () => {
-                    fsTarget.classList.remove('fullscreen-fallback');
-                    coverPreview.classList.remove('active');
-                    exitBtn.remove();
-                    btnPreviewFull.textContent = 'Vista previa a pantalla completa';
-                });
-            }
-        }
-
-        function renderCoverPage() {
-            // Título
-            const titulo = (document.getElementById('tituloInput')?.value || '').trim();
-            pvTitle.textContent = titulo || 'Título del homenaje';
-            pvTitle.style.display = 'block';
-
-
-            // Obtener imágenes: priorizamos archivos seleccionados; si no, existingUrls
-            let heroSrc = null;
-            let extraSrcs = [];
-
-            if (fileInput.files && fileInput.files.length > 0) {
-                const files = [...fileInput.files];
-                heroSrc = URL.createObjectURL(files[0]);
-                extraSrcs = files.slice(1, 5).map(f => URL.createObjectURL(f)); // hasta 4 extras
-            } else if (existingUrls && existingUrls.length > 0) {
-                heroSrc = existingUrls[0];
-                extraSrcs = existingUrls.slice(1, 5);
-            }
-
-            // Hero
-            if (heroSrc) {
-                pvHero.src = heroSrc;
-                pvHero.style.display = '';
-            } else {
-                pvHero.removeAttribute('src');
-                pvHero.style.display = 'none';
-            }
-
-            // Collage
-            pvCollage.innerHTML = '';
-            extraSrcs.forEach(src => {
-                const img = document.createElement('img');
-                img.src = src;
-                pvCollage.appendChild(img);
             });
         }
     </script>

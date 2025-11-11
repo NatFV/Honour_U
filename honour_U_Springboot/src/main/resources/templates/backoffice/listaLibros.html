@@ -1,21 +1,86 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gestionar Libro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
+
+<body>
+<section layout:fragment="content">
+
+    <!-- Botones de navegación -->
+    <div class="d-flex justify-content-end mt-3 me-3 mb-3">
+        <a th:href="@{/backoffice/proyectos}" class="btn btn-success me-2">Proyectos</a>
+        <a th:href="@{/backoffice/libros}" class="btn btn-info me-2">Libros</a>
+        <a th:href="@{/backoffice/mapa-libros-v2}" class="btn btn-warning">Mundo Honour U</a>
+    </div>
+
+    <!-- Imagen centrada -->
+    <div class="text-center my-4">
+        <img th:src="@{/img/imagenLibro.jpg}" alt="Encabezado visual" style="max-width: 20%; height: auto;" />
+    </div>
+
+    <div class="container">
+        <h2 class="mt-4 text-center text-light">Libros Existentes</h2>
+
+        <div class="card shadow-sm mt-3 p-3" style="background-color: #ffffff; border: none;">
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover align-middle tabla-fondo">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Título</th>
+                        <th>Formato</th>
+                        <th>Copias</th>
+                        <th>Páginas</th>
+                        <th>Proyecto</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="libro : ${libros}">
+                        <td th:text="${libro.tituloLibro}"></td>
+                        <td th:text="${libro.formato}"></td>
+                        <td th:text="${libro.copias}"></td>
+                        <td th:text="${libro.paginas}"></td>
+                        <td th:text="${libro.proyecto != null ? libro.proyecto.nombreProyecto : 'Sin proyecto'}"></td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a th:href="@{/backoffice/libros/{id}/edit(id=${libro.libroId})}" class="btn btn-warning btn-sm">Editar</a>
+                                <span th:if="${libro.destinatario != null}">
+                                    <a th:href="@{/backoffice/destinatarios/{id}/edit(id=${libro.destinatario.destinatarioId})}" class="btn btn-info btn-sm">Editar Destinatario</a>
+                                </span>
+                                <span th:if="${libro.destinatario == null}">
+                                    <a th:href="@{/backoffice/destinatarios(libroId=${libro.libroId})}" class="btn btn-primary btn-sm">Crear Destinatario</a>
+                                </span>
+                                <a th:href="@{/backoffice/libros/{id}/delete(id=${libro.libroId})}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- Estilos específicos -->
 <style>
     body {
-        background-color: #1a237e ;
+        background-color: #1a237e;
         color: white;
         font-family: Arial, sans-serif;
     }
 
     .card {
-        background-color: #ce93d8  ;
-        color: #000000;
+        background-color: #ce93d8;
+        color: #000;
     }
 
     .tabla-fondo th,
@@ -25,63 +90,18 @@
     }
 
     h1, h2 {
-        color: #ce93d8 ;
+        color: var(--color-acento, #ce93d8);
+        font-weight: bold;
     }
 
-    .top-image {
-        max-width: 100%;
-        height: auto;
+    .table th {
+        background-color: #d1c4e9 !important;
+    }
+
+    .btn {
+        font-weight: 600;
     }
 </style>
-<div class="d-flex justify-content-end mt-3 me-3 mb-3">
-    <a th:href="@{/backoffice/proyectos}" class="btn btn-success me-2">Proyectos</a>
-    <a th:href="@{/backoffice/libros}" class="btn btn-info me-2">Libros</a>
-    <a th:href="@{/backoffice/mapa-libros-v2}" class="btn btn-warning">Mundo Honour U</a>
-</div>
-<!-- Imagen centrada en la parte superior -->
-<div class="text-center my-4">
 
-    <img th:src="@{/img/imagenLibro.jpg}" alt="Encabezado visual" style="max-width: 20%; max-height: 20%;" />
-</div>
-
-<body>
-<div class="container">
-    <!-- Listado de libros -->
-    <h2 class="mt-4">Libros Existentes</h2>
-    <table class="table tabla-fondo">
-        <thead>
-        <tr>
-            <th>Título</th>
-            <th>Formato</th>
-            <th>Copias</th>
-            <th>Páginas</th>
-            <th>Proyecto</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="libro : ${libros}">
-            <td th:text="${libro.tituloLibro}"></td>
-            <td th:text="${libro.formato}"></td>
-            <td th:text="${libro.copias}"></td>
-            <td th:text="${libro.paginas}"></td>
-            <td th:text="${libro.proyecto != null ? libro.proyecto.nombreProyecto : 'Sin proyecto'}"></td>
-            <td>
-                <a th:href="@{/backoffice/libros/{id}/edit(id=${libro.libroId})}" class="btn btn-warning btn-sm">Editar</a>
-                <span th:if="${libro.destinatario != null}">
-                    <a th:href="@{/backoffice/destinatarios/{id}/edit(id=${libro.destinatario.destinatarioId})}" class="btn btn-info btn-sm ms-1">Editar Destinatario</a>
-                </span>
-                <span th:if="${libro.destinatario == null}">
-                    <a th:href="@{/backoffice/destinatarios(libroId=${libro.libroId})}" class="btn btn-primary btn-sm ms-1">Crear Destinatario</a>
-                </span>
-                <a th:href="@{/backoffice/libros/{id}/delete(id=${libro.libroId})}" class="btn btn-danger btn-sm">Eliminar</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

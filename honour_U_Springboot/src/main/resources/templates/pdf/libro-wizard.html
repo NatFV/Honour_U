@@ -6,7 +6,50 @@
 <head>
     <title th:text="${proyecto.nombreProyecto} + ' – Crear libro'">Crear libro</title>
     <th:block layout:fragment="extra_head">
-        <style>.card{border:1px solid #eee;border-radius:10px;padding:16px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.05)}</style>
+        <style>
+            .card{
+                border:1px solid #eee;
+                border-radius:10px;
+                padding:16px;
+                background:#fff;
+                box-shadow:0 2px 6px rgba(0,0,0,.05);
+                color: black;
+            }
+
+            .form-label{
+                color: black;
+            }
+            /**para que se vean negros los bordes**/
+            .card {
+                background-color: #fff !important;
+                color: #000 !important;
+            }
+
+            .card .form-label,
+            .card .form-check-label {
+                color: #000 !important;
+            }
+
+            .card .form-control,
+            .card .form-check-input {
+                border: 1px solid #000 !important;
+            }
+            /**borde formato**/
+            .form-select {
+                border: 1px solid #000 !important;  /* borde negro */
+                color: #000 !important;             /* texto negro */
+                background-color: #fff !important;  /* fondo blanco */
+            }
+
+            .form-select:focus {
+                border-color: #000 !important;      /* borde negro al enfocar */
+                box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.25); /* sombra sutil */
+            }
+
+
+
+
+        </style>
     </th:block>
 </head>
 <body>
@@ -42,7 +85,7 @@
             <div class="fw-semibold mb-2">Qué quieres hacer</div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" th:field="*{envioEmail}" id="chkEmail">
-                <label class="form-check-label" for="chkEmail">Enviar por email</label>
+                <label class="form-check-label form-label" for="chkEmail">Enviar por email</label>
             </div>
             <div id="panelEmail" class="mt-2" style="display:none">
                 <label class="form-label">Email destino</label>
@@ -50,8 +93,8 @@
             </div>
 
             <div class="form-check mt-3">
-                <input class="form-check-input" type="checkbox" th:field="*{envioFisico}" id="chkFisico">
-                <label class="form-check-label" for="chkFisico">Crear libro físico y enviar a un destinatario</label>
+                <input class="form-check-input form-label" type="checkbox" th:field="*{envioFisico}" id="chkFisico">
+                <label class="form-check-label form-label" for="chkFisico">Crear libro físico y enviar a un destinatario</label>
             </div>
             <div id="panelFisico" class="mt-2" style="display:none">
                 <div class="row g-3">
@@ -99,7 +142,7 @@
         </div>
 
         <div class="d-flex gap-2">
-            <a th:href="@{/proyectos/admin/{t}(t=${proyecto.adminToken})}" class="btn btn-outline-secondary">Cancelar</a>
+            <a th:href="@{/proyectos/admin/{t}(t=${proyecto.adminToken})}" class="btn btn-secondary">Cancelar</a>
             <button class="btn btn-primary" type="submit">Crear</button>
         </div>
     </form>

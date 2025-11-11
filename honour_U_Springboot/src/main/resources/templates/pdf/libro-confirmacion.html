@@ -20,7 +20,7 @@
 
         <a th:if="${libro.formato == 'PDF'}"
            th:href="@{/proyectos/admin/{t}/export.pdf(t=${proyecto.adminToken})}"
-           class="btn btn-outline-secondary"
+           class="btn btn-success"
            target="_blank">
             Descargar PDF
         </a>

@@ -1,116 +1,131 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
 <head>
-    <meta charset="UTF-8">
     <title>Destinatarios</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #1a237e;
-            color: white;
-        }
-
-        .custom-container {
-            background-color: #90caf9;
-            padding: 2rem;
-            border-radius: 8px;
-            color: black;
-            margin: 2rem auto;
-            max-width: 1000px;
-        }
-
-        .header-image {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            max-width: 120px;
-            height: auto;
-        }
-
-        h1, h2 {
-            margin-left: 140px;
-        }
-
-        .top-right {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-    </style>
 </head>
+
 <body>
+<section layout:fragment="content">
 
-<img th:src="@{/img/honourU.jpg}" alt="Logo" class="header-image">
-<div class="top-right">
-    <a href="/backoffice/libros" class="btn btn-outline-light">Volver a Libros</a>
-</div>
+    <!-- Botón superior a la derecha -->
+    <div class="d-flex justify-content-end mt-3 me-3 mb-4">
+        <a href="/backoffice/libros" class="btn btn-outline-light">Volver a Libros</a>
+    </div>
 
-<!-- Caja: Añadir destinatarios -->
-<div class="custom-container">
-    <h1 class="mb-4">Añadir Destinatarios</h1>
+    <!-- Caja: Añadir destinatarios -->
+    <div class="card mx-auto p-4 mb-5" style="max-width: 1000px; background-color: #90caf9; color: #000;">
+        <h1 class="text-center mb-4" style="color: #1a237e;">Añadir Destinatarios</h1>
 
-    <form th:action="@{/backoffice/destinatarios}" th:object="${destinatario}" method="post">
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input type="text" th:field="*{nombre}" class="form-control" required>
-        </div>
+        <form th:action="@{/backoffice/destinatarios}" th:object="${destinatario}" method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" th:field="*{nombre}" class="form-control" required>
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Apellido</label>
-            <input type="text" th:field="*{apellido}" class="form-control" required>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">Apellido</label>
+                    <input type="text" th:field="*{apellido}" class="form-control" required>
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Teléfono</label>
-            <input type="text" th:field="*{telefono}" class="form-control">
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" th:field="*{telefono}" class="form-control">
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" th:field="*{email}" class="form-control">
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" th:field="*{email}" class="form-control">
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Libro Asociado</label>
-            <input type="text" th:value="${destinatario.libro != null ? destinatario.libro.tituloLibro : ''}" class="form-control" disabled/>
-            <input type="hidden" th:field="*{libro.libroId}"/>
-        </div>
+                <div class="col-12">
+                    <label class="form-label">Libro Asociado</label>
+                    <input type="text" th:value="${destinatario.libro != null ? destinatario.libro.tituloLibro : ''}" class="form-control" disabled/>
+                    <input type="hidden" th:field="*{libro.libroId}"/>
+                </div>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <a href="/backoffice/libros" class="btn btn-danger ms-2">Cancelar</a>
-    </form>
-</div>
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a href="/backoffice/libros" class="btn btn-danger ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
 
-<!-- Caja: Lista de destinatarios -->
-<div class="custom-container">
-    <h2 class="mt-4">Lista de Destinatarios</h2>
-    <table class="table table-striped table-bordered mt-3">
-        <thead class="table-dark">
-        <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>ID Libro</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="dest : ${destinatarios}">
-            <td th:text="${dest.nombre}">Nombre</td>
-            <td th:text="${dest.apellido}">Apellido</td>
-            <td th:text="${dest.telefono}">Teléfono</td>
-            <td th:text="${dest.email}">Email</td>
-            <td th:text="${dest.libro != null ? dest.libro.libroId : 'N/A'}">Libro</td>
-            <td>
-                <a th:href="@{/backoffice/destinatarios/{id}/edit(id=${dest.destinatarioId})}" class="btn btn-sm btn-warning">Editar</a>
-                <a th:href="@{/backoffice/destinatarios/{id}/delete(id=${dest.destinatarioId})}" class="btn btn-sm btn-danger"
-                   onclick="return confirm('¿Estás seguro que deseas eliminar este destinatario?');">Eliminar</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <!-- Caja: Lista de destinatarios -->
+    <div class="card mx-auto p-4 mb-5" style="max-width: 1000px; background-color: #90caf9; color: #000;">
+        <h2 class="text-center mb-3" style="color: #1a237e;">Lista de Destinatarios</h2>
+
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>ID Libro</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="dest : ${destinatarios}">
+                <td th:text="${dest.nombre}">Nombre</td>
+                <td th:text="${dest.apellido}">Apellido</td>
+                <td th:text="${dest.telefono}">Teléfono</td>
+                <td th:text="${dest.email}">Email</td>
+                <td th:text="${dest.libro != null ? dest.libro.libroId : 'N/A'}">Libro</td>
+                <td>
+                    <a th:href="@{/backoffice/destinatarios/{id}/edit(id=${dest.destinatarioId})}" class="btn btn-sm btn-warning">Editar</a>
+                    <a th:href="@{/backoffice/destinatarios/{id}/delete(id=${dest.destinatarioId})}"
+                       onclick="return confirm('¿Estás seguro que deseas eliminar este destinatario?');"
+                       class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+<!-- Estilos específicos -->
+<style>
+    h1, h2 {
+        font-weight: bold;
+    }
+
+    label {
+        font-weight: 600;
+    }
+
+    input.form-control {
+        background-color: #fdfdfd;
+        border: 1px solid #444;
+        color: #000;
+    }
+
+    input.form-control:focus {
+        border-color: #000;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-primary {
+        background-color: #3949ab;
+        border-color: #303f9f;
+    }
+
+    .btn-danger {
+        background-color: #c62828;
+        border-color: #b71c1c;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #e3f2fd;
+    }
+</style>
 
 </body>
 </html>

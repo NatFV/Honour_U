@@ -41,7 +41,7 @@
             .editor-remitente {
                 text-align: center;
                 font-size: 16px;
-                color: #444;
+                color: black;
                 font-style: italic;
                 min-height: 24px;
                 margin-bottom: 15px;
@@ -58,7 +58,8 @@
                 border-radius: 8px;
                 padding: 12px;
                 font-size: 15px;
-                background: #fafafa;
+                background: #ffffff; /* fondo blanco */
+                color: #000000;      /* texto negro */
                 line-height: 1.5;
                 outline: none;
                 white-space: pre-wrap;
@@ -71,7 +72,8 @@
 
             .editor-mensaje:focus {
                 border-color: #b0d4ff;
-                background: #f0f8ff;
+                background: #ffffff; /* mantener fondo blanco al enfocar */
+                color: #000000;      /* mantener texto negro al enfocar */
             }
 
             .zona-drop {
@@ -82,11 +84,13 @@
                 transition: background .2s, border-color .2s;
                 margin-top: 20px;
                 min-height: 150px;
+                color: black;
             }
 
             .zona-drop.dragover {
                 background: #eef9ff;
                 border-color: #66afe9;
+
             }
 
             .media img, .media video, .media audio {
@@ -124,40 +128,7 @@
                     min-height: 220px;
                 }
             }
-            /* Pantalla completa real (Fullscreen API) */
-            .pagina.fullscreen {
-                width: 100vw;
-                max-width: none;
-                min-height: 100vh;
-                border: none;
-                box-shadow: none;
-                border-radius: 0;
-                padding: 40px 10vw; /* margen lateral para que respire el contenido */
-                background: #fffef8;
-            }
 
-            /* Fallback si Fullscreen API no está disponible (iOS Safari, etc.) */
-            .pagina.fullscreen-fallback {
-                position: fixed;
-                inset: 0;
-                z-index: 1050; /* encima de todo */
-                width: 100vw;
-                height: 100vh;
-                overflow: auto;
-                border: none;
-                box-shadow: none;
-                border-radius: 0;
-                padding: 40px 10vw;
-                background: #fffef8;
-            }
-
-            /* Botón flotante para salir en el fallback */
-            .btn-exit-fallback {
-                position: fixed;
-                top: 12px;
-                right: 12px;
-                z-index: 1060;
-            }
 
         </style>
     </th:block>
@@ -191,18 +162,12 @@
 
                 <!-- Zona drag & drop -->
                 <div class="zona-drop" id="zonaDrop">
-                    Arrastra tus fotos, vídeos o audios aquí
+                    Arrastra tus fotos aquí (o haz click para elegir)
                     <div class="media" id="preview-media"></div>
                 </div>
 
                 <div class="numero-pagina">Vista previa</div>
             </div>
-        </div>
-
-        <div class="text-center mt-4">
-            <button type="button" id="btnFullscreen" class="btn btn-outline-primary me-3">
-                Vista previa a pantalla completa
-            </button>
         </div>
 
         <!-- Opciones finales -->
@@ -218,13 +183,13 @@
 
     <!-- Aportaciones existentes -->
     <h3 class="mt-5">Aportaciones Existentes</h3>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
         <div class="col" th:each="a : ${aportaciones}"
              th:if="${a.pageType.name() == 'NORMAL'}">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${a.remitente}">Remitente</h5>
-                    <p class="card-text small text-muted" th:text="${a.mensaje}">Mensaje…</p>
+                    <p class="card-text small text-muted" th:if="${a.esVisible}" th:text="${a.mensaje}">Mensaje…</p>
 
                     <!-- Miniaturas -->
                     <div th:if="${a.mediaUrls != null} and ${!a.mediaUrls.isEmpty()}">
@@ -240,12 +205,6 @@
                               th:text="${a.esVisible} ? 'Visible' : 'No visible'">Visible</span>
                     </div>
 
-                    <!-- Enlaces según disponibilidad -->
-                    <span th:if="${a.esVisible}">
-                        <!-- Si tiene URL propia, úsala -->
-                    <a class="small" target="_blank"
-                    th:if="${a.url != null}"
-                    th:href="@{${a.url}}">Ver enlace</a>
 
                         <!-- Si no hay URL pero sí media, abrimos una vista de lectura de la aportación -->
                     <a class="small" target="_blank"
@@ -355,93 +314,7 @@
             });
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const preview = document.getElementById('preview');
-            const btnFS = document.getElementById('btnFullscreen');
 
-            const enterNativeFullscreen = async () => {
-                try {
-                    if (!document.fullscreenElement && preview.requestFullscreen) {
-                        await preview.requestFullscreen();
-                        preview.classList.add('fullscreen');
-                    }
-                } catch (e) {
-                    // Si falla, hacemos fallback
-                    enterFallbackFullscreen();
-                }
-            };
-
-            const exitNativeFullscreen = async () => {
-                try {
-                    if (document.fullscreenElement) {
-                        await document.exitFullscreen();
-                    }
-                } catch (e) {
-                    // ignoramos
-                } finally {
-                    preview.classList.remove('fullscreen');
-                }
-            };
-
-            const enterFallbackFullscreen = () => {
-                // Modo "pantalla completa" por CSS (para navegadores sin Fullscreen API)
-                preview.classList.add('fullscreen-fallback');
-
-                // Creamos un botón para salir del fallback
-                let exitBtn = document.getElementById('exitFallbackBtn');
-                if (!exitBtn) {
-                    exitBtn = document.createElement('button');
-                    exitBtn.id = 'exitFallbackBtn';
-                    exitBtn.type = 'button';
-                    exitBtn.className = 'btn btn-outline-secondary btn-sm btn-exit-fallback';
-                    exitBtn.textContent = 'Salir de pantalla completa';
-                    document.body.appendChild(exitBtn);
-                    exitBtn.addEventListener('click', exitFallbackFullscreen);
-                }
-            };
-
-            const exitFallbackFullscreen = () => {
-                preview.classList.remove('fullscreen-fallback');
-                const exitBtn = document.getElementById('exitFallbackBtn');
-                if (exitBtn) exitBtn.remove();
-            };
-
-            // Gestiona el botón
-            btnFS.addEventListener('click', async () => {
-                // Si ya estamos en nativo -> salir
-                if (document.fullscreenElement) {
-                    await exitNativeFullscreen();
-                    btnFS.textContent = 'Vista previa a pantalla completa';
-                    return;
-                }
-                // Si estamos en fallback -> salir
-                if (preview.classList.contains('fullscreen-fallback')) {
-                    exitFallbackFullscreen();
-                    btnFS.textContent = 'Vista previa a pantalla completa';
-                    return;
-                }
-                // Entrar en fullscreen
-                if (preview.requestFullscreen) {
-                    await enterNativeFullscreen();
-                    btnFS.textContent = 'Salir de pantalla completa';
-                } else {
-                    enterFallbackFullscreen();
-                    btnFS.textContent = 'Salir de pantalla completa';
-                }
-            });
-
-            // Cambia el texto del botón cuando el usuario sale con ESC en modo nativo
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement) {
-                    preview.classList.remove('fullscreen');
-                    btnFS.textContent = 'Vista previa a pantalla completa';
-                } else {
-                    btnFS.textContent = 'Salir de pantalla completa';
-                }
-            });
-        });
-    </script>
 </th:block>
 
 </body>

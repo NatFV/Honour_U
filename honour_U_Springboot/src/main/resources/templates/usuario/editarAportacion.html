@@ -7,7 +7,7 @@
     <title>Editar Aportación</title>
     <th:block layout:fragment="extra_head">
         <style>
-            .pagina { width:100%; max-width:720px; min-height:800px; border:1px solid #e5e5e5; margin:20px auto; padding:40px 50px; box-shadow:0 4px 15px rgba(0,0,0,0.08); background:#fffef8; border-radius:10px; position:relative; }
+            .pagina { width:100%; max-width:720px; min-height:800px; border:1px solid #e5e5e5; margin:20px auto; padding:40px 50px; box-shadow:0 4px 15px rgba(0,0,0,0.08); background:#fffef8; border-radius:10px; position:relative;  color: #111;   }
             .titulo-proyecto { text-align:center; font-weight:700; font-size:22px; margin-bottom:8px; }
             .editor-remitente { text-align:center; font-size:16px; color:#444; font-style:italic; min-height:24px; margin-bottom:15px; }
             .editor-mensaje { min-height:300px; border:1px dashed #ccc; border-radius:8px; padding:12px; font-size:15px; background:#fafafa; line-height:1.5; outline:none; white-space:pre-wrap; }
@@ -52,7 +52,7 @@
 
 
                 <div class="zona-drop" id="zonaDrop">
-                    Arrastra aquí fotos/vídeos/audios (o haz clic para elegir)
+                    Arrastra aquí fotos (o haz clic para elegir)
                     <div class="media" id="preview-nuevos">
                         <!-- Pongo las existentes aquí -->
                         <img th:each="u : ${aportacion.mediaUrls}" th:src="@{${u}}" alt="foto"
@@ -77,7 +77,7 @@
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
 
             <!-- Enlace Cancelar condicional por adminMode -->
-            <a class="btn btn-outline-secondary ms-2"
+            <a class="btn btn-outline-danger ms-2"
                th:href="${adminMode} ?
                     @{/proyectos/admin/{t}/panel(t=${proyecto.adminToken})} :
                     @{/proyectos/token/{token}/aportaciones(token=${proyecto.tokenUrl})}">
