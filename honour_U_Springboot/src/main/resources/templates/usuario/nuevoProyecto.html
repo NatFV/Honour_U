@@ -54,16 +54,17 @@
 
     h1, h2 {
         color: #ff5c7b;
-        text-align: center;/* Títulos en verde claro */
+        text-align: center;
         font-weight: bold;
     }
 
     .carousel-text h5 {
-        font-size: 45px;
+        font-size: 40px;
         color: white;
     }
     .carousel-text-margin {
         margin-bottom: 30px;
+        margin-top:30px
     }
 
     .top-image {
@@ -77,7 +78,7 @@
         font-size: 45px;        /* mismo tamaño que el primer texto */
     }
     #carouselHeader .carousel-item {
-        height: 400px; /* ajusta según lo que necesites */
+        height: 350px; /* ajusta según lo que necesites */
     }
 
     #carouselHeader .carousel-item img {
@@ -91,7 +92,7 @@
 </style>
 
 <!-- Carrusel de dos fotos con texto -->
-<div id="carouselHeader" class="carousel slide my-5" data-bs-ride="carousel">
+<div id="carouselHeader" class="carousel slide mb-1" data-bs-ride="carousel">
     <div class="carousel-inner text-center">
         <!-- Primera foto -->
         <div class="carousel-item active">
@@ -99,19 +100,19 @@
             <div class="carousel-text carousel-text-margin">
                 <h5>Ya es hora de hacer algo útil con las tropecientas fotos de tu móvil</h5>
             </div>
-            <img th:src="@{/img/phones.jpg}" class="d-block mx-auto" style="max-width: 400px; max-height: 270px" alt="Foto phones">
+            <img th:src="@{/img/phones.jpg}" class="d-block mx-auto" style="max-width: 350px; max-height: 220px" alt="Foto phones">
         </div>
 
         <!-- Segunda foto -->
         <div class="carousel-item">
             <!-- Texto arriba de la foto -->
             <div class="carousel-text-margin">
-                <span class="carousel-word" style="color:lightseagreen; font-size: 45px;">HAZ</span>
-                <span class="carousel-word" style="color:yellow; font-size: 45px">UN</span>
-                <span class="carousel-word" style="color:#ff5c7b;font-size: 45px">HOMENAJE</span>
-                <span class="carousel-word" style="color:grey;font-size: 45px">.</span>
+                <span class="carousel-word" style="color:lightseagreen; font-size: 40px;">HAZ</span>
+                <span class="carousel-word" style="color:yellow; font-size: 40px">UN</span>
+                <span class="carousel-word" style="color:#ff5c7b;font-size: 40px">HOMENAJE</span>
+                <span class="carousel-word" style="color:grey;font-size: 40px">.</span>
             </div>
-            <img th:src="@{/img/honourU.jpg}" class="d-block mx-auto" style="max-width: 400px; max-height: 270px" alt="Foto HonourU">
+            <img th:src="@{/img/honourU.jpg}" class="d-block mx-auto" style="max-width: 350px; max-height: 220px" alt="Foto HonourU">
         </div>
     </div>
 
