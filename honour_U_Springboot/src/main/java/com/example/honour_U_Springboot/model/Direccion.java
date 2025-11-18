@@ -27,8 +27,9 @@ public class Direccion {
     private String piso;
     @Column(name="letra")
     private String letra;
-    @Column(name = "codigo_postal")
+    @Column(name = "codigo_postal", nullable=false)
     private String codigoPostal;
+    @Column(name = "pais", nullable=false)
     private String pais;
 
     public Long getDireccionId() {

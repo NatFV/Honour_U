@@ -85,7 +85,11 @@
 
                 <div class="mb-3">
                     <label class="form-label">Plazo de Finalización</label>
-                    <input type="date" th:field="*{plazoFinalizacion}" class="form-control" required>
+                    <input type="date"
+                           th:value="${#temporals.format(proyecto.plazoFinalizacion, 'yyyy-MM-dd')}"
+                           name="plazoFinalizacion"
+                           class="form-control"
+                           required>
                 </div>
 
                 <button type="submit" class="btn btn-accent">Guardar Cambios</button>
@@ -104,7 +108,8 @@
 
             <ul class="list-group mb-4" th:if="${!#lists.isEmpty(aportaciones)}">
                 <li class="list-group-item" th:each="aportacion : ${aportaciones}">
-                    <strong th:text="${aportacion.remitente}">Remitente</strong>:
+                    <strong th:text="${aportacion.getPageType()}">Tipo de aportación</strong>
+                    <strong th:text="${aportacion.remitente}">Remitente</strong>
                     <span th:text="${aportacion.mensaje}">Mensaje</span><br>
                     <a th:href="${aportacion.url}" th:text="${aportacion.url}" target="_blank"></a><br>
                     <small th:text="${aportacion.esVisible ? 'Visible' : 'No visible'}"></small>

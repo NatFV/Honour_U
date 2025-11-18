@@ -25,7 +25,9 @@ public class Destinatario {
     private String nombre;
     @Column (name = "apellido", nullable = false)
     private String apellido;
+    @Column (name = "telefono", nullable = false)
     private String telefono;
+    @Column (name = "email", nullable = false)
     private String email;
 
     public Long getDestinatarioId() {

@@ -40,13 +40,13 @@ public class Proyecto {
     private String adminToken;
 
     //URL generada a partir del token para los participantes
-    @Column(name= "url_proyecto")
+    @Column(name= "url_proyecto", unique = true, nullable = false)
     private String urlProyecto;
     //URL generada a partir del adminToken para el administrador
-    @Column
+    @Column (name= "url_admin", unique = true, nullable = false)
     private String urlAdmin;
 
-    @Column(name="plazo_finalizacion")
+    @Column(name="plazo_finalizacion", nullable = false)
     //@Temporal(TemporalType.DATE) //Incluimos la fecha pero no la hora
     private LocalDate plazoFinalizacion;
 

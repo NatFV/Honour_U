@@ -45,12 +45,12 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">Tipo de Media</label>
-                            <select th:field="*{mediaType}" class="form-select">
-                                <option th:value="VIDEO">Video</option>
-                                <option th:value="AUDIO">Audio</option>
-                                <option th:value="FOTO">Foto</option>
-                                <option th:value="TEXTO">Texto</option>
+                            <label class="form-label">Tipo de aportación</label>
+                            <select th:field="*{pageType}" class="form-select">
+                                <option th:value="NORMAL">Normal</option>
+                                <option th:value="PORTADA">Portada</option>
+                                <option th:value="INDICE">Índice</option>
+                                <option th:value="BLANCE">Pág. en blanco</option>
                             </select>
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
@@ -83,14 +83,14 @@
                 <table th:if="${!#lists.isEmpty(aportaciones)}" class="table table-bordered table-sm">
                     <thead class="table-light">
                     <tr>
-                        <th>Mensaje</th><th>Remitente</th><th>Media</th><th>Visible</th><th>Acciones</th>
+                        <th>Tipo de aportación</th><th>Remitente</th><th>Mensaje</th><th>Visible</th><th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="ap : ${aportaciones}">
-                        <td th:text="${ap.mensaje}"></td>
+                        <td th:text="${ap.pageType}"></td>
                         <td th:text="${ap.remitente}"></td>
-                        <td th:text="${ap.mediaType}"></td>
+                        <td th:text="${ap.mensaje}"></td>
                         <td th:text="${ap.esVisible ? 'Sí' : 'No'}"></td>
                         <td class="d-flex gap-2">
                             <a th:href="@{/backoffice/proyectos/{id}/aportaciones/{apId}/edit(id=${proyecto.proyectoId}, apId=${ap.aportacionId})}"
