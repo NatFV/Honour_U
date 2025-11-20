@@ -10,6 +10,18 @@
         <style>
             .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
             .card-page { border: 1px solid #eee; border-radius: 10px; padding: 10px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
+            .card-text {
+                font-size: 0.875rem;
+                color: #6c757d;             /* gris */
+                display: -webkit-box;        /* necesario para line-clamp */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                -webkit-line-clamp: 2;       /* 1 línea = 1, 2 líneas = 2 */
+                line-height: 1.2em;
+                max-height: 2.4em;           /* line-height * number of lines */
+                margin-bottom: 20px;
+            }
             .thumb { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; background: #fafafa; }
             .handle { cursor: grab; }
             .pill { font-size: 12px; padding: 2px 6px; border-radius: 999px; }
@@ -20,7 +32,7 @@
     </th:block>
 </head>
 <body>
-<section layout:fragment="content">
+<section layout:fragment="content" style="color:black">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0" th:text="${proyecto.nombreProyecto}">Proyecto</h2>
@@ -70,6 +82,10 @@
                 <div class="thumb d-flex align-items-center justify-content-center text-muted"
                      th:if="${a.mediaUrls == null or a.mediaUrls.size() == 0}">Sin media</div>
             </div>
+
+            <!-- Remitente + Mensaje -->
+            <div class="card-text mt-2 small"> <div>
+            </div> <div th:text="${a.mensaje}">Mensaje…</div> </div>
 
             <div class="d-flex gap-2">
                 <!-- Editar (ADMIN: sin ownerKey/visibilidad) -->

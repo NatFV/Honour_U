@@ -192,9 +192,14 @@
                     <p class="card-text small text-muted" th:if="${a.esVisible}" th:text="${a.mensaje}">Mensaje…</p>
 
                     <!-- Miniaturas -->
-                    <div th:if="${a.mediaUrls != null} and ${!a.mediaUrls.isEmpty()}">
-                        <div class="d-flex flex-wrap gap-2">
-                            <img th:each="u : ${a.mediaUrls}" th:src="@{${u}}" alt="foto"
+                    <div th:if="(${a.esVisible}) or (${a.ownerKey} == ${session['ownerKey:' + proyecto.tokenUrl]})">
+
+                        <div th:if="${a.mediaUrls != null} and ${!a.mediaUrls.isEmpty()}"
+                             class="d-flex flex-wrap gap-2">
+
+                            <img th:each="u : ${a.mediaUrls}"
+                                 th:src="@{${u}}"
+                                 alt="foto"
                                  style="max-width:80px; max-height:80px; border-radius:6px;">
                         </div>
                     </div>
@@ -204,22 +209,6 @@
                         <span class="badge" th:classappend="${a.esVisible} ? 'bg-success' : 'bg-danger'"
                               th:text="${a.esVisible} ? 'Visible' : 'No visible'">Visible</span>
                     </div>
-
-
-                        <!-- Si no hay URL pero sí media, abrimos una vista de lectura de la aportación -->
-                    <a class="small" target="_blank"
-                        th:if="${a.url == null and a.mediaUrls != null and !a.mediaUrls.isEmpty()}"
-                        th:href="@{/proyectos/token/{token}/aportaciones/{id}/ver(
-                           token=${proyecto.tokenUrl}, id=${a.aportacionId})}">Ver enlace</a>
-
-                        <!-- Si es visible pero no hay dónde ir -->
-                    <span class="small text-muted"
-                        th:if="${a.url == null and (a.mediaUrls == null or a.mediaUrls.isEmpty())}">
-                    Sin enlace
-                </span>
-            </span>
-                    <span th:if="${!a.esVisible}" class="small text-muted">Sin enlace</span>
-
 
 
                     <!-- Botones solo para el dueño (comparando con la sesión) -->
