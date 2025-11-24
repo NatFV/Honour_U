@@ -10,8 +10,8 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest  // 🔹 Carga solo la capa JPA (repositorios, entidades, BD en memoria)
-@ActiveProfiles("test")  // 🔹 Usa configuración de src/test/resources/application-test.properties
+@DataJpaTest  // Carga solo la capa JPA (repositorios, entidades, BD en memoria)
+@ActiveProfiles("test")  // Usa configuración de src/test/resources/application-test.properties
 class ProyectoRepositoryTest {
 
     @Autowired
@@ -19,23 +19,29 @@ class ProyectoRepositoryTest {
 
     @Test
     void testGuardarYLeerProyecto() {
-        // 1️⃣ Crear proyecto
+        //  Crear proyecto
         Proyecto proyecto = new Proyecto();
         proyecto.setNombreProyecto("Homenaje a Juan");
         proyecto.setOrganizador("Ana López");
         proyecto.setDescripcion("Proyecto de prueba");
         proyecto.setPlazoFinalizacion(LocalDate.of(2025, 12, 31));
 
-        // 2️⃣ Guardarlo en la base de datos (H2)
+        // Añadir campos obligatorios (para evitar error NOT NULL)
+        proyecto.setUrlAdmin("url-admin-test");
+        proyecto.setUrlProyecto("url-proyecto-test");
+        proyecto.setTokenUrl("token-test");
+        proyecto.setAdminToken("admin-token-test");
+
+        //  Guardarlo en la base de datos (H2)
         Proyecto guardado = proyectoRepository.save(proyecto);
 
-        // 3️⃣ Comprobar que se generó un ID
+        //  Comprobar que se generó un ID
         assertThat(guardado.getProyectoId()).isNotNull();
 
-        // 4️⃣ Recuperarlo desde la base de datos
+        //  Recuperarlo desde la base de datos
         Proyecto encontrado = proyectoRepository.findById(guardado.getProyectoId()).orElse(null);
 
-        // 5️⃣ Verificar los valores
+        //  Verificar los valores
         assertThat(encontrado).isNotNull();
         assertThat(encontrado.getNombreProyecto()).isEqualTo("Homenaje a Juan");
         assertThat(encontrado.getOrganizador()).isEqualTo("Ana López");
