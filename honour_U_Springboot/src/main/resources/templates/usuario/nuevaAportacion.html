@@ -139,6 +139,11 @@
 
     <h2 class="mb-4 text-center">Crear Nueva Aportación</h2>
 
+    <!-- Mensaje de error -->
+    <div th:if="${error}" class="alert alert-danger text-center" style="margin-bottom: 20px;">
+        <p th:text="${error}"></p>
+    </div>
+
     <form th:action="@{/proyectos/token/{token}/aportaciones(token=${proyecto.tokenUrl})}"
           th:object="${nuevaAportacion}" method="post" enctype="multipart/form-data" id="aportacionForm">
 

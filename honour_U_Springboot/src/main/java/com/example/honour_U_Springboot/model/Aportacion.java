@@ -14,12 +14,13 @@ import java.util.List;
 /**
  * Clase Aportación
  * Representa las aportaciones de los usuarios
+ * @author Natlia Fdez
+ * @version 1
  */
 @Entity //la clase es una entidad y será mapeada en tabla
 //Cuando utilicé @Data me generó ecursión infinita entre los métodos hashCode() de las clases Proyecto y Aportacion
 //Usando las notaciones de getter y setter para evitarlo
 @Table(name = "aportacion")
-
 @NoArgsConstructor //Genera constructor sin parámetros para Hibernate
 public class Aportacion {
     @Id
@@ -39,6 +40,7 @@ public class Aportacion {
     @Column (name = "es_visible")
     private boolean esVisible;
 
+    //Creamos una tabla para guardar las URLS de todas las imágenes que se guardan localmente
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "aportacion_media", joinColumns = @JoinColumn(name = "aportacion_id"))
     @Column(name = "media_url", length = 512)
@@ -49,7 +51,7 @@ public class Aportacion {
     @Column(name = "owner_key", length = 64)
     private String ownerKey;
 
-    //Añadimos un orden para que el administración pueda manejar las aportaciones
+    //Añadimos un orden para que el organizador pueda manejar las aportaciones
     @Column(name = "orden")
     private Integer orden;
 
@@ -60,6 +62,7 @@ public class Aportacion {
     @Column(name = "page_type", nullable = false)
     private PageType pageType = PageType.NORMAL;
 
+    //Getters and setters
     public Integer getOrden() { return orden; }
     public void setOrden(Integer orden) { this.orden = orden; }
 
@@ -130,6 +133,7 @@ public class Aportacion {
     public void setPageType(PageType pageType) { this.pageType = pageType; }
 
 
+    //toString
     @Override
     public String toString() {
         return "Aportacion{" +
@@ -149,12 +153,4 @@ public class Aportacion {
     @JsonBackReference
     private Proyecto proyecto;
 
-
-
-    //Blindaje en la entidad
-    @PrePersist @PreUpdate
-    private void ensureNotNulls() {
-        if (this.remitente == null) this.remitente = "";
-        if (this.mensaje == null) this.mensaje = "";
-    }
 }

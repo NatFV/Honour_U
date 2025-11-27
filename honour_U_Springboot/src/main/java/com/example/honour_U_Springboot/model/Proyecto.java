@@ -15,6 +15,8 @@ import java.util.Set;
 /**
  * Clase Proyecto
  * Esta clase se utiliza para crear un nuevo proyecto que representa un homenaje
+ * @author Natalia Fdez
+ * @version 1
  */
 
 @Entity //la clase es una entidad y será mapeada en tabla
@@ -22,7 +24,7 @@ import java.util.Set;
 @Table(name = "proyecto")
 public class Proyecto {
     @Id //Esta anotación indica que el atributo id es la clave primaria de la entidad
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //Se utiliza con bases de datos que admiten columnas de identidad
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //Sindica que el valor de la clave primaria de una entidad se generará automáticamente por la base de datos
     @Column(name="proyecto_id")
     private Long proyectoId;
     @Column(name= "nombre_proyecto", nullable = false)
@@ -31,11 +33,11 @@ public class Proyecto {
     private String organizador;
     private String descripcion;
 
-    //Generamos token único que se genera automáticamente para las aportaciones de proyecto
+    //Token único que se genera automáticamente para las aportaciones de proyecto
     @Column(name = "token_url", unique = true, nullable = false)
     private String tokenUrl;
 
-    //Generamos un token para el administrador que le dará acceso al panel de control
+    //Token para que el organizador tenga acceso al panel de control
     @Column(name = "admin_token", unique = true)
     private String adminToken;
 
@@ -47,10 +49,9 @@ public class Proyecto {
     private String urlAdmin;
 
     @Column(name="plazo_finalizacion", nullable = false)
-    //@Temporal(TemporalType.DATE) //Incluimos la fecha pero no la hora
     private LocalDate plazoFinalizacion;
 
-   //Constructor
+   //Constructores
     public Proyecto() {
     }
 
@@ -61,6 +62,7 @@ public class Proyecto {
         this.plazoFinalizacion = plazoFinalizacion;
     }
 
+    //Getters y setters
     public Long getProyectoId() {
         return proyectoId;
     }
@@ -123,6 +125,8 @@ public class Proyecto {
         this.urlAdmin = urlAdmin;
     }
 
+    //toString
+
     @Override
     public String toString() {
         return "Proyecto{" +
@@ -144,6 +148,7 @@ public class Proyecto {
     @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Set<Aportacion> aportaciones = new HashSet<>();
+
     //Getters y setters de aportaciones
     public Set<Aportacion> getAportaciones() {
         return aportaciones;
@@ -155,6 +160,7 @@ public class Proyecto {
     //Relación Proyecto-Libro es de uno a uno bidireccional. El lado propietario es Libro
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "proyecto", orphanRemoval = true)//es proyecto
     private Libro libro;
+
     //Getters y setters de libro
     public Libro getLibro() {
         return libro;
@@ -166,7 +172,7 @@ public class Proyecto {
 
 
     /**
-     * Método para generar tokens públicos y de administrador, necesarios para generar URLS
+     * Método para generar tokens públicos y de administrador de panel de control, necesarios para generar URLS
      * Si no existe un token para aportaciones o un token de administrador,
      * se crea un Universally Unique Identifier (UUID), que usa números aleatorios con probabilidad
      * muy baja para repetirse (128bits).

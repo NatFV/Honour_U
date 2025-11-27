@@ -152,8 +152,17 @@ public class AportacionUsuarioViewController {
                                     @ModelAttribute("nuevaAportacion") Aportacion aportacion,
                                     @RequestParam(value = "imagenes", required = false) MultipartFile[] imagenes,
                                     HttpSession session,
-                                    HttpServletRequest request) throws Exception {
+                                    HttpServletRequest request, Model model) throws Exception {
 
+        // Validación mínima
+        if (aportacion.getRemitente() == null || aportacion.getRemitente().isBlank()) {
+            model.addAttribute("error", "El remitente no puede estar vacío");
+            return "usuario/nuevaAportacion"; // plantilla del formulario
+        }
+        if (aportacion.getMensaje() == null || aportacion.getMensaje().isBlank()) {
+            model.addAttribute("error", "El mensaje no puede estar vacío");
+            return "usuario/nuevaAportacion"; // plantilla del formulario
+        }
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 

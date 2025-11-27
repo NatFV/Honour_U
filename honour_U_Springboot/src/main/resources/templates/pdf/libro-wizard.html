@@ -142,7 +142,7 @@
         </div>
 
         <div class="d-flex gap-2">
-            <a th:href="@{/proyectos/admin/{t}(t=${proyecto.adminToken})}" class="btn btn-secondary">Cancelar</a>
+            <a th:href="@{/proyectos/admin/{adminToken}/panel(adminToken=${proyecto.adminToken})}" class="btn btn-secondary">Cancelar</a>
             <button class="btn btn-primary" type="submit">Crear</button>
         </div>
     </form>
