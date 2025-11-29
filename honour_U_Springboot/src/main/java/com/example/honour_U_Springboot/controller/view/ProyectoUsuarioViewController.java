@@ -49,40 +49,13 @@ public class ProyectoUsuarioViewController {
     @PostMapping("/nuevo")
     public String guardarProyecto(Proyecto proyecto, Model model) {
 
-        // Generar tokens si faltan (público + admin)
-        if (proyecto.getTokenUrl() == null || proyecto.getTokenUrl().isBlank()) {
-            proyecto.setTokenUrl(UUID.randomUUID().toString());
-        }
-        if (proyecto.getAdminToken() == null || proyecto.getAdminToken().isBlank()) {
-            proyecto.setAdminToken(UUID.randomUUID().toString());
-        }
-
-        // Utilizamos ServerletUriComponentsBuilder (clase de Spring Web que construye
-        //el identificador de un recurso (URI)) En este caso construiría: http://localhost:8081/...
-        String base = ServletUriComponentsBuilder
-                .fromCurrentContextPath() //toma datos desde el contexto actual (protocolo, host,ruta,query)
-                .build() //lo ensambla
-                .toUriString(); //serializa los componentes para construir la URL final
-
-        // Creación de los enlaces con la base y los tokens
-        String linkAportaciones = base + "/proyectos/token/" + proyecto.getTokenUrl() + "/aportaciones";
-        String linkAdmin        = base + "/proyectos/admin/" + proyecto.getAdminToken() + "/panel";
-
-        // Asignación de las URLS antes de guardar
-        proyecto.setUrlProyecto(linkAportaciones);
-        proyecto.setUrlAdmin(linkAdmin);
-
-        // Persistencia para salvar el proyecto
         Proyecto guardado = proyectoService.saveProyecto(proyecto);
 
-
-        // Se pasan los datos a la vista de enlaces
         model.addAttribute("proyecto", guardado);
-        model.addAttribute("linkAportaciones", linkAportaciones);
-        model.addAttribute("linkAdmin", linkAdmin);
+        model.addAttribute("linkAportaciones", guardado.getUrlProyecto());
+        model.addAttribute("linkAdmin", guardado.getUrlAdmin());
 
-
-        return "usuario/proyectoLinks"; // vista que muestra ambos enlaces
+        return "usuario/proyectoLinks";
     }
 
 }

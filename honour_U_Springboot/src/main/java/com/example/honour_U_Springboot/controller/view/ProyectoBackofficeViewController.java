@@ -41,7 +41,7 @@ public class ProyectoBackofficeViewController {
      */
     @GetMapping("/{id}/edit")
     public String editar(@PathVariable Long id, Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findById(id);
+        Proyecto proyecto = proyectoService.findProyectoById(id);
         List<Aportacion> aportaciones = aportacionService.findByProyecto(proyecto);
 
         model.addAttribute("proyecto", proyecto);

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 /**
  * Clase Libro
  * Representa los libros generados por proyectos
+ * @author uthor Natalia Fernández
+ * @version 1
  */
 @Entity
 @Table(name = "libro")
@@ -23,6 +25,8 @@ public class Libro {
     private String formato;
     private int copias;
     private int paginas;
+
+    //Getters y setters
 
     public Long getLibroId() {
         return libroId;
@@ -72,6 +76,7 @@ public class Libro {
         this.proyecto = proyecto;
     }
 
+    //toString
     @Override
     public String toString() {
         return "Libro{" +

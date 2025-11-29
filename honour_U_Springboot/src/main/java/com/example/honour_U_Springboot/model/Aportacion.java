@@ -27,9 +27,9 @@ public class Aportacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "aportacion_id", nullable = false)
     private Long aportacionId;
-    @Column(name= "mensaje", nullable = false)
+    @Column(name= "mensaje", nullable = true)
     private String mensaje;
-    @Column(name= "remitente", nullable = false)
+    @Column(name= "remitente", nullable = true)
     private String remitente;
     @Column(name= "url", nullable = true)
     private String url;

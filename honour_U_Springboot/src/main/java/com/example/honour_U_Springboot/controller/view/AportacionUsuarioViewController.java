@@ -154,17 +154,28 @@ public class AportacionUsuarioViewController {
                                     HttpSession session,
                                     HttpServletRequest request, Model model) throws Exception {
 
-        // Validación mínima
-        if (aportacion.getRemitente() == null || aportacion.getRemitente().isBlank()) {
-            model.addAttribute("error", "El remitente no puede estar vacío");
-            return "usuario/nuevaAportacion"; // plantilla del formulario
-        }
-        if (aportacion.getMensaje() == null || aportacion.getMensaje().isBlank()) {
-            model.addAttribute("error", "El mensaje no puede estar vacío");
-            return "usuario/nuevaAportacion"; // plantilla del formulario
-        }
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
+
+//        // Validación mínima
+        if (aportacion.getPageType() == Aportacion.PageType.NORMAL) {
+
+            if (aportacion.getRemitente() == null || aportacion.getRemitente().isBlank()) {
+                model.addAttribute("error", "El remitente no puede estar vacío");
+                return "usuario/nuevaAportacion";
+            }
+
+            if (aportacion.getMensaje() == null || aportacion.getMensaje().isBlank()) {
+                model.addAttribute("error", "El mensaje no puede estar vacío");
+                return "usuario/nuevaAportacion";
+            }
+
+        } else {
+            // Para PORTADA / INDICE / BLANCA permitimos null
+            aportacion.setRemitente(null);
+            aportacion.setMensaje(null);
+        }
+
 
         String sessionKey = "ownerKey:" + token;
         String cookieName = cookieNameFor(token);
@@ -243,6 +254,7 @@ public class AportacionUsuarioViewController {
                                    Model model,
                                    HttpSession session,
                                    HttpServletRequest request) throws Exception {
+
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 

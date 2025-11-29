@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 /**
  * Clase direcciones
  * Representa las direcciones a las que se envía el libro
+ * @author Natalia Fernández
+ * @version 1
  */
 @Entity
 @Table(name = "direccion")
@@ -32,6 +34,7 @@ public class Direccion {
     @Column(name = "pais", nullable=false)
     private String pais;
 
+    //Getters y setters
     public Long getDireccionId() {
         return direccionId;
     }
@@ -92,6 +95,7 @@ public class Direccion {
         this.destinatario = destinatario;
     }
 
+    //toString
     @Override
     public String toString() {
         return "Direccion{" +

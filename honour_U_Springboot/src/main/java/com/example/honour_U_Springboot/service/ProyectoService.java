@@ -6,6 +6,7 @@ import com.example.honour_U_Springboot.dto.ProyectoDTO;
 import com.example.honour_U_Springboot.repository.ProyectoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 /**
  * Clase ProyectoService
  * Contiene la lógica de negocio para la clase Proyecto
+ * @author Natalia Fernández
+ * @version 1
  */
 @Service
 public class ProyectoService {
@@ -24,18 +27,39 @@ public class ProyectoService {
     private ProyectoRepository proyectoRepository;
 
     /**
-     * Método saveProyecto, para guardar el proyecto en la base de datos y genera un token único si no existe,
-     * a través de un Identificador Universalmente Único (UUID).
-     * @param proyecto
-     * @return proyecto salvado
+     * Método para salvar un proyecto
+     * @param proyecto recibido desde el formulario
+     * Genera un token público de aportaciones (tokenURL)
+     * Genera un token para el panel de control del organizador (adminToken)
+     * Construye URLs para aportaciones y panel de control
+     * @return proyecto guardado con tokes y urls
      */
     public Proyecto saveProyecto (Proyecto proyecto){
-        // Genera un token único solo si no existe
-        if (proyecto.getTokenUrl() == null || proyecto.getTokenUrl().isEmpty()) {
+        // Generar token público si no existe
+        if (proyecto.getTokenUrl() == null || proyecto.getTokenUrl().isBlank()) {
             proyecto.setTokenUrl(UUID.randomUUID().toString());
         }
-        //Llamamos al metodo save() de ProyectoRepository, que guarda el proyecto
-        //en la base de datos
+
+        // Generar token admin si no existe
+        if (proyecto.getAdminToken() == null || proyecto.getAdminToken().isBlank()) {
+            proyecto.setAdminToken(UUID.randomUUID().toString());
+        }
+
+        // Construcción de la URL base del servidor
+        String base = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        // Crear los enlaces finales
+        String linkAportaciones = base + "/proyectos/token/" + proyecto.getTokenUrl() + "/aportaciones";
+        String linkAdmin        = base + "/proyectos/admin/" + proyecto.getAdminToken() + "/panel";
+
+        // Asignar URLs al proyecto
+        proyecto.setUrlProyecto(linkAportaciones);
+        proyecto.setUrlAdmin(linkAdmin);
+
+        // Persistencia final
         return proyectoRepository.save(proyecto);
     }
 
@@ -116,15 +140,15 @@ public class ProyectoService {
         proyecto.setUrlProyecto(proyectoDTO.getUrlProyecto());
         proyecto.setPlazoFinalizacion(proyectoDTO.getPlazoFinalizacion());
 
-        // Genera adminToken si no viene
+        // Genera token para el panel si no existe
         if (proyecto.getAdminToken() == null || proyecto.getAdminToken().isBlank()) {
             proyecto.setAdminToken(java.util.UUID.randomUUID().toString());
         }
 
-        // (si también quieres generar tokenUrl aquí, haz algo parecido)
-        // if (proyecto.getTokenUrl() == null || proyecto.getTokenUrl().isBlank()) {
-        //     proyecto.setTokenUrl(java.util.UUID.randomUUID().toString());
-        // }
+         //Genera token de aportaciones
+         if (proyecto.getTokenUrl() == null || proyecto.getTokenUrl().isBlank()) {
+             proyecto.setTokenUrl(java.util.UUID.randomUUID().toString());
+         }
 
 
         Proyecto guardado = proyectoRepository.save(proyecto);
@@ -173,22 +197,7 @@ public class ProyectoService {
         return new ProyectoDTO(updatedProyecto); // Retornar el ProyectoDTO actualizado
     }
 
-    /**
-     * Método findAll para encontrar todos los proyectos
-     * @return una lista con todos los proyectos
-     */
-    public List<Proyecto> findAll() {
-        return proyectoRepository.findAll();
-    }
 
-    /**
-     * Método para encontrar los proyectos por ID
-     * @param id del proyecto a encontrar
-     * @return el proyecto encontrado
-     */
-    public Proyecto findById(Long id) {
-        return proyectoRepository.findById(id).orElse(null);
-    }
 
 
     //Método para buscar por adminToken

@@ -11,6 +11,8 @@ import java.util.Set;
 /**
  * Clase destinatario,
  * Representa el destinatario al que se le envía el libro
+ * @author Natalia Fernández
+ * @version 1
  */
 @Entity
 @Table(name = "destinatario")
@@ -30,6 +32,7 @@ public class Destinatario {
     @Column (name = "email", nullable = false)
     private String email;
 
+    //Getters y setters
     public Long getDestinatarioId() {
         return destinatarioId;
     }
@@ -78,6 +81,7 @@ public class Destinatario {
         this.libro = libro;
     }
 
+    //toString
     @Override
     public String toString() {
         return "Destinatario{" +
@@ -98,7 +102,7 @@ public class Destinatario {
     private Libro libro;
 
     //Relación destinatario-dirección 1 a muchos bidireccional
-    @JsonIgnore
+    @JsonIgnore //evita la recursión infinita
     @OneToMany (mappedBy = "destinatario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Direccion> direcciones = new HashSet<>();
     //Getters y setters de direcciones

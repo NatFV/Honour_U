@@ -33,10 +33,10 @@ public class LibroViewController {
      * @return vista actualizada con la lista de libros
      */
     @PostMapping("/libros")
-    public String guardarLibro(@ModelAttribute Libro libro) {
+    public String guardarLibro(@ModelAttribute Libro libro) throws Exception {
         Long proyectoId = libro.getProyecto() != null ? libro.getProyecto().getProyectoId() : null;
         if (proyectoId != null) {
-            Proyecto proyecto = proyectoService.findById(proyectoId); // tu método para buscar proyecto
+            Proyecto proyecto = proyectoService.findProyectoById(proyectoId); // tu método para buscar proyecto
             libro.setProyecto(proyecto);
         }
         libroService.saveLibro(libro);
@@ -54,7 +54,7 @@ public class LibroViewController {
     public String mostrarFormularioEditar(@PathVariable Long id, Model model) throws Exception {
         Libro libro = libroService.findLibroById(id);
         model.addAttribute("libro", libro);
-        model.addAttribute("proyectos", proyectoService.findAll());
+        model.addAttribute("proyectos", proyectoService.findAllProyectos());
         return "backoffice/editarLibro"; // Vista a crear
     }
 
@@ -92,7 +92,7 @@ public class LibroViewController {
         model.addAttribute("libros", libroService.findAll());
 
         // Solo mostrar proyectos que no tienen libro asociado
-        List<Proyecto> proyectosDisponibles = proyectoService.findAll().stream()
+        List<Proyecto> proyectosDisponibles = proyectoService.findAllProyectos().stream()
                 .filter(p -> p.getLibro() == null)
                 .collect(Collectors.toList());
 
