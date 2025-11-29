@@ -24,6 +24,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Proyecto que gestiona las vistas del panel de organizador
+ * @author Natalia Fernández
+ * @version 1
+ */
 @Controller
 @RequestMapping("/proyectos/admin")
 public class PanelOrganizadorViewController {

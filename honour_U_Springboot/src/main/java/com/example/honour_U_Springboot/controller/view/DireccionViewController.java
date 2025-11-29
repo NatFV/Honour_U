@@ -14,7 +14,9 @@ import java.util.Map;
 
 /**
  * Clase DireccionView Controller
- * Maneja las vistas del controlador
+ * Maneja las vistas del controlador del backoffice de direcciones
+ * @author Natalia Fernández
+ * @version 1
  */
 @Controller
 @RequestMapping("/backoffice")

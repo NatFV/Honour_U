@@ -89,6 +89,7 @@
 
 <th:block layout:fragment="scripts">
     <script>
+        <!--Hace que el texto que escribe el usuario en los editores se guarde correctamente.-->
         document.addEventListener('DOMContentLoaded', () => {
             const editorRemitente = document.getElementById('editorRemitente');
             const editorMensaje = document.getElementById('editorMensaje');
@@ -110,6 +111,7 @@
         });
     </script>
     <script>
+        <!--Implementa zona para subir múltiples archivos y prepara archivos para envío del formulario-->
         document.addEventListener('DOMContentLoaded', () => {
             const zonaDrop = document.getElementById('zonaDrop');
             const previewNuevos = document.getElementById('preview-nuevos');

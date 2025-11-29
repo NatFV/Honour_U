@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Proyecto que gestiona el backoffice de proyectos
+ * Proyecto que gestiona las vistas del controlador para el backoffice de proyectos
  * @author Natalia
  * @version 1
  */

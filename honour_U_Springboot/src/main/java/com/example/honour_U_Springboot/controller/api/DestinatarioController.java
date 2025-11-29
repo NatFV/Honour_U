@@ -22,7 +22,11 @@ public class DestinatarioController {
     @Autowired
     private DestinatarioService destinatarioService; // Servicio que manejará la lógica de negocio para Destinatarios
 
-    // Crear un nuevo destinatario
+    /**
+     * Método para crear un Destinatario
+     * @param destinatarioDTO
+     * @return respuesta created o internal server error
+     */
     @PostMapping
     public ResponseEntity<DestinatarioDTO> createDestinatario(@RequestBody DestinatarioDTO destinatarioDTO) {
         try {
@@ -34,7 +38,10 @@ public class DestinatarioController {
         }
     }
 
-    // Obtener todos los destinatarios
+    /**
+     * Método para obtener todos los destinatarios
+     * @return lista de todos los destinatarios
+     */
     @GetMapping
     public ResponseEntity<List<DestinatarioDTO>> findAllDestinatarios() {
         try {
@@ -51,7 +58,8 @@ public class DestinatarioController {
     }
     /**
      * Método para obtener destinatarios con dos direcciones
-     * @return
+     * @return mensaje de ok y destinatarios si los encuentra
+     *
      */
     @GetMapping("/filtro/dos-direcciones")
     public ResponseEntity<Destinatario> getDestinatarioConDosDirecciones() {
@@ -61,7 +69,12 @@ public class DestinatarioController {
         }
         return ResponseEntity.ok(destinatario);
     }
-    // Obtener un destinatario por ID
+
+    /**
+     * Método para buscar destinatario por IP
+     * @param id del destinatario
+     * @return mensaje con el destinatario encontrado o error
+     */
     @GetMapping("/{id}")
     public ResponseEntity<DestinatarioDTO> findDestinatarioByIdAPI(@PathVariable Long id) {
         try {
@@ -76,7 +89,12 @@ public class DestinatarioController {
         }
     }
 
-    // Actualizar un destinatario por ID
+    /**
+     * Método para actualizar un destinatario
+     * @param id
+     * @param updatedDestinatarioDTO
+     * @return mensaje con destinatario actualizado
+     */
     @PutMapping("/{id}")
     public ResponseEntity<DestinatarioDTO> updateDestinatarioAPI(@PathVariable Long id, @RequestBody DestinatarioDTO updatedDestinatarioDTO) {
         try {
@@ -88,7 +106,11 @@ public class DestinatarioController {
         }
     }
 
-    // Eliminar un destinatario por ID
+    /**
+     * Método para borrar destinatario
+     * @param id del destinatario
+     * @return mensaje de ok o error al borrar el destinatario
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDestinatario(@PathVariable Long id) {
         try {

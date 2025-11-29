@@ -117,11 +117,13 @@
 <!-- ================== SCRIPTS SOLO DEL PANEL ================== -->
 <th:block layout:fragment="scripts">
     <!-- Sortable solo aquí, no en la vista de usuario -->
+    <!-- Se carga la libreía Sortable JS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <script th:inline="javascript">
         (() => {
             // Elementos del panel (ids únicos para no chocar con otras vistas)
+            //Se obtiene el grid y el botón
             const grid = document.getElementById('grid-admin');
             const btn  = document.getElementById('btnGuardarOrden');
             if (!grid || !btn) return;
@@ -130,19 +132,19 @@
             const ADMIN_TOKEN = /*[[${proyecto.adminToken}]]*/ "";
             const ORDEN_URL   = `/proyectos/admin/${ADMIN_TOKEN}/orden`;
 
-            // Habilitar drag & drop
+            // Se activa SortableJS en el grid
             new Sortable(grid, {
                 animation: 150,
                 ghostClass: 'drag-ghost',
                 handle: '.handle'
             });
 
-            // Guardar orden
+            // Guardar orden al pulsar el botón
             let saving = false;
             btn.addEventListener('click', async () => {
                 if (saving) return;
                 saving = true;
-
+                //Recoge los IDs de los hijos del grid con el nuevo orden
                 try {
                     const ids = Array.from(grid.children)
                         .map(el => el.id)
@@ -150,12 +152,13 @@
                         .map(s => Number(s.replace('item-','')))
                         .filter(n => !Number.isNaN(n));
 
+                    //Envía el orden al backend vía POST
                     const res = await fetch(ORDEN_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(ids)
                     });
-
+                    //Manejo de errores y confirmación
                     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
                     alert('Orden guardado');
                 } catch (e) {

@@ -128,13 +128,5 @@ public class LibroController {
         return ResponseEntity.ok(libros);
     }
 
-    @PostMapping("/libros")
-    public String guardarLibro(@ModelAttribute Libro libro, @RequestParam("proyectoId") Long proyectoId) throws Exception {
-        Proyecto proyecto = proyectoService.findProyectoById(proyectoId);
-        libro.setProyecto(proyecto); // Asignamos el proyecto al libro
-
-        libroService.saveLibro(libro); // Persistimos el libro con la FK al proyecto
-        return "redirect:/proyectos";
-    }
 
 }

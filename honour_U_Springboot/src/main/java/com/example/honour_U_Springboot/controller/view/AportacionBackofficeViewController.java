@@ -15,6 +15,8 @@ import java.util.List;
  * Clase AportacionBackofficeViewController
  * Maneja las vistas del controlador para el backoffice del listado de aportaciones
  * Permite editar,crear, eliminar y actualizar aportaciones desde el backoffice
+ * @author Natalia Fernández
+ * @version 1
  */
 @Controller
 @RequestMapping("/backoffice/proyectos")

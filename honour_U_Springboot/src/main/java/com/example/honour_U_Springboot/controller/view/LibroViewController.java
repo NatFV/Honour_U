@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 
 /**
  * Clase LibroViewController
- * Maneja las vistas del controlador
+ * Maneja las vistas del controlador para el backoffice del listado de libros
+ * @author Natalia Fernández
+ * @version 1
  */
 @Controller
 @RequestMapping("/backoffice")
@@ -113,13 +115,6 @@ public class LibroViewController {
         }
         return "backoffice/listaLibros";
     }
-
-    @Bean
-    public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
-        return new HiddenHttpMethodFilter();
-    }
-
-
 
 
 }

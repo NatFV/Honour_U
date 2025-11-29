@@ -13,7 +13,10 @@ import java.util.List;
 
 /**
  * Clase DestinatarioController
- * Maneja las vistas del controlador
+ * Maneja las vistas del controlador para el backoffice de listado de destinatarios
+ * @author Natalia Fernández
+ * @version 1
+ *
  */
 @Controller
 @RequestMapping("/backoffice")
@@ -48,6 +51,11 @@ public class DestinatarioViewController {
     }
 
 
+    /**
+     * Método para guardar destinatarios
+     * @param destinatario que se desea guardar
+     * @return lista actualizada de libros
+     */
     @PostMapping("/destinatarios")
     public String guardarDestinatario(@ModelAttribute Destinatario destinatario) {
         destinatarioService.saveDestinatario(destinatario);

@@ -12,6 +12,8 @@ import java.util.Map;
 /**
  * Clase MapaLibrosController
  * Maneja las vistas del mapa
+ * @author Natalia
+ * @version 1
  */
 @Controller
 @RequestMapping("/backoffice")
