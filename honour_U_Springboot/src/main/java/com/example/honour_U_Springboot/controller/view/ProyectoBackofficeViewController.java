@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Proyecto que gestiona el backoffice de proyectos
+ * @author Natalia
+ * @version 1
+ */
+
 @Controller
 @RequestMapping("/backoffice/proyectos")
 public class ProyectoBackofficeViewController {

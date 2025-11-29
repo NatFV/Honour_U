@@ -17,7 +17,10 @@ import java.util.stream.Collectors;
 
 /**
  * Clase DestinatarioService
- * Contiene la lógica de programación para la clase Service
+ * Contiene la lógica de programación para la clase Destinatario
+ * @author Natalia Fernandez
+ * @version 1
+ *
  */
 @Service
 public class DestinatarioService {
@@ -29,12 +32,11 @@ public class DestinatarioService {
     }
 
 
-
-
+    /** MÉTODOS PARA DESTINATARIO **/
     /**
      * Método para guardar el destinatario en la base de datos.
      * @param destinatario
-     * @return
+     * @return destinatario salvado
      */
     public Destinatario saveDestinatario (Destinatario destinatario){
         //Llamamos al metodo save() de DestinatarioRepository, que guarda el destinatario
@@ -89,6 +91,8 @@ public class DestinatarioService {
         destinatarioRepository.deleteById(id);
     }
 
+
+    /** MÉTODOS PARA DESTINATARIO DTO**/
 
     /**
      * Método para crear un nuevo destinatario desde un DTO

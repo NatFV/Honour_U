@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Clase DireccionController utilizada para las consultas API
+ * Clase DireccionController, gestiona las peticiones HTTP que llegan desde la interfaz de usuario
+ * y se comunica con la capa de servicio para obtener o modificar los datos.
+ * @author Natalia Fernández
+ * @version 1
  */
 @RestController //Hace que los métodos devuelvan JSON directamente
 @RequestMapping("/api/direcciones") // Ruta base para Direcciones

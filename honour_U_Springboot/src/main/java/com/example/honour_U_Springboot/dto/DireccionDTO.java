@@ -5,6 +5,8 @@ import com.example.honour_U_Springboot.model.Destinatario;
 
 /**
  * Clase DTO, utilizada para las consultas API
+ * @author Natalia Fernández
+ * @version 1
  */
 public class DireccionDTO {
 

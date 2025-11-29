@@ -13,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * Clase Proyecto DTO utilizada para las consultas API
+ * @author Natalia Fernández
+ * @version 1
  */
 public class ProyectoDTO {
 
@@ -20,7 +22,6 @@ public class ProyectoDTO {
     private String nombreProyecto;
     private String organizador;
     private String descripcion;
-    private String urlProyecto;
     private LocalDate plazoFinalizacion;
     private Set<AportacionDTO> aportaciones;
 
@@ -36,7 +37,6 @@ public class ProyectoDTO {
         this.nombreProyecto = proyecto.getNombreProyecto();
         this.organizador = proyecto.getOrganizador();
         this.descripcion = proyecto.getDescripcion();
-        this.urlProyecto = proyecto.getUrlProyecto();
         this.plazoFinalizacion = proyecto.getPlazoFinalizacion();
 
         //Añadimos la relación con Aportación
@@ -84,13 +84,6 @@ public class ProyectoDTO {
         this.descripcion = descripcion;
     }
 
-    public String getUrlProyecto() {
-        return urlProyecto;
-    }
-
-    public void setUrlProyecto(String urlProyecto) {
-        this.urlProyecto = urlProyecto;
-    }
 
     public LocalDate getPlazoFinalizacion() {
         return plazoFinalizacion;
@@ -113,6 +106,7 @@ public class ProyectoDTO {
      * Copia los valores de los atributos del DTO al nuevo objeto Proyecto
      * Si el dto tiene una lista de objetos AportacionDTO los convierte a obejtos Aportacion
      * y los agrega a Proyecto
+     * Los urls se generan en el servicio
      * @return un nuevo objeto Proyecto
      */
     public Proyecto toEntity() {
@@ -121,7 +115,6 @@ public class ProyectoDTO {
         proyecto.setNombreProyecto(this.nombreProyecto);
         proyecto.setOrganizador(this.organizador);
         proyecto.setDescripcion(this.descripcion);
-        proyecto.setUrlProyecto(this.urlProyecto);
         proyecto.setPlazoFinalizacion(this.plazoFinalizacion);
 
         // Convertimos cada AportacionDTO en una Aportacion y la añadimos

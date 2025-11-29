@@ -1,4 +1,5 @@
 package com.example.honour_U_Springboot.controller.view;
+
 import com.example.honour_U_Springboot.model.Aportacion;
 import com.example.honour_U_Springboot.model.Proyecto;
 import com.example.honour_U_Springboot.service.AportacionService;
@@ -12,13 +13,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
+/**
+ * Clase AportacionUsuarioViewController
+ * Maneja las vistas del controlador para el manejo de aportaciones por parte del usuario
+ * @author Natalia Fernández
+ * @version 1
+ */
 
 @Controller
 @RequestMapping("/proyectos/token")
@@ -27,27 +35,26 @@ public class AportacionUsuarioViewController {
     @Autowired private AportacionService aportacionService;
     @Autowired private ProyectoService proyectoService;
 
-    // ---------- Cookies ----------
-    //Se utilizan para recordar el autor de las aportaciones en un sistema
-    //sin login para fomentar la colaboración directa de los participantes
+    /** Cookies **/
 
     /**
-     * Método para crear un nombre de cookie por navegador y proyecto
-     * @param token del proyecto
-     * @return un nombre de cookie por proyecto que no rompe las reglas de http
+     * Genera un nombre de cookie seguro a partir del token del proyecto.
+     * Reemplaza cualquier carácter que no sea letra, número, guion o guion bajo por '_'.
+     * Esto evita errores con nombres de cookie que contengan caracteres especiales.
      */
     private String cookieNameFor(String token) {
         return "ok_" + token.replaceAll("[^A-Za-z0-9_-]", "_");
     }
 
     /**
-     * Método para buscaruna cookie guardada previamente
-     * @param request que es la petición que el navegador envía al servidor,
-     *                para que muestre las cookies guardadas
-     * @param name el nombre de la cookie
-     * @return el valor si encuentra la cookie y si no la encuentra devuelve null
-     * De esa manera se podrá editar/eliminar aportación
+     * Busca una cookie concreta en la petición HTTP.
+     * Recorre todas las cookies del request y devuelve el valor si la encuentra.
+     *  Si no existe la cookie o no hay cookies, devuelve null.
+     * @param request petición HTTP que contiene las cookies
+     * @param name Nombre de la cookie a buscar
+     * @return valor de la cookie o null si no se encuentra
      */
+
     private String getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
@@ -55,32 +62,41 @@ public class AportacionUsuarioViewController {
         return null;
     }
 
+    /** LISTAR Y FORMULARIO DE APORTACIONES **/
+
     /**
-     * Método para mostrar aportaciones
-     * @param token del proyecto
-     * @param model que expone los datos a la plantilla de Thymeleaf
-     * @param session almacena datos por usuario para conservarlos entre peticiones
-     * @param request para hacer peticiones al servidor
-     * @param response para recibir respuestas del servidor
-     * @return la vista de nueva Aportación y aportaciones existentes
-     * @throws Exception si no encuentra el proyecto
+     * Método para mostrar el formulario de las aportaciones
+     * Gestiona la ownerKey del usuario mediante sesión y cookies,
+     * identificando aportaciones propias sin usar login
+     * Obtiene y filtra las aportaciones del proyecto en propias, de otros y todas
+     * Prepara atributos necesarios para la vista del formulario de aportaciones
+     * @param token único del proyecto
+     * @param model para pasar datos a la vista
+     * @param session http de usuario para guardar ownerKEY
+     * @param request http, para leer cocokies
+     * @param response respuesta http, para crear cookies si necesario
+     * @return nombre de la vista a mostrar
+     * @throws Exception si no encuentra el token
      */
+
     @GetMapping("/{token}/aportaciones")
     public String mostrarFormularioAportacion(@PathVariable String token,
                                               Model model,
                                               HttpSession session,
                                               HttpServletRequest request,
                                               HttpServletResponse response) throws Exception {
+
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
-        //Captura la ownerkey de la sessión y genera la cookie
-        String sessionKey = "ownerKey:" + token;     // en sesión puede llevar ':'
-        String cookieName = cookieNameFor(token);    // la cookie NO
-        //El servidor busca las ownerkeys disponibles en la sesión y en la cookie
+        // OwnerKey: identifica al visitante sin login
+        //Se intenta recuperar la ownerKey desde la sesión o cookie
+        String sessionKey = "ownerKey:" + token; //clave de la sesión
+        String cookieName = cookieNameFor(token); //nombre de la cookie
         String ownerKey = (String) session.getAttribute(sessionKey);
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
-        //Si no la hay crea una ownerKey y una cookie que dura un máximo de 180 días
+
+        //Si no existe, se genera una nueva ownerKey y se guarda en cookie y sesión
         if (ownerKey == null) {
             ownerKey = UUID.randomUUID().toString();
             Cookie cookie = new Cookie(cookieName, ownerKey);
@@ -91,73 +107,73 @@ public class AportacionUsuarioViewController {
         }
         session.setAttribute(sessionKey, ownerKey);
 
-        // Obtención de todas las aportaciones del proyecto
+        // Obtener aportaciones
         List<Aportacion> todas = aportacionService.findByProyecto(proyecto);
-        //Filtro paraa las aportaciones propias clasificadas como normal
-        //Si la ownerkey de las aportaciones coinciden con las de la sesión, se obtienen
-        //las aportaciones propias
-        String finalOwnerKey = ownerKey;
+
+        // Filtrar aportaciones propias (NORMAL y ownerKey coincide)
+        final String finalOwnerKey = ownerKey;
         List<Aportacion> mias = todas.stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
                 .filter(a -> finalOwnerKey.equals(a.getOwnerKey()))
                 .toList();
 
-        // Filtro para  obtener las aportaciones de otros participantes
-        // Si la ownerkey es distinta de null y no es una página en blanco se obtiene
-        //las aportaciones de otros participantes
-        String finalOwnerKey1 = ownerKey;
+
+        // Filtrar aportaciones de otros participantes (NORMAL y ownerKey distinto)
+        final String finalOwnerKey1 = ownerKey;
         List<Aportacion> otras = todas.stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
                 .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .filter(a -> !finalOwnerKey1.equals(a.getOwnerKey()))
                 .toList();
 
-        //lista única ORDENADA y filtrada en servidor
-        List<Aportacion> ordenadas = aportacionService.findByProyectoOrderado(proyecto)
-                .stream()
-                .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
-                .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
-                .toList();
-
-        //Se trasladan los datos del controlador a la vista (Thymeleaf)
-        model.addAttribute("proyecto", proyecto);
-        model.addAttribute("nuevaAportacion", new Aportacion());
-        model.addAttribute("mias", mias);
-        model.addAttribute("otras", otras);
-       // model.addAttribute("sessionOwnerKey", ownerKey); // por si lo necesitas en la vista
-
-        // Cargar aportaciones ordenadas
+        // Aportaciones normales ordenadas para mostrar en la vista
         List<Aportacion> aportaciones = aportacionService.findByProyectoOrderado(proyecto)
                 .stream()
                 .filter(a -> a.getPageType() == Aportacion.PageType.NORMAL)
                 .filter(a -> a.getOwnerKey() != null && !a.getOwnerKey().isBlank())
                 .toList();
+
+        // --- Pasar datos a la vista ---
+        model.addAttribute("proyecto", proyecto);
+        model.addAttribute("nuevaAportacion", new Aportacion());
+        model.addAttribute("mias", mias);
+        model.addAttribute("otras", otras);
         model.addAttribute("aportaciones", aportaciones);
 
         return "usuario/nuevaAportacion";
     }
 
+    /** CREAR APORTACIÓN **/
     /**
-     * Método para guardar aportaciones
+     * Método para guardar una aportación de un proyecto
+     * Busca el proyecto por token
+     * Valida campos de aportaciones tipo NORMAL
+     * Guarda inicialmente aportación para obtener ID y orden
+     * Si hay archivos los guarda en carpetas y genera sus URLSs
+     * Actualiza las aportaciones con las url de las imágenes y la url principal
+     * Guarda de nuevo la aportación con datos completos
      * @param token del proyecto
-     * @param aportacion a guardar
-     * @param imagenes a guardar
-     * @param session almacena datos por usuario para conservarlos entre peticiones
-     * @param request para hacer peticiones
-     * @return el link con las aportaciones actualizadas
-     * @throws Exception si no encuentra proyecto
+     * @param aportacion objeto aportación recibida desde el formulario
+     * @param imagenes (opcionales)
+     * @param session http del usuario para guardar la ownerKey
+     * @param request solicitud http para leer las cookies
+     * @param model para enviar mensajes de error a la vista
+     * @return redirección a la página de aportaciones del proyecto
+     * @throws Exception si no encuentra el tocken
      */
+
     @PostMapping("/{token}/aportaciones")
     public String guardarAportacion(@PathVariable String token,
                                     @ModelAttribute("nuevaAportacion") Aportacion aportacion,
                                     @RequestParam(value = "imagenes", required = false) MultipartFile[] imagenes,
                                     HttpSession session,
-                                    HttpServletRequest request, Model model) throws Exception {
+                                    HttpServletRequest request,
+                                    Model model) throws Exception {
 
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
         if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
-//        // Validación mínima
+        // Validaciones
         if (aportacion.getPageType() == Aportacion.PageType.NORMAL) {
 
             if (aportacion.getRemitente() == null || aportacion.getRemitente().isBlank()) {
@@ -171,83 +187,84 @@ public class AportacionUsuarioViewController {
             }
 
         } else {
-            // Para PORTADA / INDICE / BLANCA permitimos null
             aportacion.setRemitente(null);
             aportacion.setMensaje(null);
         }
 
-
+        // OwnerKey
         String sessionKey = "ownerKey:" + token;
         String cookieName = cookieNameFor(token);
         String ownerKey = (String) session.getAttribute(sessionKey);
+
         if (ownerKey == null) ownerKey = getCookie(request, cookieName);
         if (ownerKey == null) {
             ownerKey = UUID.randomUUID().toString();
             session.setAttribute(sessionKey, ownerKey);
         }
 
-        if (aportacion.getRemitente() == null || aportacion.getRemitente().isBlank())
-            aportacion.setRemitente("Anónimo");
-        if (aportacion.getMensaje() == null) aportacion.setMensaje("");
-
         aportacion.setOwnerKey(ownerKey);
         aportacion.setProyecto(proyecto);
         aportacion.setPageType(Aportacion.PageType.NORMAL);
 
-        // Guarda temporalmente para generar el ID
+        // 1) PRIMER GUARDADO → Genera ID y orden
         aportacionService.saveAportacion(aportacion);
         Long idGenerado = aportacion.getAportacionId();
 
-        // Subida de archivos
-        //Creación de carpetas en disco
-        //Ruta final:
+        // 2) Manjeo de archivos
         String baseDir = System.getProperty("user.dir") + "/uploads/"
                 + proyecto.getTokenUrl() + "/" + idGenerado + "/";
         Path carpeta = Paths.get(baseDir);
         Files.createDirectories(carpeta);
 
-        //Creación de una lista para guardar URLS de los archivos
         List<String> urls = new ArrayList<>();
+
         if (imagenes != null) {
             for (MultipartFile img : imagenes) {
                 if (img == null || img.isEmpty()) continue;
+
                 String original = img.getOriginalFilename();
-                //quita caracteres raros y le antepone un timestamp para evitar colisiones
                 String safe = System.currentTimeMillis() + "_" +
                         (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "archivo");
+
                 Path destino = carpeta.resolve(safe);
                 img.transferTo(destino.toFile());
+
                 String urlRel = "/uploads/" + proyecto.getTokenUrl() + "/" + idGenerado + "/" + safe;
                 urls.add(urlRel);
             }
         }
-        //guarda los urls en la entidad de aportación
+
         aportacion.setMediaUrls(urls);
 
-        // Siempre asigna una URL (sea archivo o enlace de visualización)
         if (urls.isEmpty()) {
             aportacion.setUrl("/proyectos/token/" + token + "/aportaciones/" + idGenerado + "/ver");
         } else {
-            // O si quieres usar la primera imagen/video como URL principal
             aportacion.setUrl(urls.get(0));
         }
 
-        // Guardar definitivamente con URL ya completa
+        // 3) SEGUNDO GUARDADO → Sin recalcular orden/URL
         aportacionService.saveAportacion(aportacion);
 
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 
+    /** EDITAR APORTACIÓN **/
+
     /**
      * Método para editar aportación
+     * Encuentra proyecto por token
+     * Abre la owner key en la sesión y la cookie para editarla
+     * (si no se encuentra no se puede editar)
+     * obtiene la aportación a editar
      * @param token del proyecto
-     * @param aportacionId
-     * @param model para exponer los datos a la plantilla de Thymeleaf
-     * @param session almacena datos por usuario para conservarlos entre peticiones
-     * @param request para hacer peticiones
-     * @return el formulario para editar aportación
-     * @throws Exception si no encuentra el proyecto
+     * @param aportacionId id de la aportación
+     * @param model para ver los datos en la vista
+     * @param session http del usuario para obtener la ownerKey
+     * @param request solicitud http para leer las cookies
+     * @return la vista con la aportación a editar
+     * @throws Exception si no se encuentra el proyecto o la aportación
      */
+
     @GetMapping("/{token}/aportaciones/{aportacionId}/editar")
     public String editarAportacion(@PathVariable String token,
                                    @PathVariable Long aportacionId,
@@ -261,10 +278,8 @@ public class AportacionUsuarioViewController {
         Aportacion aport = aportacionService.findAportacionById(aportacionId);
         if (aport == null) throw new Exception("Aportación no encontrada");
 
-        String sessionKey = "ownerKey:" + token;
-        String cookieName = cookieNameFor(token);
-        String ownerKey = (String) session.getAttribute(sessionKey);
-        if (ownerKey == null) ownerKey = getCookie(request, cookieName);
+        String ownerKey = (String) session.getAttribute("ownerKey:" + token);
+        if (ownerKey == null) ownerKey = getCookie(request, cookieNameFor(token));
 
         if (ownerKey == null || !ownerKey.equals(aport.getOwnerKey())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes editar esta aportación");
@@ -272,20 +287,26 @@ public class AportacionUsuarioViewController {
 
         model.addAttribute("proyecto", proyecto);
         model.addAttribute("aportacion", aport);
+
         return "usuario/editarAportacion";
     }
 
+    /** EDICIÓN DE APORTACIONES **/
+
     /**
-     * Método para editar aportación (POST)
+     * Método para actualizar la aportación
+     * Busca en la sesión el ownerkey y la cookie
+     * Actualiza texto e imágenes
      * @param token del proyecto
-     * @param aportacionId
-     * @param form con la aportación a editar
-     * @param nuevasImagenes en caso de que se añadan
-     * @param session almacena datos por usuario para conservarlos entre peticiones
-     * @param request para hacer peticiones
-     * @return el link con las aportaciones actualizadas
-     * @throws Exception si no encuentra el proyecto
+     * @param aportacionId id de la aportación
+     * @param form formulario con la información
+     * @param nuevasImagenes (opcional) nuevas imágenes para actualizar aportaciones
+     * @param session http del usuario para obtener la ownerKey
+     * @param request solicitud http para leer las cookies
+     * @return la página de aportaciones actualizada
+     * @throws Exception si la aportación no se puede editar al no encontrar cookie guardada
      */
+
     @PostMapping("/{token}/aportaciones/{aportacionId}/editar")
     public String actualizarAportacion(@PathVariable String token,
                                        @PathVariable Long aportacionId,
@@ -294,39 +315,29 @@ public class AportacionUsuarioViewController {
                                        HttpSession session,
                                        HttpServletRequest request) throws Exception {
 
+
         Proyecto proyecto = proyectoService.findByTokenUrl(token);
-        if (proyecto == null) throw new Exception("Proyecto no encontrado");
-
         Aportacion aport = aportacionService.findAportacionById(aportacionId);
-        if (aport == null) throw new Exception("Aportación no encontrada");
 
-        String sessionKey = "ownerKey:" + token;
-        String cookieName = cookieNameFor(token);
-        String ownerKey = (String) session.getAttribute(sessionKey);
-        if (ownerKey == null) ownerKey = getCookie(request, cookieName);
-        if (ownerKey == null || !ownerKey.equals(aport.getOwnerKey())) {
+        String ownerKey = (String) session.getAttribute("ownerKey:" + token);
+        if (ownerKey == null) ownerKey = getCookie(request, cookieNameFor(token));
+
+        if (!ownerKey.equals(aport.getOwnerKey())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes editar esta aportación");
         }
 
-        // Actualizar texto
-        aport.setMensaje(form.getMensaje() == null ? "" : form.getMensaje());
-        aport.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank())
-                ? "Anónimo"
-                : form.getRemitente());
-        aport.setEsVisible(form.isEsVisible());
-        aport.setPageType(Aportacion.PageType.NORMAL);
+        // 1) Actualizar texto mediante service (lógica de negocio)
+        aportacionService.updateAportacion(aportacionId, form);
 
-        // Obtener los medios actuales
-        List<String> urls = (aport.getMediaUrls() != null)
-                ? new ArrayList<>(aport.getMediaUrls())
-                : new ArrayList<>();
+        // 2) Manejar archivos (solo si hay nuevos)
+        List<String> urls = new ArrayList<>();
 
-        // Reemplazar medios anteriores si se suben nuevos
         if (nuevasImagenes != null && nuevasImagenes.length > 0) {
 
-            // Borrar archivos del disco
             Path dir = Paths.get(System.getProperty("user.dir"), "uploads",
-                    proyecto.getTokenUrl(), String.valueOf(aport.getAportacionId()));
+                    proyecto.getTokenUrl(),
+                    String.valueOf(aport.getAportacionId()));
+
             try {
                 if (Files.exists(dir)) {
                     Files.walk(dir)
@@ -335,11 +346,7 @@ public class AportacionUsuarioViewController {
                 }
             } catch (Exception ignore) {}
 
-            urls.clear(); // <-- borrar lista de URLs anteriores
-        }
-
-        // Subir nuevos archivos
-        if (nuevasImagenes != null && nuevasImagenes.length > 0) {
+            // Subir nuevos
             String baseDir = System.getProperty("user.dir") + "/uploads/"
                     + proyecto.getTokenUrl() + "/" + aport.getAportacionId() + "/";
             Path carpeta = Paths.get(baseDir);
@@ -347,49 +354,46 @@ public class AportacionUsuarioViewController {
 
             for (MultipartFile img : nuevasImagenes) {
                 if (img == null || img.isEmpty()) continue;
+
                 String original = img.getOriginalFilename();
                 String safe = System.currentTimeMillis() + "_" +
                         (original != null ? original.replaceAll("[^a-zA-Z0-9._-]", "_") : "archivo");
+
                 Path destino = carpeta.resolve(safe);
                 img.transferTo(destino.toFile());
 
                 String urlRel = "/uploads/" + proyecto.getTokenUrl() + "/" + aport.getAportacionId() + "/" + safe;
                 urls.add(urlRel);
             }
+
+            aport.setMediaUrls(urls);
+            aport.setUrl(urls.isEmpty()
+                    ? "/proyectos/token/" + token + "/aportaciones/" + aport.getAportacionId() + "/ver"
+                    : urls.get(0));
+
+            aportacionService.saveAportacion(aport);
         }
-
-        // Guardar URLs actualizadas
-        aport.setMediaUrls(urls);
-
-        // Actualizar la URL general (enlace para ver la aportación)
-        aport.setUrl(urls.isEmpty()
-                ? "/proyectos/token/" + token + "/aportaciones/" + aport.getAportacionId() + "/ver"
-                : urls.get(0));
-
-        aportacionService.saveAportacion(aport);
 
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 
-
+    /** VER APORTACIÓN **/
     /**
-     * Método para mostrar las aportaciones de otros participantes
-     * en caso de ser visibles
+     * Método para mostrar la aportación si es pública
      * @param token del proyecto
-     * @param aportacionId
-     * @param model que expone los datos a la plantilla de Thymeleaf
-     * @return el formulario ver Aportación
-     * @throws Exception si no encuentra el proyecto
+     * @param aportacionId id de la aportación
+     * @param model Modelo para pasar los datos a la vista
+     * @return la aportación
+     * @throws Exception si no es visible
      */
+
     @GetMapping("/{token}/aportaciones/{aportacionId}/ver")
     public String verAportacionPublica(@PathVariable String token,
                                        @PathVariable Long aportacionId,
                                        Model model) throws Exception {
-        Proyecto proyecto = proyectoService.findByTokenUrl(token);
-        if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
+        Proyecto proyecto = proyectoService.findByTokenUrl(token);
         Aportacion aport = aportacionService.findAportacionById(aportacionId);
-        if (aport == null) throw new Exception("Aportación no encontrada");
 
         if (!aport.isEsVisible()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Aportación no visible");
@@ -397,44 +401,48 @@ public class AportacionUsuarioViewController {
 
         model.addAttribute("proyecto", proyecto);
         model.addAttribute("aportacion", aport);
+
         return "usuario/verAportacion";
     }
 
     /**
-     * Método para eliminar aportaciones
+     * Método para eliminar aportación
+     * Encuentra la aportación por proyecto y id
+     * Busca la cookie en la sesión en la que está guardada la ownerKewy
      * @param token del proyecto
-     * @param aportacionId
-     * @param session almacena datos por usuario para conservarlos entre peticiones
-     * @param request para hacer peticiones
-     * @return el link con la lista actualizada de aportaciones
-     * @throws Exception si no encuentra el proyecto
+     * @param aportacionId id de la aportación
+     * @param session http del usuario que guarda la ownerKey
+     * @param request solicitud http para leer cookies
+     * @return la vista de las aportaciones actualizadas
+     * @throws Exception si no encuentra la cookie o si la aportación no es de tipo NORMAL
      */
+
     @PostMapping("/{token}/aportaciones/{aportacionId}/eliminar")
     public String eliminarAportacion(@PathVariable String token,
                                      @PathVariable Long aportacionId,
                                      HttpSession session,
                                      HttpServletRequest request) throws Exception {
-        Proyecto proyecto = proyectoService.findByTokenUrl(token);
-        if (proyecto == null) throw new Exception("Proyecto no encontrado");
 
+        Proyecto proyecto = proyectoService.findByTokenUrl(token);
         Aportacion aport = aportacionService.findAportacionById(aportacionId);
-        if (aport == null) throw new Exception("Aportación no encontrada");
+
         if (aport.getPageType() != Aportacion.PageType.NORMAL) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar portada/índice");
         }
 
-        String sessionKey = "ownerKey:" + token;
-        String cookieName = cookieNameFor(token);
-        String ownerKey = (String) session.getAttribute(sessionKey);
-        if (ownerKey == null) ownerKey = getCookie(request, cookieName);
-        if (ownerKey == null || !ownerKey.equals(aport.getOwnerKey())) {
+        String ownerKey = (String) session.getAttribute("ownerKey:" + token);
+        if (ownerKey == null) ownerKey = getCookie(request, cookieNameFor(token));
+
+        if (!ownerKey.equals(aport.getOwnerKey())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar esta aportación");
         }
 
-        // (Opcional) borrar archivos del disco
+        // Borrar archivos físicos
         try {
             Path dir = Paths.get(System.getProperty("user.dir"), "uploads",
-                    proyecto.getTokenUrl(), String.valueOf(aport.getAportacionId()));
+                    proyecto.getTokenUrl(),
+                    String.valueOf(aport.getAportacionId()));
+
             if (Files.exists(dir)) {
                 Files.walk(dir)
                         .sorted(Comparator.reverseOrder())
@@ -442,10 +450,9 @@ public class AportacionUsuarioViewController {
             }
         } catch (Exception ignore) {}
 
-        //Sincronizamos del lado padre (Esto limpia la lista en memoria en el mismo momento del borrado)
         proyecto.getAportaciones().removeIf(a -> a.getAportacionId().equals(aportacionId));
-
         aportacionService.deleteAportacionById(aportacionId);
+
         return "redirect:/proyectos/token/" + token + "/aportaciones";
     }
 

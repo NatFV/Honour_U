@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Clase AportaciónController utilizada para las consultas API
- *
+ * Clase AportacionController, gestiona las peticiones HTTP que llegan desde la interfaz de usuario
+ * y se comunica con la capa de servicio para obtener o modificar los datos.
+ * @author Natalia Fernández
+ * @version 1
  */
 
 @RestController //Hace que los métodos devuelvan JSON directamente

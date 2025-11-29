@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+/**
+ * Clase LibroService, contiene la lógica de la clase Libro
+ * @author Natalia
+ * @version 1
+ */
 @Service
 public class LibroService {
     @Autowired
@@ -25,10 +31,11 @@ public class LibroService {
         this.proyectoRepository = proyectoRepository;
     }
 
+    /**CREACIÓN DE LIBROS**/
     /**
      * Método para guardar el libro en la base de datos.
-     * @param libro
-     * @return
+     * @param libro que se desea guardar
+     * @return libro guardado
      */
     public Libro saveLibro (Libro libro){
         //Llamamos al metodo save() de ProyectoRepository, que guarda el proyecto
@@ -37,24 +44,28 @@ public class LibroService {
     }
 
     /**
-     * Método para obtener el libro por su ID
-     * @param id
-     * @return libro
+     * Método para crear un libro DTO
+     * @param libroDTO que se desea guardar
+     *                 Se hace un set con los atributos que se desean guardar
+     * @return libro guardado
      */
-    public Libro findLibroById(Long id)throws Exception {
+    public LibroDTO createLibroFromDTOAPI(LibroDTO libroDTO) {
+        Libro libro = new Libro();
+        libro.setTituloLibro(libroDTO.getTituloLibro());
+        libro.setFormato(libroDTO.getFormato());
+        libro.setCopias(libroDTO.getCopias());
+        libro.setPaginas(libroDTO.getPaginas());
 
-        return libroRepository.findById(id)
-                .orElseThrow(() -> new Exception("Proyecto not found with id " + id));
+        // Si el DTO tiene un proyecto, lo seteamos
+        if (libroDTO.getProyecto() != null) {
+            libro.setProyecto(libroDTO.getProyecto().toEntity());
+        }
+
+        libro = libroRepository.save(libro);
+        return new LibroDTO(libro);
     }
 
-    /**
-     * Método para obtener todos los libros
-     * @return una lista con todos los libros
-     */
-    public List<Libro> findAllLibros(){
-        return libroRepository.findAll();
-    }
-
+    /** ACTUALIZACIÓN DE LIBROS **/
     /**
      * Método para actualizar un libro en la base de datos
      * @param libro
@@ -72,6 +83,34 @@ public class LibroService {
 
         return libroRepository.save(existente); // Esto actualiza, no crea nuevo
     }
+
+    /**
+     * Método para actualizar un libro DTO
+     * @param id del libro
+     * @param updatedLibroDTO que se quiere actualizar
+     * @return libro actualizado si existe libro y null si no existe
+     */
+    public LibroDTO updateLibroAPI(Long id, LibroDTO updatedLibroDTO) {
+        Optional<Libro> libroOptional = libroRepository.findById(id);
+        if (libroOptional.isPresent()) {
+            Libro libro = libroOptional.get();
+            libro.setTituloLibro(updatedLibroDTO.getTituloLibro());
+            libro.setFormato(updatedLibroDTO.getFormato());
+            libro.setCopias(updatedLibroDTO.getCopias());
+            libro.setPaginas(updatedLibroDTO.getPaginas());
+
+            // Actualizamos el proyecto si es necesario
+            if (updatedLibroDTO.getProyecto() != null) {
+                libro.setProyecto(updatedLibroDTO.getProyecto().toEntity());
+            }
+
+            libro = libroRepository.save(libro);
+            return new LibroDTO(libro);
+        }
+        return null; // Si no existe el libro
+    }
+
+    /** ELIMINACIÓN DE LIBROS**/
 
     /**
      * Método para eliminar un libro por su ID
@@ -101,74 +140,69 @@ public class LibroService {
     }
 
     /**
+     * Método para eliminar un Libro DTO
+     * @param id del libro
+     */
+    public void deleteLibroByIdAPI(Long id) {
+        libroRepository.deleteById(id);
+    }
+
+    /** BÚSQUEDAS **/
+
+    /**
+     * Método para obtener el libro por su ID
+     * @param id
+     * @return libro
+     */
+    public Libro findLibroById(Long id)throws Exception {
+
+        return libroRepository.findById(id)
+                .orElseThrow(() -> new Exception("Proyecto not found with id " + id));
+    }
+
+    /**
+     * Método para obtener todos los libros
+     * @return una lista con todos los libros
+     */
+    public List<Libro> findAllLibros(){
+        return libroRepository.findAll();
+    }
+
+
+    /**
      * Método obtener libros por país.
      * Devuelve una lista de libros acorde con el país
      * @param pais
      * @return
      */
-    List<Libro> findLibrosByPais(String pais){
+    public List<Libro> obtenerLibrosPorPais(String pais) {
         return libroRepository.findLibrosByPais(pais);
     }
 
 
-    // Crear un nuevo libro desde DTO
-    public LibroDTO createLibroFromDTOAPI(LibroDTO libroDTO) {
-        Libro libro = new Libro();
-        libro.setTituloLibro(libroDTO.getTituloLibro());
-        libro.setFormato(libroDTO.getFormato());
-        libro.setCopias(libroDTO.getCopias());
-        libro.setPaginas(libroDTO.getPaginas());
-
-        // Si el DTO tiene un proyecto, lo seteamos
-        if (libroDTO.getProyecto() != null) {
-            libro.setProyecto(libroDTO.getProyecto().toEntity());
-        }
-
-        libro = libroRepository.save(libro);
-        return new LibroDTO(libro);
-    }
-
-    // Obtener todos los libros en formato DTO
+    /**
+     * Método para obtener todos los libros DTO
+     * @return lista de libros DTO
+     */
     public List<LibroDTO> getAllLibrosDTOAPI() {
         List<Libro> libros = libroRepository.findAll();
         return libros.stream().map(LibroDTO::new).collect(Collectors.toList());
     }
 
-    // Obtener un libro por ID en formato DTO
+    /**
+     * Método para obtener libros DTO por ID
+     * @param id del libro DTO
+     * @return libro encontrado o null si no lo encuentra
+     */
     public LibroDTO findLibroByIdAPI(Long id) {
         Optional<Libro> libro = libroRepository.findById(id);
         return libro.map(LibroDTO::new).orElse(null);
     }
 
-    // Actualizar un libro por ID
-    public LibroDTO updateLibroAPI(Long id, LibroDTO updatedLibroDTO) {
-        Optional<Libro> libroOptional = libroRepository.findById(id);
-        if (libroOptional.isPresent()) {
-            Libro libro = libroOptional.get();
-            libro.setTituloLibro(updatedLibroDTO.getTituloLibro());
-            libro.setFormato(updatedLibroDTO.getFormato());
-            libro.setCopias(updatedLibroDTO.getCopias());
-            libro.setPaginas(updatedLibroDTO.getPaginas());
 
-            // Actualizamos el proyecto si es necesario
-            if (updatedLibroDTO.getProyecto() != null) {
-                libro.setProyecto(updatedLibroDTO.getProyecto().toEntity());
-            }
 
-            libro = libroRepository.save(libro);
-            return new LibroDTO(libro);
-        }
-        return null; // Si no existe el libro
-    }
 
-    // Eliminar un libro por ID
-    public void deleteLibroByIdAPI(Long id) {
-        libroRepository.deleteById(id);
-    }
 
-    public List<Libro> obtenerLibrosPorPais(String pais) {
-        return libroRepository.findLibrosByPais(pais);
-    }
 
     public List<Libro> findAll() {
         return libroRepository.findAll();

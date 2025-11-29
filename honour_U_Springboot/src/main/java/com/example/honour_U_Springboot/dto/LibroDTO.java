@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Clase LibroDTO utilizada para las consultas API
+ * @author Natalia Fernández
+ * @version 1
  */
 public class LibroDTO {
 

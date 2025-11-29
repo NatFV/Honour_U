@@ -26,6 +26,8 @@ public class ProyectoService {
     // Inyectamos la instancia de ProyectoRepository usando la anotación @Autowired
     private ProyectoRepository proyectoRepository;
 
+    /**CREACION DE PROYECTOS**/
+
     /**
      * Método para salvar un proyecto
      * @param proyecto recibido desde el formulario
@@ -63,34 +65,29 @@ public class ProyectoService {
         return proyectoRepository.save(proyecto);
     }
 
-    /**
-     * Método para buscar un proyecto por token
-     * @param tokenUrl es la url con identificador único que se utiliza para localizar el proyecto
-     * @return el proyecto encontrado si lo encuentra
-     */
-    public Proyecto findByTokenUrl(String tokenUrl) {
-        return proyectoRepository.findByTokenUrl(tokenUrl).orElse(null);
-    }
-
-
 
     /**
-     * Método findProyectoById, para obtener un proyecto por su ID
-     * @param id
-     * @return proyecto con el id correspondiente
+     * Método para crear un proyecto desde el DTO
+     * @param proyectoDTO que se desea crear
+     * @return proyecto DTO guardado con aportaciones
      */
-    public Proyecto findProyectoById(Long id) throws Exception {
-        return proyectoRepository.findById(id)
-                .orElseThrow(() -> new Exception("Proyecto not found with id " + id));
+    public ProyectoDTO createProyectoFromDTO(ProyectoDTO proyectoDTO) {
+
+        Proyecto proyecto = new Proyecto();
+        proyecto.setNombreProyecto(proyectoDTO.getNombreProyecto());
+        proyecto.setOrganizador(proyectoDTO.getOrganizador());
+        proyecto.setDescripcion(proyectoDTO.getDescripcion());
+        proyecto.setPlazoFinalizacion(proyectoDTO.getPlazoFinalizacion());
+
+        // NO copiamos urlProyecto → la genera saveProyecto()
+
+        // Delegamos generación de tokens + URLs + guardado
+        Proyecto guardado = saveProyecto(proyecto);
+
+        return new ProyectoDTO(guardado);
     }
 
-    /**
-     * Método findAllProyectos, para obtener todos los proyectos
-     * @return una lista con todos los proyectos
-     */
-    public List<Proyecto> findAllProyectos(){
-       return proyectoRepository.findAll();
-    }
+    /**ACTUALIZACIÓN DE PROYECTOS**/
 
     /**
      * Método para actualizar un proyecto en la base de datos
@@ -112,75 +109,9 @@ public class ProyectoService {
         return proyectoRepository.save(existente); // Esto actualiza, no crea nuevo
     }
 
-
     /**
-     * Método para eliminar un proyecto por su ID
-     * @param id para identificar el proyecto a eliminar
-     */
-    public void deleteProyectoById (Long id){
-        proyectoRepository.deleteById(id);
-    }
-
-    /**
-     * Método para encontrar el proyecto con más aportaciones
-     * @return proyecto con más aportaciones
-     */
-    public Proyecto findProyectoByMaxAportaciones(){
-        return proyectoRepository.findProyectoByMaxAportaciones();
-    }
-
-    /**
-     * Método para crear proyecto a partir del DTO
-     */
-    public ProyectoDTO createProyectoFromDTO(ProyectoDTO proyectoDTO) {
-        Proyecto proyecto = new Proyecto();
-        proyecto.setNombreProyecto(proyectoDTO.getNombreProyecto());
-        proyecto.setOrganizador(proyectoDTO.getOrganizador());
-        proyecto.setDescripcion(proyectoDTO.getDescripcion());
-        proyecto.setUrlProyecto(proyectoDTO.getUrlProyecto());
-        proyecto.setPlazoFinalizacion(proyectoDTO.getPlazoFinalizacion());
-
-        // Genera token para el panel si no existe
-        if (proyecto.getAdminToken() == null || proyecto.getAdminToken().isBlank()) {
-            proyecto.setAdminToken(java.util.UUID.randomUUID().toString());
-        }
-
-         //Genera token de aportaciones
-         if (proyecto.getTokenUrl() == null || proyecto.getTokenUrl().isBlank()) {
-             proyecto.setTokenUrl(java.util.UUID.randomUUID().toString());
-         }
-
-
-        Proyecto guardado = proyectoRepository.save(proyecto);
-        return new ProyectoDTO(guardado);
-    }
-
-    /**
-     * Método para mostrar todos los proyectos
-     */
-    public List<ProyectoDTO>getAllProyectosDTO(){
-        List<ProyectoDTO> proyectos = proyectoRepository.findAll().stream()
-                .map(ProyectoDTO::new)
-                .collect(Collectors.toList());
-        return proyectos != null ? proyectos : new ArrayList<>();
-    }
-
-    /**
-     * Método para encontrar los proyectos por ID
-     * @param id con el id del proyecto a buscar
-     * @return proyecto encontrado
-     * @throws Exception si no encuentra el proyecto
-     */
-    public ProyectoDTO findProyectoByIdAPI(Long id) throws Exception {
-        Proyecto proyecto = proyectoRepository.findById(id)
-                .orElseThrow(() -> new Exception("Proyecto no encontrado"));
-
-        return new ProyectoDTO(proyecto); // Suponiendo que el constructor de ProyectoDTO toma un Proyecto
-    }
-
-    /**
-     * Método para actualizar el proyecto
-     * @param id del proycto que se quiere actualizar
+     * Método para actualizar el proyecto DTO
+     * @param id del proyecto DTO que se quiere actualizar
      * @param updatedProyectoDTO datos del proyecto a actualizar
      * @return un proyecto actualizado para la API
      */
@@ -197,14 +128,106 @@ public class ProyectoService {
         return new ProyectoDTO(updatedProyecto); // Retornar el ProyectoDTO actualizado
     }
 
+    /**BORRADO DE PROYECTOS**/
+
+    /**
+     * Método para eliminar un proyecto por su ID
+     * @param id para identificar el proyecto a eliminar
+     */
+    public void deleteProyectoById (Long id){
+        proyectoRepository.deleteById(id);
+    }
+
+    /**BÚSQUEDAS**/
+
+    /**
+     * Método findProyectoById, para obtener un proyecto por su ID
+     * @param id
+     * @return proyecto con el id correspondiente
+     */
+    public Proyecto findProyectoById(Long id) throws Exception {
+        return proyectoRepository.findById(id)
+                .orElseThrow(() -> new Exception("Proyecto not found with id " + id));
+    }
+
+    /**
+     * Método para encontrar los proyectos DTO por ID
+     * @param id con el id del proyecto DTO a buscar
+     * @return proyecto DTO encontrado
+     * @throws Exception si no encuentra el proyecto
+     */
+    public ProyectoDTO findProyectoByIdAPI(Long id) throws Exception {
+        Proyecto proyecto = proyectoRepository.findById(id)
+                .orElseThrow(() -> new Exception("Proyecto no encontrado"));
+
+        return new ProyectoDTO(proyecto); // Suponiendo que el constructor de ProyectoDTO toma un Proyecto
+    }
+
+    /**
+     * Método findAllProyectos, para obtener todos los proyectos
+     * @return una lista con todos los proyectos
+     */
+    public List<Proyecto> findAllProyectos(){
+        return proyectoRepository.findAll();
+    }
+
+    /**
+     * Método para encontrar todos los proyectos DT
+     * @return lista de proyectos DTO encontrados
+     */
+    public List<ProyectoDTO>getAllProyectosDTO(){
+        List<ProyectoDTO> proyectos = proyectoRepository.findAll().stream()
+                .map(ProyectoDTO::new)
+                .collect(Collectors.toList());
+        return proyectos != null ? proyectos : new ArrayList<>();
+    }
 
 
+    /**BÚSQUEDAS ESPECIALES**/
 
-    //Método para buscar por adminToken
+    /**
+     * Método para buscar un proyecto por token de aportaciones
+     * @param tokenUrl es la url con identificador único que se utiliza para localizar el proyecto
+     * @return el proyecto encontrado si lo encuentra
+     */
+    public Proyecto findByTokenUrl(String tokenUrl) {
+        return proyectoRepository.findByTokenUrl(tokenUrl).orElse(null);
+    }
+
+    /**
+     * Método para encontrar proyecto por Token para panel de control
+     * @param adminToken token que se usa para crear URL delpanel de control
+     * @return proyecto
+     * @throws Exception si no lo encuentra
+     */
     public Proyecto findByAdminToken(String adminToken) throws Exception {
         return proyectoRepository.findByAdminToken(adminToken)
                 .orElseThrow(() -> new Exception("Proyecto no encontrado (adminToken)"));
     }
+
+
+
+
+
+
+
+    /**
+     * Método para encontrar el proyecto con más aportaciones
+     * @return proyecto con más aportaciones
+     */
+    public Proyecto findProyectoByMaxAportaciones(){
+        return proyectoRepository.findProyectoByMaxAportaciones();
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 }

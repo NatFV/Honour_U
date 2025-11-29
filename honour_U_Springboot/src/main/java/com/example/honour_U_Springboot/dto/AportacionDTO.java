@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Clase Aportación DTO utilizada para las consultas API
+ * @author Natalia
+ * @version 1
  */
 public class AportacionDTO {
     private Long aportacionId;

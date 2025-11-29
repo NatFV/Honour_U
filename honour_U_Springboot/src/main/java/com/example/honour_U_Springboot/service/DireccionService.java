@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 /**
  * Clase DireccionService
  * Maneja la lógica de negocio para la clase Direccion
+ * @author Natalia Fernandez
+ * @version 1
  */
 @Service
 public class DireccionService {
@@ -25,10 +27,13 @@ public class DireccionService {
     @Autowired
     private DestinatarioRepository destinatarioRepository;
 
+
+    /**MÉTODOS PARA LA CLASE DIRECCIÓN**/
+
     /**
      * Método para guardar la dirección en la base de datos.
      * @param direccion
-     * @return
+     * @return dirección salvada
      */
     public Direccion saveDireccion (Direccion direccion){
         //Llamamos al metodo save() de DestinatarioRepository, que guarda el destinatario
@@ -39,7 +44,7 @@ public class DireccionService {
     /**
      * Método para obtener la dirección por su ID
      * @param id
-     * @return dirección
+     * @return dirección encontrada o excepción
      */
     public Direccion findDireccionById(Long id) throws Exception {
         return direccionRepository.findById(id)
@@ -75,23 +80,17 @@ public class DireccionService {
         return direccionRepository.save(existente);
     }
 
-        /**
-         * Método para eliminar la dirección por su ID
-         * @param id
-         */
+    /**
+     * Método para eliminar la dirección por su ID
+     *
+     * @param id
+     */
     public void deleteDireccionById (Long id){
         direccionRepository.deleteById(id);
     }
 
 
-    /**
-     * Método para obtener las direcciones internacionales
-     *
-     * @return lista de direcciones que no son de España
-     */
-    public List<Direccion> obtenerDireccionesInternacionales(){
-        return direccionRepository.findByPaisNot("España");
-    }
+    /** MÉTODOS PARA LA CLASE DireccionDTO**/
 
     /**
      * Método para crear una dirección a partir del DTO
@@ -178,6 +177,18 @@ public class DireccionService {
         }
         direccionRepository.deleteById(id);
     }
+
+    /** OTROS MÉTODOS **/
+
+    /**
+     * Método para obtener las direcciones internacionales
+     *
+     * @return lista de direcciones que no son de España
+     */
+    public List<Direccion> obtenerDireccionesInternacionales(){
+        return direccionRepository.findByPaisNot("España");
+    }
+
 
     /**
      * Método contarLibrosPorPais
