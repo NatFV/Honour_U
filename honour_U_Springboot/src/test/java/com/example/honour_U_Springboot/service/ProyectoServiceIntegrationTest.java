@@ -13,9 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Prueba de integración completa: Servicio + Repositorio + BD H2
+ * @author Natalia Fernandez
+ * @version 1
  */
-@SpringBootTest  // 🔹 Carga todo el contexto de Spring Boot
-@ActiveProfiles("test")  // 🔹 Usa configuración de src/test/resources/application-test.properties
+@SpringBootTest  // Carga todo el contexto de Spring Boot
+@ActiveProfiles("test")  // Usa configuración de src/test/resources/application-test.properties
 class ProyectoServiceIntegrationTest {
 
     @Autowired

@@ -34,8 +34,10 @@ import java.util.*;
 public class PanelOrganizadorViewController {
     @Autowired private ProyectoService proyectoService;
     @Autowired private AportacionService aportacionService;
+    //SpringTemplateEngine -> motor de plantillas Thymleaf para renderizar HTML que
+    //luego pasa a un generador de PDF
     @Autowired private SpringTemplateEngine templateEngine;
-    @Autowired private ServletContext servletContext;
+
 
     /**
      * Método para mostrar panel de control que gestionará el organizador
@@ -132,7 +134,7 @@ public class PanelOrganizadorViewController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No pertenece a este proyecto");
         }
 
-        // Texto / flags (no tocar el tipo de página)
+        // Texto / flags
         a.setMensaje(form.getMensaje() == null ? "" : form.getMensaje());
         a.setRemitente((form.getRemitente() == null || form.getRemitente().isBlank()) ? "Anónimo" : form.getRemitente());
         a.setEsVisible(form.isEsVisible());
@@ -143,7 +145,7 @@ public class PanelOrganizadorViewController {
             List<String> nuevas = new ArrayList<>();
 
             if (a.getPageType() == Aportacion.PageType.PORTADA) {
-                // Reemplaza TODO lo que hubiera en /uploads/{token}/portada
+                // Reemplaza todo lo que hubiera en /uploads/{token}/portada
                 Path base = Paths.get(System.getProperty("user.dir"), "uploads", p.getTokenUrl(), "portada");
                 if (Files.exists(base)) {
                     Files.walk(base).sorted(Comparator.reverseOrder())

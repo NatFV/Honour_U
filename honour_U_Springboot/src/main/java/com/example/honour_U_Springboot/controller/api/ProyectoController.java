@@ -59,7 +59,7 @@ public class ProyectoController {
      * Método para buscar y obtener un proyecto a partir de su id
      * @param id, es el id que se proporciona para la búsqueda
      * @return un objeto correspondiente al proyecto con el id solicitado
-     * @throws Exception
+     * @throws Exception si no encuentra el proyecto
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProyectoDTO> findProyectoByIdAPI(@PathVariable Long id) throws Exception {

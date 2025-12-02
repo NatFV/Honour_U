@@ -7,6 +7,8 @@ import jakarta.validation.constraints.*;
  * Clase LibroWizardForm para recoger datos del formulario,
  * Incluye información que no es parte del Libro, como dirección o checkboxes de envío.
  * Así se evita que se modifiquen más campos de los permitidos
+ * @author Natalia Fernández
+ * @version 1
  */
 public class LibroWizardForm {
 
@@ -17,8 +19,8 @@ public class LibroWizardForm {
     @Min(1) private int paginas = 1;
 
     // Nuevos flags (checkboxes)
-    private boolean envioEmail;   // ☐ Enviar por email
-    private boolean envioFisico;  // ☐ Crear libro físico
+    private boolean envioEmail;
+    private boolean envioFisico;
 
     // Email (si envioEmail)
     @Email private String email;
