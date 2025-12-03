@@ -38,7 +38,7 @@
         <h2 class="mb-0" th:text="${proyecto.nombreProyecto}">Proyecto</h2>
     </div>
 
-    <p class="mb-3">Arrastra para reordenar las páginas y pulsa “Guardar orden”.</p>
+    <p class="mb-3 text-white">Arrastra para reordenar las páginas y pulsa “Guardar orden”.</p>
 
     <div class="d-flex flex-wrap gap-2 mb-3">
         <!-- Configurar Portada -->
@@ -60,7 +60,7 @@
         </form>
     </div>
 
-    <!-- GRID de tarjetas (ADMIN) -->
+    <!-- GRID de tarjetas (ORGANIZADOR) -->
     <div id="grid-admin" class="grid" th:with="token=${proyecto.tokenUrl}">
         <div class="card-page handle"
              th:each="a : ${aportaciones}"
@@ -74,7 +74,7 @@
                 </div>
             </div>
 
-            <!-- Miniatura: primera media si existe -->
+            <!-- Miniatura: primera media (foto) si existe -->
             <div class="mb-2">
                 <img class="thumb"
                      th:if="${a.mediaUrls != null and a.mediaUrls.size() > 0}"
@@ -94,7 +94,7 @@
                     Editar
                 </a>
 
-                <!-- Eliminar (ADMIN) -->
+                <!-- Eliminar (ORGANIZADOR) -->
                 <form th:action="@{/proyectos/admin/{adminToken}/aportaciones/{id}/eliminar(adminToken=${proyecto.adminToken}, id=${a.aportacionId})}"
                       method="post" onsubmit="return confirm('¿Eliminar esta aportación?');" class="d-inline">
                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
@@ -114,7 +114,7 @@
 
 </section>
 
-<!-- ================== SCRIPTS SOLO DEL PANEL ================== -->
+<!-- ================== SCRIPTS ================== -->
 <th:block layout:fragment="scripts">
     <!-- Sortable solo aquí, no en la vista de usuario -->
     <!-- Se carga la libreía Sortable JS -->
@@ -128,7 +128,7 @@
             const btn  = document.getElementById('btnGuardarOrden');
             if (!grid || !btn) return;
 
-            // URL de guardado con adminToken
+            // URL de guardado con adminToken (token del panel de control)
             const ADMIN_TOKEN = /*[[${proyecto.adminToken}]]*/ "";
             const ORDEN_URL   = `/proyectos/admin/${ADMIN_TOKEN}/orden`;
 

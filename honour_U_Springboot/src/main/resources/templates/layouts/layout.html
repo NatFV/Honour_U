@@ -28,6 +28,7 @@
             overflow-x: hidden;
         }
 
+        /** Agrega una capa oscura encima del fondo para dar efecto profundidad*/
         body::before {
             content: "";
             position: absolute;
@@ -35,12 +36,13 @@
             background: rgba(0, 0, 0, 0.18);
             z-index: -1;
         }
-
+        /**Asegura que el contenido principal esté encima de la capa oscura*/
         .container {
             position: relative;
             z-index: 1;
         }
 
+        /**Estilo tarjetas del formulario */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -54,7 +56,7 @@
             color: #fff;
             border: none;
             font-weight: 500;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease; /**Suaviza el cambio cuando se pasa el ratón por encima del botón*/
         }
 
         .btn-accent:hover {
@@ -79,6 +81,7 @@
             text-decoration: underline;
         }
 
+        /* Hace que la página aparezca suavemente cuando se carga */
         .fade-in {
             animation: fadeIn 1s ease-in;
         }
@@ -87,7 +90,7 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Cards de aportaciones existentes - versión minimalista */
+        /** Estilos para tarjetas de aportaciones (sobreescribe al estilo anterior) */
         .row .card {
             background-color: #ffffff; /* fondo blanco */
             color: #000000;            /* texto negro */
@@ -101,7 +104,7 @@
         }
 
         .row .card .card-text {
-            color: black; /* texto del mensaje en un gris oscuro */
+            color: black; /* texto del mensaje en negro */
         }
 
         .row .card .badge {

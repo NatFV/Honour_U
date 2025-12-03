@@ -27,7 +27,8 @@
 <section layout:fragment="content">
     <h2 class="mb-4 text-center">Editar Aportación</h2>
 
-    <!-- Importante: action condicional por adminMode -->
+    <!-- Acción del formulario depende de adminMode; los inputs ocultos mantienen
+     mensaje y remitente sin mostrarlos ni permitir editarlos. -->
     <form
             th:action="${adminMode} ?
             @{/proyectos/admin/{t}/aportaciones/{id}/editar(t=${proyecto.adminToken}, id=${aportacion.aportacionId})} :
@@ -64,7 +65,7 @@
         </div>
 
 
-        <!-- Input oculto que usará el JS (opcional: lo puede crear el script si prefieres) -->
+        <!-- Input oculto que usará el JS  -->
         <input type="file" name="imagenes" id="imagenesInput" multiple hidden
                accept="image/*,video/mp4,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav">
 

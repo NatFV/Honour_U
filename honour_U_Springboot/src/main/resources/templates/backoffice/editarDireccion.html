@@ -30,37 +30,37 @@
             <div class="row g-3">
 
                 <div class="col-md-6">
-                    <label class="form-label">Calle</label>
+                    <label class="form-label text-primary">Calle</label>
                     <input type="text" th:field="*{calle}" class="form-control" required>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Número</label>
+                    <label class="form-label text-primary">Número</label>
                     <input type="number" th:field="*{numero}" class="form-control" required>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Piso</label>
+                    <label class="form-label text-primary">Piso</label>
                     <input type="text" th:field="*{piso}" class="form-control" required>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Letra</label>
+                    <label class="form-label text-primary">Letra</label>
                     <input type="text" th:field="*{letra}" class="form-control" required>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Código Postal</label>
+                    <label class="form-label text-primary">Código Postal</label>
                     <input type="text" th:field="*{codigoPostal}" class="form-control">
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">País</label>
+                    <label class="form-label text-primary">País</label>
                     <input type="text" th:field="*{pais}" class="form-control">
                 </div>
 
                 <div class="col-12">
-                    <label class="form-label">Destinatario</label>
+                    <label class="form-label text-primary">Destinatario</label>
                     <input type="text" class="form-control" th:value="${direccion.destinatario.nombre}" readonly />
                 </div>
 
