@@ -9,6 +9,7 @@ import com.example.honour_U_Springboot.repository.DestinatarioRepository;
 import com.example.honour_U_Springboot.repository.LibroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,11 +86,24 @@ public class DestinatarioService {
 
         /**
          * Método para eliminar un destinatario por su ID
-         * @param id
+         * @param id del destinatario
+         * Rompe la relación con el libro antes de borrarse
          */
-    public void deleteDestinatarioById (Long id){
-        destinatarioRepository.deleteById(id);
-    }
+        @Transactional
+        public void deleteDestinatarioById(Long id) {
+            Destinatario dest = destinatarioRepository.findById(id).orElse(null);
+            if (dest != null) {
+
+                // Romper la relación libro ↔ destinatario
+                Libro libro = dest.getLibro();
+                if (libro != null) {
+                    libro.setDestinatario(null); // rompe lado de Libro
+                    dest.setLibro(null);         // rompe lado de Destinatario
+                }
+
+                destinatarioRepository.delete(dest);
+            }
+        }
 
 
     /** MÉTODOS PARA DESTINATARIO DTO**/

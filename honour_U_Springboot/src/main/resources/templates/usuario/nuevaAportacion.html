@@ -195,7 +195,10 @@
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${a.remitente}">Remitente</h5>
-                    <p class="card-text small text-muted" th:if="${a.esVisible}" th:text="${a.mensaje}">Mensaje…</p>
+                    <p class="card-text small text-muted"
+                       th:if="${a.esVisible} or (${a.ownerKey} == ${session['ownerKey:' + proyecto.tokenUrl]})"
+                       th:text="${a.mensaje}">
+                    </p>
 
                     <!-- ENLACE SOLO PARA VISITANTES (NO DUEÑOS) -->
                     <div th:if="${a.esVisible} and (${a.ownerKey} != ${session['ownerKey:' + proyecto.tokenUrl]})" class="mb-2">
